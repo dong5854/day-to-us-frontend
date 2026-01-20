@@ -57,7 +57,7 @@ function App() {
 
   // Data Hooks
 
-  const { space, createSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
+  const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
   const {
     entries,
     loading: budgetLoading,
@@ -99,6 +99,17 @@ function App() {
       setCurrentModule('dashboard')
     } catch (error) {
       showToast('공간 생성에 실패했습니다', 'error')
+    }
+  }
+
+  const handleJoinSpace = async (code: string) => {
+    try {
+      const joinedSpace = await joinSpace(code)
+      setIsSpaceFormOpen(false)
+      showToast(`'${joinedSpace.name}' 공간에 참여했습니다!`, 'success')
+      setCurrentModule('dashboard')
+    } catch (error) {
+      showToast('공간 참여에 실패했습니다', 'error')
     }
   }
 
@@ -207,7 +218,11 @@ function App() {
         ) : (
           <>
             {currentModule === 'dashboard' ? (
-              <SpaceDashboard onNavigate={setCurrentModule} />
+              <SpaceDashboard 
+                onNavigate={setCurrentModule}
+                space={space}
+                members={members}
+              />
             ) : (
               <>
                 <div className="animate-[slide-up_0.3s_ease-out]">
@@ -246,6 +261,7 @@ function App() {
       <Modal isOpen={isSpaceFormOpen} onClose={() => setIsSpaceFormOpen(false)}>
         <SpaceForm
           onSubmit={handleCreateSpace}
+          onJoin={handleJoinSpace}
           onCancel={() => setIsSpaceFormOpen(false)}
         />
       </Modal>
