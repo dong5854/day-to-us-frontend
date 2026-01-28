@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { useSpace } from './features/space/hooks/useSpace'
 import { useBudget } from './features/budget/hooks/useBudget'
 import { useFixedExpense } from './features/fixedExpense/hooks/useFixedExpense'
+import { useSchedule } from './features/schedule/hooks/useSchedule'
 import { CalendarPage } from './pages/CalendarPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { SpaceForm } from './features/space/components/SpaceForm'
@@ -10,6 +11,7 @@ import { LoginPage } from './features/auth/components/LoginPage'
 import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
 import { Toast, type ToastType } from './shared/components/Toast'
+import type { ScheduleRequest } from './features/schedule/types/schedule.types'
 
 function AppContent() {
   const navigate = useNavigate()
@@ -69,6 +71,13 @@ function AppContent() {
     loading: fixedExpenseLoading,
     createExpense: createFixedExpense,
   } = useFixedExpense(space?.id || null)
+  const {
+    schedules,
+    loading: scheduleLoading,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
+  } = useSchedule(space?.id || null)
 
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false)
 
@@ -100,7 +109,7 @@ function AppContent() {
     }
   }
 
-  const handleCreateEntry = async (data: { description: string; amount: number }) => {
+  const handleCreateEntry = async (data: { description: string; amount: number; date: string }) => {
     try {
       await createEntry(data)
       showToast('내역이 추가되었습니다', 'success')
@@ -110,7 +119,7 @@ function AppContent() {
     }
   }
 
-  const handleUpdateEntry = async (id: string, data: { description: string; amount: number }) => {
+  const handleUpdateEntry = async (id: string, data: { description: string; amount: number; date: string }) => {
     try {
       await updateEntry(id, data)
       showToast('항목이 수정되었습니다', 'success')
@@ -136,6 +145,36 @@ function AppContent() {
       showToast('고정지출이 추가되었습니다', 'success')
     } catch (error) {
       showToast('저장에 실패했습니다', 'error')
+      throw error
+    }
+  }
+
+  const handleCreateSchedule = async (data: ScheduleRequest) => {
+    try {
+      await createSchedule(data)
+      showToast('일정이 추가되었습니다', 'success')
+    } catch (error) {
+      showToast('일정 추가에 실패했습니다', 'error')
+      throw error
+    }
+  }
+
+  const handleUpdateSchedule = async (id: string, data: ScheduleRequest) => {
+    try {
+      await updateSchedule(id, data)
+      showToast('일정이 수정되었습니다', 'success')
+    } catch (error) {
+      showToast('일정 수정에 실패했습니다', 'error')
+      throw error
+    }
+  }
+
+  const handleDeleteSchedule = async (id: string) => {
+    try {
+      await deleteSchedule(id)
+      showToast('일정이 삭제되었습니다', 'success')
+    } catch (error) {
+      showToast('일정 삭제에 실패했습니다', 'error')
       throw error
     }
   }
@@ -211,6 +250,11 @@ function AppContent() {
               fixedExpenses={fixedExpenses}
               fixedExpenseLoading={fixedExpenseLoading}
               onCreateFixedExpense={handleCreateFixedExpense}
+              schedules={schedules}
+              scheduleLoading={scheduleLoading}
+              onCreateSchedule={handleCreateSchedule}
+              onUpdateSchedule={handleUpdateSchedule}
+              onDeleteSchedule={handleDeleteSchedule}
             />
           }
         />
@@ -233,6 +277,11 @@ function AppContent() {
               fixedExpenses={fixedExpenses}
               fixedExpenseLoading={fixedExpenseLoading}
               onCreateFixedExpense={handleCreateFixedExpense}
+              schedules={schedules}
+              scheduleLoading={scheduleLoading}
+              onCreateSchedule={handleCreateSchedule}
+              onUpdateSchedule={handleUpdateSchedule}
+              onDeleteSchedule={handleDeleteSchedule}
             />
           }
         />

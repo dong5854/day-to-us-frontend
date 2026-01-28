@@ -13,7 +13,6 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   const location = useLocation()
   
   const isSettingsPage = location.pathname === '/settings'
-  const isRootPage = location.pathname === '/'
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -31,13 +30,8 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
               )}
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  {isSettingsPage ? '설정' : '달력'}
+                  {isSettingsPage ? '설정' : hasSpace && space ? space.name : '달력'}
                 </h1>
-                {hasSpace && space && isRootPage && (
-                  <span className="text-sm opacity-90 font-medium flex items-center gap-1 mt-1">
-                    🏠 {space.name}
-                  </span>
-                )}
               </div>
             </div>
 

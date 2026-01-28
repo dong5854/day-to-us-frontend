@@ -3,10 +3,13 @@ import { BudgetList } from '@/features/budget/components/BudgetList'
 import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
+import { ScheduleList } from '@/features/schedule/components/ScheduleList'
+import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
+import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
 type ViewType = 'calendar' | 'list'
 type FilterType = 'all' | 'budget' | 'schedule'
@@ -18,12 +21,17 @@ interface Props {
   totalIncome: number
   totalExpense: number
   balance: number
-  onCreateEntry: (data: { description: string; amount: number }) => Promise<void>
-  onUpdateEntry: (id: string, data: { description: string; amount: number }) => Promise<void>
+  onCreateEntry: (data: { description: string; amount: number; date: string }) => Promise<void>
+  onUpdateEntry: (id: string, data: { description: string; amount: number; date: string }) => Promise<void>
   onDeleteEntry: (id: string) => Promise<void>
   fixedExpenses: FixedExpenseResponse[]
   fixedExpenseLoading: boolean
   onCreateFixedExpense: (data: FixedExpenseRequest) => Promise<void>
+  schedules: ScheduleResponse[]
+  scheduleLoading: boolean
+  onCreateSchedule: (data: ScheduleRequest) => Promise<void>
+  onUpdateSchedule: (id: string, data: ScheduleRequest) => Promise<void>
+  onDeleteSchedule: (id: string) => Promise<void>
 }
 
 export const CalendarPage: FC<Props> = ({
@@ -38,6 +46,11 @@ export const CalendarPage: FC<Props> = ({
   fixedExpenses,
   fixedExpenseLoading,
   onCreateFixedExpense,
+  schedules,
+  scheduleLoading,
+  onCreateSchedule,
+  onUpdateSchedule,
+  onDeleteSchedule,
 }) => {
   const [viewType, setViewType] = useState<ViewType>('calendar')
   const [filterType, setFilterType] = useState<FilterType>('all')
@@ -45,7 +58,11 @@ export const CalendarPage: FC<Props> = ({
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
+  const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<BudgetEntryResponse | null>(null)
+  const [editingSchedule, setEditingSchedule] = useState<ScheduleResponse | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [isDateChoiceModalOpen, setIsDateChoiceModalOpen] = useState(false)
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean
     message: string
@@ -69,6 +86,19 @@ export const CalendarPage: FC<Props> = ({
 
   const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentDate)
 
+  const getEntriesForDate = (year: number, month: number, day: number) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    return entries.filter((entry) => entry.date === dateStr)
+  }
+
+  const getSchedulesForDate = (year: number, month: number, day: number) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    return schedules.filter((schedule) => {
+      const scheduleDate = schedule.startDateTime.split('T')[0]
+      return scheduleDate === dateStr
+    })
+  }
+
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
   }
@@ -77,7 +107,26 @@ export const CalendarPage: FC<Props> = ({
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
   }
 
+  const handleDateClick = (year: number, month: number, day: number) => {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    setSelectedDate(dateStr)
+    setIsDateChoiceModalOpen(true)
+  }
+
+  const handleChoiceBudget = () => {
+    setIsDateChoiceModalOpen(false)
+    setEditingEntry(null)
+    setIsBudgetFormOpen(true)
+  }
+
+  const handleChoiceSchedule = () => {
+    setIsDateChoiceModalOpen(false)
+    setEditingSchedule(null)
+    setIsScheduleFormOpen(true)
+  }
+
   const handleAddEntry = () => {
+    setSelectedDate(null)
     setEditingEntry(null)
     setIsBudgetFormOpen(true)
   }
@@ -87,7 +136,7 @@ export const CalendarPage: FC<Props> = ({
     setIsBudgetFormOpen(true)
   }
 
-  const handleSubmitEntry = async (data: { description: string; amount: number }) => {
+  const handleSubmitEntry = async (data: { description: string; amount: number; date: string }) => {
     if (editingEntry) {
       await onUpdateEntry(editingEntry.id, data)
     } else {
@@ -117,6 +166,37 @@ export const CalendarPage: FC<Props> = ({
     setIsFixedExpenseFormOpen(false)
   }
 
+  const handleAddSchedule = () => {
+    setEditingSchedule(null)
+    setIsScheduleFormOpen(true)
+  }
+
+  const handleEditSchedule = (schedule: ScheduleResponse) => {
+    setEditingSchedule(schedule)
+    setIsScheduleFormOpen(true)
+  }
+
+  const handleSubmitSchedule = async (data: ScheduleRequest) => {
+    if (editingSchedule) {
+      await onUpdateSchedule(editingSchedule.id, data)
+    } else {
+      await onCreateSchedule(data)
+    }
+    setIsScheduleFormOpen(false)
+    setEditingSchedule(null)
+  }
+
+  const handleDeleteSchedule = (scheduleId: string) => {
+    setConfirmState({
+      isOpen: true,
+      message: '정말 이 일정을 삭제하시겠습니까?',
+      onConfirm: async () => {
+        await onDeleteSchedule(scheduleId)
+        setConfirmState((prev) => ({ ...prev, isOpen: false }))
+      },
+    })
+  }
+
   return (
     <>
       {/* View Toggle & Filters */}
@@ -135,7 +215,10 @@ export const CalendarPage: FC<Props> = ({
               📅 달력
             </button>
             <button
-              onClick={() => setViewType('list')}
+              onClick={() => {
+                setViewType('list')
+                setFilterType('budget')
+              }}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 viewType === 'list'
                   ? 'bg-white text-gray-900 shadow-sm'
@@ -171,14 +254,13 @@ export const CalendarPage: FC<Props> = ({
               </button>
               <button
                 onClick={() => setFilterType('schedule')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors opacity-50 cursor-not-allowed ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   filterType === 'schedule'
                     ? 'bg-green-500 text-white'
-                    : 'bg-gray-100 text-gray-600'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                disabled
               >
-                📅 일정 (준비중)
+                📅 일정
               </button>
             </div>
           )}
@@ -243,16 +325,21 @@ export const CalendarPage: FC<Props> = ({
                   month === new Date().getMonth() &&
                   year === new Date().getFullYear()
                 const dayOfWeek = (startingDayOfWeek + index) % 7
+                const dayEntries = getEntriesForDate(year, month, day)
+                const daySchedules = getSchedulesForDate(year, month, day)
+                const hasEntries = dayEntries.length > 0
+                const hasSchedules = daySchedules.length > 0
 
                 return (
                   <div
                     key={day}
-                    className={`aspect-square border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors ${
+                    onClick={() => handleDateClick(year, month, day)}
+                    className={`aspect-square border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors overflow-hidden cursor-pointer ${
                       isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
                     }`}
                   >
                     <div
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-medium mb-1 ${
                         isToday
                           ? 'text-blue-600'
                           : dayOfWeek === 0
@@ -264,14 +351,57 @@ export const CalendarPage: FC<Props> = ({
                     >
                       {day}
                     </div>
-                    {/* Future: Display budget entries and schedules based on filterType */}
+                    
+                    {/* Display budget entries */}
+                    {hasEntries && (filterType === 'all' || filterType === 'budget') && (
+                      <div className="space-y-0.5">
+                        {dayEntries.slice(0, 2).map((entry) => (
+                          <div
+                            key={entry.id}
+                            className={`text-xs truncate px-1 py-0.5 rounded ${
+                              entry.amount > 0
+                                ? 'bg-green-50 text-green-700'
+                                : 'bg-red-50 text-red-700'
+                            }`}
+                            title={`${entry.description}: ${entry.amount > 0 ? '+' : ''}${entry.amount.toLocaleString()}원`}
+                          >
+                            {entry.description}
+                          </div>
+                        ))}
+                        {dayEntries.length > 2 && (
+                          <div className="text-xs text-gray-400 px-1">
+                            +{dayEntries.length - 2}개
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Display schedules */}
+                    {hasSchedules && (filterType === 'all' || filterType === 'schedule') && (
+                      <div className="space-y-0.5 mt-1">
+                        {daySchedules.slice(0, 2).map((schedule) => (
+                          <div
+                            key={schedule.id}
+                            className="text-xs truncate px-1 py-0.5 rounded bg-purple-50 text-purple-700"
+                            title={`${schedule.title}${schedule.isAllDay ? ' (종일)' : ''}`}
+                          >
+                            📅 {schedule.title}
+                          </div>
+                        ))}
+                        {daySchedules.length > 2 && (
+                          <div className="text-xs text-gray-400 px-1">
+                            +{daySchedules.length - 2}개
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
             </div>
 
             <div className="mt-6 text-center text-sm text-gray-500">
-              💡 가계부 내역에 날짜 필드 추가 후 달력에 표시됩니다
+              ✅ 가계부 내역이 달력에 표시됩니다
             </div>
           </div>
         ) : (
@@ -293,10 +423,13 @@ export const CalendarPage: FC<Props> = ({
               </button>
               <button
                 onClick={() => setFilterType('schedule')}
-                className="pb-3 px-4 text-lg font-bold text-gray-300 cursor-not-allowed"
-                disabled
+                className={`pb-3 px-4 text-lg font-bold transition-colors ${
+                  filterType === 'schedule'
+                    ? 'text-gray-900 border-b-2 border-[#667eea]'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
               >
-                📅 일정 (준비중)
+                📅 일정
               </button>
             </div>
 
@@ -342,9 +475,14 @@ export const CalendarPage: FC<Props> = ({
               </>
             )}
 
-            {/* Schedule content (placeholder) */}
+            {/* Schedule content */}
             {filterType === 'schedule' && (
-              <div className="text-center py-12 text-gray-400">일정 기능 준비 중...</div>
+              <ScheduleList
+                schedules={schedules}
+                loading={scheduleLoading}
+                onEdit={handleEditSchedule}
+                onDelete={handleDeleteSchedule}
+              />
             )}
           </>
         )}
@@ -355,22 +493,50 @@ export const CalendarPage: FC<Props> = ({
         onClick={
           viewType === 'list' && filterType === 'budget' && budgetSubTab === 'fixed'
             ? handleAddFixedExpense
+            : viewType === 'list' && filterType === 'schedule'
+            ? handleAddSchedule
             : handleAddEntry
         }
         className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
         title={
           viewType === 'list' && filterType === 'budget' && budgetSubTab === 'fixed'
             ? '고정지출 추가'
+            : viewType === 'list' && filterType === 'schedule'
+            ? '일정 추가'
             : '항목 추가'
         }
       >
         +
       </button>
 
+      {/* Date Choice Modal */}
+      <Modal isOpen={isDateChoiceModalOpen} onClose={() => setIsDateChoiceModalOpen(false)}>
+        <div className="bg-white p-8 rounded-lg">
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">무엇을 추가하시겠어요?</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={handleChoiceBudget}
+              className="p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-center"
+            >
+              <div className="text-4xl mb-2">💰</div>
+              <div className="text-lg font-semibold text-gray-900">수입/지출</div>
+            </button>
+            <button
+              onClick={handleChoiceSchedule}
+              className="p-6 rounded-lg border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition-all text-center"
+            >
+              <div className="text-4xl mb-2">📅</div>
+              <div className="text-lg font-semibold text-gray-900">일정</div>
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Budget Entry Form Modal */}
       <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           entry={editingEntry}
+          initialDate={selectedDate}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
         />
@@ -381,6 +547,16 @@ export const CalendarPage: FC<Props> = ({
         <FixedExpenseForm
           onSubmit={handleSubmitFixedExpense}
           onCancel={() => setIsFixedExpenseFormOpen(false)}
+        />
+      </Modal>
+
+      {/* Schedule Form Modal */}
+      <Modal isOpen={isScheduleFormOpen} onClose={() => setIsScheduleFormOpen(false)}>
+        <ScheduleForm
+          schedule={editingSchedule}
+          initialDate={selectedDate}
+          onSubmit={handleSubmitSchedule}
+          onCancel={() => setIsScheduleFormOpen(false)}
         />
       </Modal>
 

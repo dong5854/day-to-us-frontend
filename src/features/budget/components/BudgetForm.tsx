@@ -3,13 +3,15 @@ import type { BudgetEntryRequest, BudgetEntryResponse } from '../types/budget.ty
 
 interface Props {
   entry?: BudgetEntryResponse | null
+  initialDate?: string | null
   onSubmit: (data: BudgetEntryRequest) => Promise<void>
   onCancel: () => void
 }
 
-export const BudgetForm: FC<Props> = ({ entry, onSubmit, onCancel }) => {
+export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }) => {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]) // YYYY-MM-DD
   const [isIncome, setIsIncome] = useState(true)
   const [loading, setLoading] = useState(false)
 
@@ -17,9 +19,12 @@ export const BudgetForm: FC<Props> = ({ entry, onSubmit, onCancel }) => {
     if (entry) {
       setDescription(entry.description)
       setAmount(Math.abs(entry.amount).toString())
+      setDate(entry.date)
       setIsIncome(entry.amount > 0)
+    } else if (initialDate) {
+      setDate(initialDate)
     }
-  }, [entry])
+  }, [entry, initialDate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -32,9 +37,11 @@ export const BudgetForm: FC<Props> = ({ entry, onSubmit, onCancel }) => {
       await onSubmit({
         description: description.trim(),
         amount: isIncome ? numAmount : -numAmount,
+        date,
       })
       setDescription('')
       setAmount('')
+      setDate(new Date().toISOString().split('T')[0])
       setIsIncome(true)
     } catch (error) {
       console.error(error)
@@ -89,6 +96,20 @@ export const BudgetForm: FC<Props> = ({ entry, onSubmit, onCancel }) => {
           onChange={(e) => setDescription(e.target.value)}
           required
           className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label htmlFor="date" className="block text-sm font-semibold text-gray-900 mb-2">
+          날짜
+        </label>
+        <input
+          id="date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
         />
       </div>
 

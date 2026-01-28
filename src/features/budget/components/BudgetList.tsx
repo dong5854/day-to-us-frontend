@@ -36,6 +36,41 @@ export const BudgetList: FC<Props> = ({
     )
   }
 
+  // Group entries by date
+  const groupedEntries = entries.reduce((groups, entry) => {
+    const date = entry.date
+    if (!groups[date]) {
+      groups[date] = []
+    }
+    groups[date].push(entry)
+    return groups
+  }, {} as Record<string, BudgetEntryResponse[]>)
+
+  // Sort dates descending (newest first)
+  const sortedDates = Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a))
+
+  const formatDateLabel = (dateString: string) => {
+    const date = new Date(dateString)
+    const today = new Date()
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+
+    const dateOnly = dateString
+    const todayStr = today.toISOString().split('T')[0]
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+    if (dateOnly === todayStr) return '오늘'
+    if (dateOnly === yesterdayStr) return '어제'
+
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+    const weekday = weekdays[date.getDay()]
+
+    return `${year}년 ${month}월 ${day}일 (${weekday})`
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -53,14 +88,24 @@ export const BudgetList: FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {entries.map(entry => (
-          <BudgetCard
-            key={entry.id}
-            entry={entry}
-            onEdit={() => onEdit(entry)}
-            onDelete={() => onDelete(entry.id)}
-          />
+      <div className="flex flex-col gap-6">
+        {sortedDates.map((date) => (
+          <div key={date}>
+            <div className="flex items-center gap-3 mb-3">
+              <h3 className="text-lg font-bold text-gray-900">{formatDateLabel(date)}</h3>
+              <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+            <div className="flex flex-col gap-3">
+              {groupedEntries[date].map((entry) => (
+                <BudgetCard
+                  key={entry.id}
+                  entry={entry}
+                  onEdit={() => onEdit(entry)}
+                  onDelete={() => onDelete(entry.id)}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </div>
