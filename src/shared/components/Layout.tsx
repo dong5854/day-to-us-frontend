@@ -12,8 +12,8 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   const navigate = useNavigate()
   const location = useLocation()
   
-  const isBudgetPage = location.pathname === '/budget'
-  const isDashboardPage = location.pathname === '/'
+  const isSettingsPage = location.pathname === '/settings'
+  const isRootPage = location.pathname === '/'
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -21,7 +21,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {isBudgetPage && hasSpace && (
+              {isSettingsPage && hasSpace && (
                 <button
                   onClick={() => navigate('/')}
                   className="mr-1 p-1 rounded-full hover:bg-white/20 transition-colors"
@@ -31,15 +31,26 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
               )}
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  {isBudgetPage ? '가계부' : 'Day To Us'}
+                  {isSettingsPage ? '설정' : '달력'}
                 </h1>
-                {hasSpace && space && isDashboardPage && (
+                {hasSpace && space && isRootPage && (
                   <span className="text-sm opacity-90 font-medium flex items-center gap-1 mt-1">
                     🏠 {space.name}
                   </span>
                 )}
               </div>
             </div>
+
+            {/* Settings Button */}
+            {!isSettingsPage && hasSpace && (
+              <button
+                onClick={() => navigate('/settings')}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                title="설정"
+              >
+                <span className="text-2xl">⚙️</span>
+              </button>
+            )}
           </div>
         </div>
       </header>

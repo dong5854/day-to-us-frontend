@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useSpace } from './features/space/hooks/useSpace'
 import { useBudget } from './features/budget/hooks/useBudget'
-import { DashboardPage } from './pages/DashboardPage'
-import { BudgetPage } from './pages/BudgetPage'
+import { useFixedExpense } from './features/fixedExpense/hooks/useFixedExpense'
+import { CalendarPage } from './pages/CalendarPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { SpaceForm } from './features/space/components/SpaceForm'
 import { LoginPage } from './features/auth/components/LoginPage'
 import { Layout } from './shared/components/Layout'
@@ -63,6 +64,11 @@ function AppContent() {
     totalExpense,
     balance,
   } = useBudget(space?.id || null)
+  const {
+    expenses: fixedExpenses,
+    loading: fixedExpenseLoading,
+    createExpense: createFixedExpense,
+  } = useFixedExpense(space?.id || null)
 
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false)
 
@@ -120,6 +126,16 @@ function AppContent() {
       showToast('삭제되었습니다', 'info')
     } catch (error) {
       showToast('삭제에 실패했습니다', 'error')
+      throw error
+    }
+  }
+
+  const handleCreateFixedExpense = async (data: any) => {
+    try {
+      await createFixedExpense(data)
+      showToast('고정지출이 추가되었습니다', 'success')
+    } catch (error) {
+      showToast('저장에 실패했습니다', 'error')
       throw error
     }
   }
@@ -183,17 +199,7 @@ function AppContent() {
         <Route
           path="/"
           element={
-            <DashboardPage
-              space={space}
-              members={members}
-              onNavigate={(module) => navigate(`/${module}`)}
-            />
-          }
-        />
-        <Route
-          path="/budget"
-          element={
-            <BudgetPage
+            <CalendarPage
               entries={entries}
               loading={budgetLoading}
               totalIncome={totalIncome}
@@ -202,6 +208,31 @@ function AppContent() {
               onCreateEntry={handleCreateEntry}
               onUpdateEntry={handleUpdateEntry}
               onDeleteEntry={handleDeleteEntry}
+              fixedExpenses={fixedExpenses}
+              fixedExpenseLoading={fixedExpenseLoading}
+              onCreateFixedExpense={handleCreateFixedExpense}
+            />
+          }
+        />
+        <Route
+          path="/settings"
+          element={<SettingsPage space={space} members={members} />}
+        />
+        <Route
+          path="/budget"
+          element={
+            <CalendarPage
+              entries={entries}
+              loading={budgetLoading}
+              totalIncome={totalIncome}
+              totalExpense={totalExpense}
+              balance={balance}
+              onCreateEntry={handleCreateEntry}
+              onUpdateEntry={handleUpdateEntry}
+              onDeleteEntry={handleDeleteEntry}
+              fixedExpenses={fixedExpenses}
+              fixedExpenseLoading={fixedExpenseLoading}
+              onCreateFixedExpense={handleCreateFixedExpense}
             />
           }
         />
