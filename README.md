@@ -14,17 +14,23 @@
 ## ✨ 주요 기능
 
 ### 1차 기능 (MVP)
-- 🏠 **공간 관리**
+- 🏠 **공간 관리 (Space)**
   - 공간 생성 및 초대 코드로 참여
   - 커플 전용 프라이빗 공간
-- 💰 **공동 가계부**
+- 💰 **공동 가계부 (Budget)**
   - 수입/지출 기록 및 관리
   - 카테고리별 지출 분석
   - 월별 예산 설정 및 추적
   - 커플 간 실시간 동기화
+- 💳 **고정 지출 (Fixed Expense)**
+  - 정기 지출 항목 관리
+  - 고정 지출 일정 자동 반영
+- 📅 **일정 관리 (Schedule)**
+  - 커플 일정 공유 및 동기화
+  - 월별/일별 캘린더 뷰
+  - 일정 카테고리 분류
 
 ### 향후 확장 계획
-- 📅 일정 공유 및 관리
 - 📸 사진/추억 앨범
 - 🎂 기념일 알림
 - 🎁 위시리스트
@@ -68,17 +74,20 @@ npm run lint
 ```
 src/
 ├── features/
-│   └── budget/         # 가계부 기능
-│       ├── api/        # API 클라이언트
-│       ├── components/ # 가계부 컴포넌트
-│       ├── hooks/      # 커스텀 hooks
-│       └── types/      # 타입 정의
+│   ├── auth/           # 인증 기능
+│   ├── budget/         # 가계부 기능
+│   ├── fixedExpense/   # 고정 지출 기능
+│   ├── schedule/       # 일정 관리 기능
+│   └── space/          # 공간 관리 기능
+├── pages/              # 페이지 컴포넌트 (라우트 단위)
 ├── shared/
 │   ├── api/            # 공통 API 설정
 │   ├── components/     # 공통 UI 컴포넌트
+│   ├── hooks/          # 공통 Custom Hooks
 │   ├── styles/         # 디자인 시스템
 │   └── utils/          # 유틸리티 함수
 ├── App.tsx             # 메인 컴포넌트
+├── index.css           # 전역 스타일
 └── main.tsx            # 엔트리 포인트
 ```
 
@@ -86,19 +95,21 @@ src/
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| React | 19.2.0 | UI framework |
-| TypeScript | 5.9.3 | Type safety |
-| Vite | 7.3.1 | Build tool |
-| vite-plugin-pwa | 1.2.0 | PWA support |
-| axios | 1.7.9 | HTTP client |
-| date-fns | 4.1.0 | Date utility |
-| ESLint | 9.39.1 | Code quality |
+| React | ^19.2.0 | UI framework |
+| TypeScript | ~5.9.3 | Type safety |
+| Vite | ^7.2.4 | Build tool |
+| Tailwind CSS | ^4.1.18 | Utility-first CSS |
+| React Router | ^7.12.0 | Routing |
+| vite-plugin-pwa | ^1.2.0 | PWA support |
+| axios | ^1.13.2 | HTTP client |
+| date-fns | ^4.1.0 | Date utility |
+| ESLint | ^9.39.1 | Code quality |
 
 ## 🎨 Design
 
 - **Color Theme**: Blue-Purple Gradient (#667eea → #764ba2)
 - **Typography**: Inter (Google Fonts)
-- **Style**: Modern, Clean, Card-based Layout
+- **Style**: Modern, Clean, Card-based Layout (Tailwind CSS)
 
 ## 📝 Development Guidelines
 
@@ -123,6 +134,7 @@ src/
 
 - [Vite Documentation](https://vite.dev/)
 - [React Documentation](https://react.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [PWA Documentation](https://vite-pwa-org.netlify.app/)
 
