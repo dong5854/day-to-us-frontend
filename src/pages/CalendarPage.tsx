@@ -94,10 +94,110 @@ export const CalendarPage: FC<Props> = ({
   const getSchedulesForDate = (year: number, month: number, day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
     return schedules.filter((schedule) => {
-      const scheduleDate = schedule.startDateTime.split('T')[0]
-      return scheduleDate === dateStr
+      const scheduleStartDate = schedule.startDateTime.split('T')[0]
+      const scheduleEndDate = schedule.endDateTime.split('T')[0]
+      
+      // Check if the date falls within the schedule's date range
+      return dateStr >= scheduleStartDate && dateStr <= scheduleEndDate
     })
   }
+
+  // Calculate event bars for multi-day schedules
+  interface EventBar {
+    schedule: ScheduleResponse
+    weekIndex: number
+    startCol: number
+    span: number
+    rowOffset: number
+  }
+
+  const getScheduleEventBars = (): EventBar[] => {
+    if (filterType === 'budget') return []
+    
+    const bars: EventBar[] = []
+    const totalCells = startingDayOfWeek + daysInMonth
+    const weeks = Math.ceil(totalCells / 7)
+    
+    // Process each schedule
+    schedules.forEach((schedule) => {
+      const scheduleStart = new Date(schedule.startDateTime.split('T')[0])
+      const scheduleEnd = new Date(schedule.endDateTime.split('T')[0])
+      
+      // Only create bars for multi-day events
+      const daysDiff = Math.ceil((scheduleEnd.getTime() - scheduleStart.getTime()) / (1000 * 60 * 60 * 24))
+      if (daysDiff === 0) return // Skip single-day events
+      
+      // For each week, check if schedule appears
+      for (let weekIdx = 0; weekIdx < weeks; weekIdx++) {
+        const weekStartCell = weekIdx * 7
+        const weekEndCell = Math.min(weekStartCell + 6, totalCells - 1)
+        
+        // Calculate which day of month corresponds to each cell
+        const weekStartDay = weekStartCell - startingDayOfWeek + 1
+        const weekEndDay = weekEndCell - startingDayOfWeek + 1
+        
+        // Create date objects for this week's range
+        const weekStartDate = new Date(year, month, Math.max(1, weekStartDay))
+        const weekEndDate = new Date(year, month, Math.min(daysInMonth, weekEndDay))
+        
+        // Check if schedule overlaps with this week
+        if (scheduleEnd >= weekStartDate && scheduleStart <= weekEndDate) {
+          // Calculate start column (1-7) for this week
+          let startCol = 1
+          let span = 7
+          
+          if (scheduleStart >= weekStartDate) {
+            // Event starts this week
+            const dayInMonth = scheduleStart.getDate()
+            const cellIndex = dayInMonth - 1 + startingDayOfWeek
+            startCol = (cellIndex % 7) + 1
+          }
+          
+          if (scheduleEnd <= weekEndDate) {
+            // Event ends this week
+            const dayInMonth = scheduleEnd.getDate()
+            const cellIndex = dayInMonth - 1 + startingDayOfWeek
+            const endCol = (cellIndex % 7) + 1
+            span = endCol - startCol + 1
+          } else {
+            // Event continues past this week
+            span = 8 - startCol
+          }
+          
+          bars.push({
+            schedule,
+            weekIndex: weekIdx,
+            startCol,
+            span,
+            rowOffset: 0, // Will be calculated for stacking
+          })
+        }
+      }
+    })
+    
+    // Calculate row offsets for overlapping events
+    const weekGroups: { [key: number]: EventBar[] } = {}
+    bars.forEach((bar) => {
+      if (!weekGroups[bar.weekIndex]) weekGroups[bar.weekIndex] = []
+      weekGroups[bar.weekIndex].push(bar)
+    })
+    
+    Object.values(weekGroups).forEach((weekBars) => {
+      weekBars.sort((a, b) => {
+        if (a.startCol !== b.startCol) return a.startCol - b.startCol
+        return b.span - a.span
+      })
+      
+      weekBars.forEach((bar, idx) => {
+        bar.rowOffset = idx
+      })
+    })
+    
+    return bars
+  }
+
+  const eventBars = getScheduleEventBars()
+
 
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
@@ -298,6 +398,7 @@ export const CalendarPage: FC<Props> = ({
               </div>
             </div>
 
+
             {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-1">
               {/* Day Headers */}
@@ -314,7 +415,7 @@ export const CalendarPage: FC<Props> = ({
 
               {/* Empty cells for days before month starts */}
               {Array.from({ length: startingDayOfWeek }).map((_, index) => (
-                <div key={`empty-${index}`} className="aspect-square bg-gray-50 rounded-lg" />
+                <div key={`empty-${index}`} className="min-h-[120px] bg-gray-50 rounded-lg" />
               ))}
 
               {/* Calendar Days */}
@@ -327,17 +428,38 @@ export const CalendarPage: FC<Props> = ({
                 const dayOfWeek = (startingDayOfWeek + index) % 7
                 const dayEntries = getEntriesForDate(year, month, day)
                 const daySchedules = getSchedulesForDate(year, month, day)
+                
+                // Get event bars for this specific cell
+                const cellIndex = index + startingDayOfWeek
+                const currentWeek = Math.floor(cellIndex / 7)
+                const currentDayOfWeek = (cellIndex % 7) + 1
+                
+                const cellEventBars = eventBars.filter(
+                  (bar) => 
+                    bar.weekIndex === currentWeek &&
+                    currentDayOfWeek >= bar.startCol &&
+                    currentDayOfWeek < bar.startCol + bar.span
+                )
+                
+                // Filter out multi-day schedules from cell display
+                const singleDaySchedules = daySchedules.filter((schedule) => {
+                  const scheduleStart = schedule.startDateTime.split('T')[0]
+                  const scheduleEnd = schedule.endDateTime.split('T')[0]
+                  return scheduleStart === scheduleEnd
+                })
+                
                 const hasEntries = dayEntries.length > 0
-                const hasSchedules = daySchedules.length > 0
+                const hasSingleDaySchedules = singleDaySchedules.length > 0
 
                 return (
                   <div
                     key={day}
                     onClick={() => handleDateClick(year, month, day)}
-                    className={`aspect-square border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors overflow-hidden cursor-pointer ${
+                    className={`min-h-[120px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
                       isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
                     }`}
                   >
+                    {/* Date number */}
                     <div
                       className={`text-sm font-medium mb-1 ${
                         isToday
@@ -352,16 +474,69 @@ export const CalendarPage: FC<Props> = ({
                       {day}
                     </div>
                     
+                    {/* + Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDateClick(year, month, day)
+                      }}
+                      className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#667eea] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
+                      title="항목 추가"
+                    >
+                      +
+                    </button>
+
+                    {/* Event bars below date */}
+                    {cellEventBars.length > 0 && (
+                      <div className="mb-1 space-y-0.5">
+                        {cellEventBars.map((bar) => {
+                          const isStartOfBar = currentDayOfWeek === bar.startCol
+                          const isEndOfBar = currentDayOfWeek === bar.startCol + bar.span - 1
+                          
+                          return (
+                            <div
+                              key={`${bar.schedule.id}-${bar.weekIndex}`}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleEditSchedule(bar.schedule)
+                              }}
+                              className="cursor-pointer hover:opacity-80 transition-opacity"
+                            >
+                              <div 
+                                className={`h-5 bg-purple-100 text-purple-700 text-xs px-1.5 py-0.5 border border-purple-200 flex items-center ${
+                                  isStartOfBar && isEndOfBar
+                                    ? 'rounded-md'
+                                    : isStartOfBar
+                                    ? 'rounded-l-md border-r-0'
+                                    : isEndOfBar
+                                    ? 'rounded-r-md border-l-0'
+                                    : 'border-x-0'
+                                }`}
+                              >
+                                {isStartOfBar && (
+                                  <span className="truncate font-medium">📅 {bar.schedule.title}</span>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                    
                     {/* Display budget entries */}
                     {hasEntries && (filterType === 'all' || filterType === 'budget') && (
                       <div className="space-y-0.5">
                         {dayEntries.slice(0, 2).map((entry) => (
                           <div
                             key={entry.id}
-                            className={`text-xs truncate px-1 py-0.5 rounded ${
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditEntry(entry)
+                            }}
+                            className={`text-xs truncate px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity ${
                               entry.amount > 0
-                                ? 'bg-green-50 text-green-700'
-                                : 'bg-red-50 text-red-700'
+                                ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                                : 'bg-red-50 text-red-700 hover:bg-red-100'
                             }`}
                             title={`${entry.description}: ${entry.amount > 0 ? '+' : ''}${entry.amount.toLocaleString()}원`}
                           >
@@ -376,21 +551,25 @@ export const CalendarPage: FC<Props> = ({
                       </div>
                     )}
 
-                    {/* Display schedules */}
-                    {hasSchedules && (filterType === 'all' || filterType === 'schedule') && (
+                    {/* Display single-day schedules only */}
+                    {hasSingleDaySchedules && (filterType === 'all' || filterType === 'schedule') && (
                       <div className="space-y-0.5 mt-1">
-                        {daySchedules.slice(0, 2).map((schedule) => (
+                        {singleDaySchedules.slice(0, 2).map((schedule) => (
                           <div
                             key={schedule.id}
-                            className="text-xs truncate px-1 py-0.5 rounded bg-purple-50 text-purple-700"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleEditSchedule(schedule)
+                            }}
+                            className="text-xs truncate px-1 py-0.5 rounded bg-purple-50 text-purple-700 cursor-pointer hover:bg-purple-100 hover:opacity-80 transition-opacity"
                             title={`${schedule.title}${schedule.isAllDay ? ' (종일)' : ''}`}
                           >
                             📅 {schedule.title}
                           </div>
                         ))}
-                        {daySchedules.length > 2 && (
+                        {singleDaySchedules.length > 2 && (
                           <div className="text-xs text-gray-400 px-1">
-                            +{daySchedules.length - 2}개
+                            +{singleDaySchedules.length - 2}개
                           </div>
                         )}
                       </div>
@@ -398,10 +577,6 @@ export const CalendarPage: FC<Props> = ({
                   </div>
                 )
               })}
-            </div>
-
-            <div className="mt-6 text-center text-sm text-gray-500">
-              ✅ 가계부 내역이 달력에 표시됩니다
             </div>
           </div>
         ) : (
