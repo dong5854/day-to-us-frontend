@@ -345,7 +345,7 @@ export const CalendarPage: FC<Props> = ({
               onClick={() => setFilterType('budget')}
               className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === 'budget'
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-[#667eea] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -355,7 +355,7 @@ export const CalendarPage: FC<Props> = ({
               onClick={() => setFilterType('schedule')}
               className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === 'schedule'
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-[#667eea] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
