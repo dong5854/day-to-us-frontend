@@ -300,71 +300,69 @@ export const CalendarPage: FC<Props> = ({
   return (
     <>
       {/* View Toggle & Filters */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          {/* View Type Toggle */}
-          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+      <div className="mb-4">
+        {/* View Type Toggle */}
+        <div className="flex gap-1.5 bg-gray-100 p-1 rounded-lg mb-3">
+          <button
+            onClick={() => setViewType('calendar')}
+            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              viewType === 'calendar'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            📅 달력
+          </button>
+          <button
+            onClick={() => {
+              setViewType('list')
+              setFilterType('budget')
+            }}
+            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              viewType === 'list'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            📋 목록
+          </button>
+        </div>
+
+        {/* Filter Toggles - Only visible in calendar view */}
+        {viewType === 'calendar' && (
+          <div className="flex gap-1.5">
             <button
-              onClick={() => setViewType('calendar')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewType === 'calendar'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+              onClick={() => setFilterType('all')}
+              className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filterType === 'all'
+                  ? 'bg-[#667eea] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              📅 달력
+              전체
             </button>
             <button
-              onClick={() => {
-                setViewType('list')
-                setFilterType('budget')
-              }}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewType === 'list'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+              onClick={() => setFilterType('budget')}
+              className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filterType === 'budget'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              📋 목록
+              💰 가계부
+            </button>
+            <button
+              onClick={() => setFilterType('schedule')}
+              className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filterType === 'schedule'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              📅 일정
             </button>
           </div>
-
-          {/* Filter Toggles - Only visible in calendar view */}
-          {viewType === 'calendar' && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterType === 'all'
-                    ? 'bg-[#667eea] text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                전체
-              </button>
-              <button
-                onClick={() => setFilterType('budget')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterType === 'budget'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                💰 가계부
-              </button>
-              <button
-                onClick={() => setFilterType('schedule')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterType === 'schedule'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                📅 일정
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Content */}
