@@ -30,7 +30,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
                 </button>
               )}
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold">
+                <h1 className="text-2xl md:text-3xl font-medium tracking-wide font-header">
                   {isSettingsPage ? '설정' : hasSpace && space ? space.name : '달력'}
                 </h1>
               </div>

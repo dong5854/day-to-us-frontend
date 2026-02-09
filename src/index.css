@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Pretendard Font for Body */
+body {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+/* Geist Font for Headers */
+.font-header {
+  font-family: "Geist", "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
 @theme {
   /* Custom Colors - Blue to Purple Gradient */
   --color-primary-start: #667eea;
