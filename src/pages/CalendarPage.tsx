@@ -6,6 +6,7 @@ import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpens
 import { ScheduleList } from '@/features/schedule/components/ScheduleList'
 import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
+import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
@@ -72,6 +73,10 @@ export const CalendarPage: FC<Props> = ({
     message: '',
     onConfirm: () => {},
   })
+  
+  // Mobile drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedDateForDrawer, setSelectedDateForDrawer] = useState<string | null>(null)
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
@@ -209,8 +214,15 @@ export const CalendarPage: FC<Props> = ({
 
   const handleDateClick = (year: number, month: number, day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    setSelectedDate(dateStr)
-    setIsDateChoiceModalOpen(true)
+    
+    // Check if mobile (< 768px, md breakpoint)
+    if (window.innerWidth < 768) {
+      setSelectedDateForDrawer(dateStr)
+      setIsDrawerOpen(true)
+    } else {
+      setSelectedDate(dateStr)
+      setIsDateChoiceModalOpen(true)
+    }
   }
 
   const handleChoiceBudget = () => {
@@ -453,7 +465,7 @@ export const CalendarPage: FC<Props> = ({
                   <div
                     key={day}
                     onClick={() => handleDateClick(year, month, day)}
-                    className={`min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                    className={`min-h-[90px] md:min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
                       isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
                     }`}
                   >
@@ -478,7 +490,7 @@ export const CalendarPage: FC<Props> = ({
                         e.stopPropagation()
                         handleDateClick(year, month, day)
                       }}
-                      className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#667eea] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
+                      className="hidden md:flex absolute top-1 right-1 w-5 h-5 items-center justify-center text-gray-400 hover:text-white hover:bg-[#667eea] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
                       title="항목 추가"
                     >
                       +
@@ -501,7 +513,7 @@ export const CalendarPage: FC<Props> = ({
                               className="cursor-pointer hover:opacity-80 transition-opacity"
                             >
                               <div 
-                                className={`h-6 bg-indigo-300/90 text-indigo-900 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
+                                className={`h-3 md:h-6 bg-indigo-300/90 text-indigo-900 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
                                   isStartOfBar && isEndOfBar
                                     ? 'rounded-md'
                                     : isStartOfBar
@@ -512,7 +524,7 @@ export const CalendarPage: FC<Props> = ({
                                 }`}
                               >
                                 {isStartOfBar && (
-                                  <span className="truncate">{bar.schedule.title}</span>
+                                  <span className="hidden md:block truncate">{bar.schedule.title}</span>
                                 )}
                               </div>
                             </div>
@@ -521,9 +533,34 @@ export const CalendarPage: FC<Props> = ({
                       </div>
                     )}
                     
-                    {/* Display budget entries */}
+                    
+                    {/* Mobile: Event dots */}
+                    <div className="md:hidden absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+                      {/* Budget entry dots */}
+                      {(filterType === 'all' || filterType === 'budget') && dayEntries.slice(0, 4).map((entry) => (
+                        <div
+                          key={entry.id}
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            entry.amount > 0 ? 'bg-green-500' : 'bg-orange-500'
+                          }`}
+                        />
+                      ))}
+                      {/* Single-day schedule dots */}
+                      {(filterType === 'all' || filterType === 'schedule') && singleDaySchedules.slice(0, 4).map((schedule) => (
+                        <div
+                          key={schedule.id}
+                          className="w-1.5 h-1.5 rounded-full bg-sky-400"
+                        />
+                      ))}
+                      {/* Overflow indicator */}
+                      {((dayEntries.length + singleDaySchedules.length) > 4) && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+                      )}
+                    </div>
+                    
+                    {/* Desktop: Display budget entries */}
                     {hasEntries && (filterType === 'all' || filterType === 'budget') && (
-                      <div className="space-y-1">
+                      <div className="hidden md:block space-y-1">
                         {dayEntries.slice(0, 2).map((entry) => (
                           <div
                             key={entry.id}
@@ -549,9 +586,9 @@ export const CalendarPage: FC<Props> = ({
                       </div>
                     )}
 
-                    {/* Display single-day schedules only */}
+                    {/* Desktop: Display single-day schedules only */}
                     {hasSingleDaySchedules && (filterType === 'all' || filterType === 'schedule') && (
-                      <div className="space-y-1 mt-1">
+                      <div className="hidden md:block space-y-1 mt-1">
                         {singleDaySchedules.slice(0, 2).map((schedule) => (
                           <div
                             key={schedule.id}
@@ -743,6 +780,100 @@ export const CalendarPage: FC<Props> = ({
         confirmText="삭제"
         isDangerous
       />
+      
+      {/* Mobile Drawer */}
+      <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+        <div className="p-4 pb-8">
+          {selectedDateForDrawer && (
+            <>
+              {/* Date header */}
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                {new Date(selectedDateForDrawer).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </h3>
+              
+              {/* Event list */}
+              <div className="space-y-2 mb-4">
+                {(() => {
+                  const [y, m, d] = selectedDateForDrawer.split('-').map(Number)
+                  const dateEntries = getEntriesForDate(y, m - 1, d)
+                  const dateSchedules = getSchedulesForDate(y, m - 1, d)
+                  
+                  return (
+                    <>
+                      {/* Budget entries */}
+                      {dateEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          onClick={() => {
+                            setIsDrawerOpen(false)
+                            handleEditEntry(entry)
+                          }}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{entry.description}</div>
+                            <div className="text-sm text-gray-500">가계부</div>
+                          </div>
+                          <div className={`font-semibold ${
+                            entry.amount > 0 ? 'text-green-600' : 'text-orange-600'
+                          }`}>
+                            {entry.amount > 0 ? '+' : ''}{entry.amount.toLocaleString()}원
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Schedules */}
+                      {dateSchedules.map((schedule) => (
+                        <div
+                          key={schedule.id}
+                          onClick={() => {
+                            setIsDrawerOpen(false)
+                            handleEditSchedule(schedule)
+                          }}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                        >
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{schedule.title}</div>
+                            <div className="text-sm text-gray-500">
+                              일정 {schedule.isAllDay ? '(종일)' : ''}
+                            </div>
+                          </div>
+                          <div className="text-sky-600">
+                            📅
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Empty state */}
+                      {dateEntries.length === 0 && dateSchedules.length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          등록된 항목이 없습니다
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
+              </div>
+              
+              {/* Add button */}
+              <button
+                onClick={() => {
+                  setSelectedDate(selectedDateForDrawer)
+                  setIsDrawerOpen(false)
+                  setIsDateChoiceModalOpen(true)
+                }}
+                className="w-full py-3 bg-[#667eea] text-white rounded-lg font-medium hover:bg-[#5568d3] transition-colors"
+              >
+                + 항목 추가
+              </button>
+            </>
+          )}
+        </div>
+      </Drawer>
     </>
   )
 }
