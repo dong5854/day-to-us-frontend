@@ -29,6 +29,8 @@
   - 커플 일정 공유 및 동기화
   - 월별/일별 캘린더 뷰
   - 일정 카테고리 분류
+  - 멀티데이 이벤트 시각화
+  - 모바일 반응형 UI (드로어, 이벤트 도트)
 
 ### 향후 확장 계획
 - 📸 사진/추억 앨범
@@ -80,10 +82,21 @@ src/
 │   ├── schedule/       # 일정 관리 기능
 │   └── space/          # 공간 관리 기능
 ├── pages/              # 페이지 컴포넌트 (라우트 단위)
+│   ├── BudgetPage.tsx
+│   ├── CalendarPage.tsx      # 달력 + 가계부/일정 통합 뷰
+│   ├── DashboardPage.tsx
+│   ├── FixedExpensePage.tsx
+│   └── SettingsPage.tsx
 ├── shared/
 │   ├── api/            # 공통 API 설정
 │   ├── components/     # 공통 UI 컴포넌트
+│   │   ├── Layout.tsx       # 메인 레이아웃
+│   │   ├── Modal.tsx        # 데스크톱 모달
+│   │   ├── Drawer.tsx       # 모바일 하단 드로어
+│   │   ├── Toast.tsx        # 토스트 알림
+│   │   └── ConfirmModal.tsx # 확인 다이얼로그
 │   ├── hooks/          # 공통 Custom Hooks
+│   │   └── useOutsideClick.ts
 │   ├── styles/         # 디자인 시스템
 │   └── utils/          # 유틸리티 함수
 ├── App.tsx             # 메인 컴포넌트
