@@ -49,7 +49,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8 pb-24">{children}</main>
+      <main className="flex-1 container mx-auto px-2 md:px-4 py-3 md:py-8 pb-24">{children}</main>
     </div>
   )
 }

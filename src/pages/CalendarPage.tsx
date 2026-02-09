@@ -368,9 +368,9 @@ export const CalendarPage: FC<Props> = ({
       {/* Content */}
       <div className="animate-[slide-up_0.3s_ease-out]">
         {viewType === 'calendar' ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0">
             {/* Calendar Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 {year}년 {month + 1}월
               </h2>
@@ -453,13 +453,13 @@ export const CalendarPage: FC<Props> = ({
                   <div
                     key={day}
                     onClick={() => handleDateClick(year, month, day)}
-                    className={`min-h-[120px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                    className={`min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
                       isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
                     }`}
                   >
                     {/* Date number */}
                     <div
-                      className={`text-sm font-medium mb-1 ${
+                      className={`text-base font-semibold mb-1 ${
                         isToday
                           ? 'text-blue-600'
                           : dayOfWeek === 0
@@ -501,18 +501,18 @@ export const CalendarPage: FC<Props> = ({
                               className="cursor-pointer hover:opacity-80 transition-opacity"
                             >
                               <div 
-                                className={`h-5 bg-purple-100 text-purple-700 text-xs px-1.5 py-0.5 border border-purple-200 flex items-center ${
+                                className={`h-6 bg-indigo-300/90 text-indigo-900 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
                                   isStartOfBar && isEndOfBar
                                     ? 'rounded-md'
                                     : isStartOfBar
-                                    ? 'rounded-l-md border-r-0'
+                                    ? 'rounded-l-md'
                                     : isEndOfBar
-                                    ? 'rounded-r-md border-l-0'
-                                    : 'border-x-0'
+                                    ? 'rounded-r-md'
+                                    : ''
                                 }`}
                               >
                                 {isStartOfBar && (
-                                  <span className="truncate font-medium">📅 {bar.schedule.title}</span>
+                                  <span className="truncate">{bar.schedule.title}</span>
                                 )}
                               </div>
                             </div>
@@ -523,7 +523,7 @@ export const CalendarPage: FC<Props> = ({
                     
                     {/* Display budget entries */}
                     {hasEntries && (filterType === 'all' || filterType === 'budget') && (
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         {dayEntries.slice(0, 2).map((entry) => (
                           <div
                             key={entry.id}
@@ -531,10 +531,10 @@ export const CalendarPage: FC<Props> = ({
                               e.stopPropagation()
                               handleEditEntry(entry)
                             }}
-                            className={`text-xs truncate px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity ${
+                            className={`text-xs font-medium truncate px-2 py-1 rounded-md cursor-pointer hover:opacity-90 transition-opacity shadow-sm ${
                               entry.amount > 0
-                                ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                                : 'bg-red-50 text-red-700 hover:bg-red-100'
+                                ? 'bg-green-500 text-white'
+                                : 'bg-orange-500 text-white'
                             }`}
                             title={`${entry.description}: ${entry.amount > 0 ? '+' : ''}${entry.amount.toLocaleString()}원`}
                           >
@@ -542,7 +542,7 @@ export const CalendarPage: FC<Props> = ({
                           </div>
                         ))}
                         {dayEntries.length > 2 && (
-                          <div className="text-xs text-gray-400 px-1">
+                          <div className="text-xs text-gray-500 px-1 font-medium">
                             +{dayEntries.length - 2}개
                           </div>
                         )}
@@ -551,7 +551,7 @@ export const CalendarPage: FC<Props> = ({
 
                     {/* Display single-day schedules only */}
                     {hasSingleDaySchedules && (filterType === 'all' || filterType === 'schedule') && (
-                      <div className="space-y-0.5 mt-1">
+                      <div className="space-y-1 mt-1">
                         {singleDaySchedules.slice(0, 2).map((schedule) => (
                           <div
                             key={schedule.id}
@@ -559,14 +559,14 @@ export const CalendarPage: FC<Props> = ({
                               e.stopPropagation()
                               handleEditSchedule(schedule)
                             }}
-                            className="text-xs truncate px-1 py-0.5 rounded bg-purple-50 text-purple-700 cursor-pointer hover:bg-purple-100 hover:opacity-80 transition-opacity"
+                            className="text-xs font-medium truncate px-2 py-1 rounded-md bg-sky-300/90 text-sky-900 cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
                             title={`${schedule.title}${schedule.isAllDay ? ' (종일)' : ''}`}
                           >
-                            📅 {schedule.title}
+                            {schedule.title}
                           </div>
                         ))}
                         {singleDaySchedules.length > 2 && (
-                          <div className="text-xs text-gray-400 px-1">
+                          <div className="text-xs text-gray-500 px-1 font-medium">
                             +{singleDaySchedules.length - 2}개
                           </div>
                         )}
