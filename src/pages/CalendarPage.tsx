@@ -513,7 +513,7 @@ export const CalendarPage: FC<Props> = ({
                               className="cursor-pointer hover:opacity-80 transition-opacity"
                             >
                               <div 
-                                className={`h-3 md:h-6 bg-indigo-300/90 text-indigo-900 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
+                                className={`h-3 md:h-6 bg-indigo-200/80 text-indigo-800 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
                                   isStartOfBar && isEndOfBar
                                     ? 'rounded-md'
                                     : isStartOfBar
@@ -541,7 +541,7 @@ export const CalendarPage: FC<Props> = ({
                         <div
                           key={entry.id}
                           className={`w-1.5 h-1.5 rounded-full ${
-                            entry.amount > 0 ? 'bg-green-500' : 'bg-orange-500'
+                            entry.amount > 0 ? 'bg-green-500' : 'bg-rose-300'
                           }`}
                         />
                       ))}
@@ -549,7 +549,7 @@ export const CalendarPage: FC<Props> = ({
                       {(filterType === 'all' || filterType === 'schedule') && singleDaySchedules.slice(0, 4).map((schedule) => (
                         <div
                           key={schedule.id}
-                          className="w-1.5 h-1.5 rounded-full bg-sky-400"
+                          className="w-1.5 h-1.5 rounded-full bg-violet-200"
                         />
                       ))}
                       {/* Overflow indicator */}
@@ -571,7 +571,7 @@ export const CalendarPage: FC<Props> = ({
                             className={`text-xs font-medium truncate px-2 py-1 rounded-md cursor-pointer hover:opacity-90 transition-opacity shadow-sm ${
                               entry.amount > 0
                                 ? 'bg-green-500 text-white'
-                                : 'bg-orange-500 text-white'
+                                : 'bg-rose-300 text-white'
                             }`}
                             title={`${entry.description}: ${entry.amount > 0 ? '+' : ''}${entry.amount.toLocaleString()}원`}
                           >
@@ -596,7 +596,7 @@ export const CalendarPage: FC<Props> = ({
                               e.stopPropagation()
                               handleEditSchedule(schedule)
                             }}
-                            className="text-xs font-medium truncate px-2 py-1 rounded-md bg-sky-300/90 text-sky-900 cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
+                            className="text-xs font-medium truncate px-2 py-1 rounded-md bg-violet-200/80 text-violet-800 cursor-pointer hover:opacity-90 transition-opacity shadow-sm"
                             title={`${schedule.title}${schedule.isAllDay ? ' (종일)' : ''}`}
                           >
                             {schedule.title}
@@ -819,7 +819,7 @@ export const CalendarPage: FC<Props> = ({
                             <div className="text-sm text-gray-500">가계부</div>
                           </div>
                           <div className={`font-semibold ${
-                            entry.amount > 0 ? 'text-green-600' : 'text-orange-600'
+                            entry.amount > 0 ? 'text-green-600' : 'text-rose-400'
                           }`}>
                             {entry.amount > 0 ? '+' : ''}{entry.amount.toLocaleString()}원
                           </div>
@@ -842,7 +842,7 @@ export const CalendarPage: FC<Props> = ({
                               일정 {schedule.isAllDay ? '(종일)' : ''}
                             </div>
                           </div>
-                          <div className="text-sky-600">
+                          <div className="text-violet-500">
                             📅
                           </div>
                         </div>
