@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import type { BudgetEntryResponse } from '../types/budget.types'
 import { formatCurrency } from '@/shared/utils/format'
 
@@ -18,7 +19,7 @@ export const BudgetCard: FC<Props> = ({ entry, onEdit, onDelete }) => {
     }`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div className="flex items-center gap-4 flex-1">
-          <span className="text-3xl">{isIncome ? '💰' : '💸'}</span>
+          {isIncome ? <TrendingUp className="w-8 h-8 text-green-500" /> : <TrendingDown className="w-8 h-8 text-red-500" />}
           <div className="flex-1">
             <h4 className="text-base font-semibold text-gray-900">{entry.description}</h4>
           </div>

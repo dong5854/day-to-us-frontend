@@ -1,4 +1,5 @@
 import { type FC } from 'react'
+import { Users, Calendar, Settings } from 'lucide-react'
 import type { SharedSpaceResponse, UserResponse } from '../types/space.types'
 
 interface Props {
@@ -37,7 +38,7 @@ export const SpaceDashboard: FC<Props> = ({ onNavigate, space, members }) => {
         
         <div className="border-t border-gray-100 pt-4 mt-4">
           <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <span>👫</span> 함께하는 멤버
+            <Users className="w-4 h-4" /> 함께하는 멤버
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {members.map((member) => (
@@ -63,8 +64,8 @@ export const SpaceDashboard: FC<Props> = ({ onNavigate, space, members }) => {
           onClick={() => onNavigate('budget')}
           className="aspect-square bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center gap-4 transition-all hover:shadow-md hover:-translate-y-1 active:scale-95 group"
         >
-          <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
-            📅
+          <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <Calendar className="w-8 h-8 text-blue-500" />
           </div>
           <div className="text-center">
             <h3 className="font-bold text-gray-900 mb-1">달력</h3>
@@ -76,8 +77,8 @@ export const SpaceDashboard: FC<Props> = ({ onNavigate, space, members }) => {
 
         {/* Settings Module (Coming Soon) */}
         <div className="aspect-square bg-gray-50 rounded-2xl border border-gray-100 p-6 flex flex-col items-center justify-center gap-4 opacity-70 cursor-not-allowed">
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-3xl grayscale">
-            ⚙️
+          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center grayscale">
+            <Settings className="w-8 h-8 text-gray-400" />
           </div>
           <div className="text-center">
             <h3 className="font-bold text-gray-500 mb-1">설정</h3>

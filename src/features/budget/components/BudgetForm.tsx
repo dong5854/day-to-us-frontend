@@ -1,4 +1,5 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import type { BudgetEntryRequest, BudgetEntryResponse } from '../types/budget.types'
 
 interface Props {
@@ -68,7 +69,7 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
                 : 'border-gray-200 bg-white text-gray-600 hover:border-[#667eea] hover:bg-gray-50'
             }`}
           >
-            💰 수입
+            <TrendingUp className="w-4 h-4 inline-block" /> 수입
           </button>
           <button
             type="button"
@@ -79,7 +80,7 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
                 : 'border-gray-200 bg-white text-gray-600 hover:border-[#667eea] hover:bg-gray-50'
             }`}
           >
-            💸 지출
+            <TrendingDown className="w-4 h-4 inline-block" /> 지출
           </button>
         </div>
       </div>

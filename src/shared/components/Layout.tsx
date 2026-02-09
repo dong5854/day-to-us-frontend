@@ -1,4 +1,5 @@
 import { type FC, type ReactNode } from 'react'
+import { Settings } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { SharedSpaceResponse } from '@/features/space/types/space.types'
 
@@ -42,7 +43,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
                 className="p-2 hover:bg-white/20 rounded-full transition-colors"
                 title="설정"
               >
-                <span className="text-2xl">⚙️</span>
+                <Settings className="w-6 h-6" />
               </button>
             )}
           </div>

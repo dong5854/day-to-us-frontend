@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { Wallet } from 'lucide-react'
 import type { BudgetEntryResponse } from '../types/budget.types'
 import { BudgetCard } from './BudgetCard'
 import { formatCurrency } from '@/shared/utils/format'
@@ -29,7 +30,7 @@ export const BudgetList: FC<Props> = ({
   if (entries.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-        <div className="text-6xl mb-4">💰</div>
+        <Wallet className="w-16 h-16 mb-4 mx-auto text-gray-400" />
         <h3 className="text-xl font-semibold text-gray-900 mb-2">아직 기록이 없습니다</h3>
         <p className="text-gray-500">첫 번째 수입/지출을 추가해보세요!</p>
       </div>

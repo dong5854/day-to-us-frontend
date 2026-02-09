@@ -1,4 +1,5 @@
 import type { FC } from 'react'
+import { Calendar } from 'lucide-react'
 import type { ScheduleResponse } from '../types/schedule.types'
 
 interface Props {
@@ -16,7 +17,7 @@ export const ScheduleList: FC<Props> = ({ schedules, loading, onEdit, onDelete }
   if (schedules.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-lg shadow-sm">
-        <div className="text-6xl mb-4">📅</div>
+        <Calendar className="w-16 h-16 mb-4 mx-auto text-gray-400" />
         <h3 className="text-xl font-semibold text-gray-900 mb-2">아직 일정이 없습니다</h3>
         <p className="text-gray-500">첫 번째 일정을 추가해보세요!</p>
       </div>

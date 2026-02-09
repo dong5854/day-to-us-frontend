@@ -1,4 +1,5 @@
 import { useState, type FC } from 'react'
+import { Calendar, List, Wallet } from 'lucide-react'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
@@ -323,7 +324,7 @@ export const CalendarPage: FC<Props> = ({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            📅 달력
+            <Calendar className="w-4 h-4 inline-block" /> 달력
           </button>
           <button
             onClick={() => {
@@ -336,7 +337,7 @@ export const CalendarPage: FC<Props> = ({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            📋 목록
+            <List className="w-4 h-4 inline-block" /> 목록
           </button>
         </div>
 
@@ -361,7 +362,7 @@ export const CalendarPage: FC<Props> = ({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              💰 가계부
+              <Wallet className="w-4 h-4 inline-block" /> 가계부
             </button>
             <button
               onClick={() => setFilterType('schedule')}
@@ -371,7 +372,7 @@ export const CalendarPage: FC<Props> = ({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              📅 일정
+              <Calendar className="w-4 h-4 inline-block" /> 일정
             </button>
           </div>
         )}
@@ -629,7 +630,7 @@ export const CalendarPage: FC<Props> = ({
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                💰 가계부
+                <Wallet className="w-5 h-5 inline-block" /> 가계부
               </button>
               <button
                 onClick={() => setFilterType('schedule')}
@@ -639,7 +640,7 @@ export const CalendarPage: FC<Props> = ({
                     : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
-                📅 일정
+                <Calendar className="w-5 h-5 inline-block" /> 일정
               </button>
             </div>
 
@@ -728,14 +729,14 @@ export const CalendarPage: FC<Props> = ({
               onClick={handleChoiceBudget}
               className="p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-all text-center"
             >
-              <div className="text-4xl mb-2">💰</div>
+              <Wallet className="w-12 h-12 mb-2 mx-auto text-gray-700" />
               <div className="text-lg font-semibold text-gray-900">수입/지출</div>
             </button>
             <button
               onClick={handleChoiceSchedule}
               className="p-6 rounded-lg border-2 border-purple-200 hover:border-purple-400 hover:bg-purple-50 transition-all text-center"
             >
-              <div className="text-4xl mb-2">📅</div>
+              <Calendar className="w-12 h-12 mb-2 mx-auto text-gray-700" />
               <div className="text-lg font-semibold text-gray-900">일정</div>
             </button>
           </div>
@@ -843,7 +844,7 @@ export const CalendarPage: FC<Props> = ({
                             </div>
                           </div>
                           <div className="text-violet-500">
-                            📅
+                            <Calendar className="w-4 h-4" />
                           </div>
                         </div>
                       ))}
