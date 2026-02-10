@@ -18,7 +18,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header 
-        className="bg-[#667eea] text-white py-6 shadow-md transition-all duration-300 sticky top-0 z-50"
+        className="gradient-bg text-white py-6 shadow-md transition-all duration-300 sticky top-0 z-50"
         style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}
       >
         <div className="container mx-auto px-4">
