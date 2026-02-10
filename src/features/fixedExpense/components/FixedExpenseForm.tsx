@@ -54,7 +54,7 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
             onChange={(e) => setDescription(e.target.value)}
             required
             autoFocus
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           />
         </div>
 
@@ -72,7 +72,7 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
             required
             min="0"
             step="1"
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           />
         </div>
 
@@ -85,7 +85,7 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
             id="frequency"
             value={frequency}
             onChange={(e) => setFrequency(e.target.value as Frequency)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           >
             <option value="WEEKLY">매주</option>
             <option value="MONTHLY">매월</option>
@@ -104,7 +104,7 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           />
         </div>
       </div>

@@ -33,7 +33,7 @@ export const BudgetCard: FC<Props> = ({ entry, onEdit, onDelete }) => {
       <div className="flex gap-2 justify-end">
         <button
           onClick={onEdit}
-          className="px-4 py-2 rounded-md text-sm font-medium transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-[#667eea] hover:text-[#667eea]"
+          className="px-4 py-2 rounded-md text-sm font-medium transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-[#4F46E5] hover:text-[#4F46E5]"
         >
           수정
         </button>

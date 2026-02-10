@@ -15,7 +15,7 @@ export default defineConfig({
         name: 'Day To Us',
         short_name: 'DayToUs',
         description: 'Day To Us Progressive Web Application',
-        theme_color: '#667eea',
+        theme_color: '#4F46E5',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [

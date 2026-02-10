@@ -352,7 +352,7 @@ export const CalendarPage: FC<Props> = ({
               onClick={() => setFilterType('all')}
               className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === 'all'
-                  ? 'bg-[#667eea] text-white'
+                  ? 'bg-[#4F46E5] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -362,7 +362,7 @@ export const CalendarPage: FC<Props> = ({
               onClick={() => setFilterType('budget')}
               className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === 'budget'
-                  ? 'bg-[#667eea] text-white'
+                  ? 'bg-[#4F46E5] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -372,7 +372,7 @@ export const CalendarPage: FC<Props> = ({
               onClick={() => setFilterType('schedule')}
               className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === 'schedule'
-                  ? 'bg-[#667eea] text-white'
+                  ? 'bg-[#4F46E5] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -495,7 +495,7 @@ export const CalendarPage: FC<Props> = ({
                         e.stopPropagation()
                         handleDateClick(year, month, day)
                       }}
-                      className="hidden md:flex absolute top-1 right-1 w-5 h-5 items-center justify-center text-gray-400 hover:text-white hover:bg-[#667eea] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
+                      className="hidden md:flex absolute top-1 right-1 w-5 h-5 items-center justify-center text-gray-400 hover:text-white hover:bg-[#4F46E5] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
                       title="항목 추가"
                     >
                       +
@@ -902,7 +902,7 @@ export const CalendarPage: FC<Props> = ({
                   setIsDrawerOpen(false)
                   setIsDateChoiceModalOpen(true)
                 }}
-                className="w-full py-3 bg-[#667eea] text-white rounded-lg font-medium hover:bg-[#5568d3] transition-colors"
+                className="w-full py-3 bg-[#4F46E5] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-colors"
               >
                 + 항목 추가
               </button>

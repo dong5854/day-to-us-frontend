@@ -65,8 +65,8 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
             onClick={() => setIsIncome(true)}
             className={`px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
               isIncome
-                ? 'border-[#667eea] gradient-bg text-white'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-[#667eea] hover:bg-gray-50'
+                ? 'border-[#4F46E5] gradient-bg text-white'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-[#4F46E5] hover:bg-gray-50'
             }`}
           >
             <TrendingUp className="w-4 h-4 inline-block" /> 수입
@@ -76,8 +76,8 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
             onClick={() => setIsIncome(false)}
             className={`px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
               !isIncome
-                ? 'border-[#667eea] gradient-bg text-white'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-[#667eea] hover:bg-gray-50'
+                ? 'border-[#4F46E5] gradient-bg text-white'
+                : 'border-gray-200 bg-white text-gray-600 hover:border-[#4F46E5] hover:bg-gray-50'
             }`}
           >
             <TrendingDown className="w-4 h-4 inline-block" /> 지출
@@ -96,7 +96,7 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 
@@ -110,7 +110,7 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
           value={date}
           onChange={(e) => setDate(e.target.value)}
           required
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 
@@ -127,7 +127,7 @@ export const BudgetForm: FC<Props> = ({ entry, initialDate, onSubmit, onCancel }
           min="0"
           step="1"
           required
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 

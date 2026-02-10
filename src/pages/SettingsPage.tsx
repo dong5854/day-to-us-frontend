@@ -31,7 +31,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
           <div>
             <label className="text-sm font-medium text-gray-600 block mb-1">초대 코드</label>
             <div className="flex items-center gap-2">
-              <code className="bg-gray-100 px-3 py-2 rounded text-sm font-mono text-[#667eea] flex-1">
+              <code className="bg-gray-100 px-3 py-2 rounded text-sm font-mono text-[#4F46E5] flex-1">
                 {space?.inviteCode}
               </code>
               <button

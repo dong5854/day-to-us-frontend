@@ -51,7 +51,7 @@ function AppContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4F46E5]"></div>
           <p className="text-gray-500 font-medium">로그인 처리 중...</p>
         </div>
       </div>
@@ -190,7 +190,7 @@ function AppContent() {
   if (spaceLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4F46E5]"></div>
       </div>
     )
   }

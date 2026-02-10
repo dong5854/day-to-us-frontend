@@ -96,7 +96,7 @@ export const ScheduleList: FC<Props> = ({ schedules, loading, onEdit, onDelete }
                   <div className="flex gap-2">
                     <button
                       onClick={() => onEdit(schedule)}
-                      className="px-3 py-1.5 text-sm font-medium text-[#667eea] hover:bg-gray-50 rounded transition-colors"
+                      className="px-3 py-1.5 text-sm font-medium text-[#4F46E5] hover:bg-gray-50 rounded transition-colors"
                     >
                       수정
                     </button>

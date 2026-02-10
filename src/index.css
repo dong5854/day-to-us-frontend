@@ -12,8 +12,8 @@ body {
 
 @theme {
   /* Custom Colors - Blue to Purple Gradient */
-  --color-primary-start: #667eea;
-  --color-primary-end: #764ba2;
+  --color-primary-start: #4F46E5;
+  --color-primary-end: #6D28D9;
   
   /* Custom Animations */
   --animate-fade-in: fade-in 0.2s ease-in-out;
@@ -43,11 +43,11 @@ body {
 /* Custom gradient utility */
 @layer utilities {
   .gradient-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%);
   }
   
   .gradient-text {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

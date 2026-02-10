@@ -83,7 +83,7 @@ export const BudgetList: FC<Props> = ({
           <span className="text-sm text-gray-500 font-medium">지출</span>
           <span className="text-2xl font-bold text-gray-900">{formatCurrency(totalExpense)}</span>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#667eea] flex flex-col gap-2">
+        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#4F46E5] flex flex-col gap-2">
           <span className="text-sm text-gray-500 font-medium">잔액</span>
           <span className="text-2xl font-bold text-gray-900">{formatCurrency(balance)}</span>
         </div>

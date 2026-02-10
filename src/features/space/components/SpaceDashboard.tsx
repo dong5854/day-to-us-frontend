@@ -26,7 +26,7 @@ export const SpaceDashboard: FC<Props> = ({ onNavigate, space, members }) => {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{space?.name}</h2>
         <div className="flex items-center gap-2 text-gray-500 mb-4">
           <span className="text-sm font-medium">초대 코드:</span>
-          <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-[#667eea]">{space?.inviteCode}</code>
+          <code className="bg-gray-100 px-2 py-1 rounded text-sm font-mono text-[#4F46E5]">{space?.inviteCode}</code>
           <button
             onClick={handleCopyCode}
             className="text-xs px-2 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-gray-600 transition-colors"

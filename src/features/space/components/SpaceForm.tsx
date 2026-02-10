@@ -69,7 +69,7 @@ export const SpaceForm: FC<Props> = ({ onSubmit, onJoin, onCancel }) => {
               onChange={(e) => setName(e.target.value)}
               required
               autoFocus
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
             />
           </>
         ) : (
@@ -85,7 +85,7 @@ export const SpaceForm: FC<Props> = ({ onSubmit, onJoin, onCancel }) => {
               onChange={(e) => setInviteCode(e.target.value)}
               required
               autoFocus
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
             />
           </>
         )}

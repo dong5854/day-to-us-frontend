@@ -107,7 +107,7 @@ export const BudgetPage: FC<Props> = ({
           onClick={() => setActiveTab('entries')}
           className={`pb-3 px-4 text-lg font-bold transition-colors ${
             activeTab === 'entries'
-              ? 'text-gray-900 border-b-2 border-[#667eea]'
+              ? 'text-gray-900 border-b-2 border-[#4F46E5]'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
@@ -117,7 +117,7 @@ export const BudgetPage: FC<Props> = ({
           onClick={() => setActiveTab('fixed')}
           className={`pb-3 px-4 text-lg font-bold transition-colors ${
             activeTab === 'fixed'
-              ? 'text-gray-900 border-b-2 border-[#667eea]'
+              ? 'text-gray-900 border-b-2 border-[#4F46E5]'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >

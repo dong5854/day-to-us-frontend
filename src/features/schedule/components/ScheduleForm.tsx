@@ -94,7 +94,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 
@@ -108,7 +108,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 resize-none"
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 resize-none"
         />
       </div>
 
@@ -118,7 +118,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
             type="checkbox"
             checked={isAllDay}
             onChange={(e) => setIsAllDay(e.target.checked)}
-            className="w-5 h-5 text-[#667eea] rounded focus:ring-[#667eea]"
+            className="w-5 h-5 text-[#4F46E5] rounded focus:ring-[#4F46E5]"
           />
           <span className="text-sm font-semibold text-gray-900">종일</span>
         </label>
@@ -136,7 +136,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
           </div>
@@ -153,7 +153,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
               />
               <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
@@ -173,7 +173,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
           </div>
@@ -190,7 +190,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
               />
               <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
