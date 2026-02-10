@@ -69,7 +69,7 @@ function AppContent() {
     totalIncome,
     totalExpense,
     balance,
-  } = useBudget(space?.id || null)
+  } = useBudget(space?.id || null, currentYear, currentMonth)
   const {
     expenses: fixedExpenses,
     loading: fixedExpenseLoading,

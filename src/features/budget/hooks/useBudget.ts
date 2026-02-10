@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { budgetApi } from '../api/budgetApi'
 import type { BudgetEntryResponse, BudgetEntryRequest } from '../types/budget.types'
 
-export const useBudget = (spaceId: string | null) => {
+export const useBudget = (spaceId: string | null, year?: number, month?: number) => {
   const [entries, setEntries] = useState<BudgetEntryResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +16,7 @@ export const useBudget = (spaceId: string | null) => {
     try {
       setLoading(true)
       setError(null)
-      const data = await budgetApi.getAll(spaceId)
+      const data = await budgetApi.getAll(spaceId, year, month)
       setEntries(data)
     } catch (err) {
       setError('가계부 목록을 불러오는데 실패했습니다.')
@@ -72,7 +72,7 @@ export const useBudget = (spaceId: string | null) => {
 
   useEffect(() => {
     fetchEntries()
-  }, [spaceId])
+  }, [spaceId, year, month])
 
   const totalIncome = entries.filter(e => e.amount > 0).reduce((sum, e) => sum + e.amount, 0)
   const totalExpense = entries.filter(e => e.amount < 0).reduce((sum, e) => sum + Math.abs(e.amount), 0)

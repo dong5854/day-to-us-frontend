@@ -5,8 +5,15 @@ import type {
 } from '../types/budget.types'
 
 export const budgetApi = {
-  getAll: async (spaceId: string): Promise<BudgetEntryResponse[]> => {
-    const response = await apiClient.get(`/shared-spaces/${spaceId}/budget-entries`)
+  getAll: async (spaceId: string, year?: number, month?: number): Promise<BudgetEntryResponse[]> => {
+    const params = new URLSearchParams()
+    if (year !== undefined) params.append('year', year.toString())
+    if (month !== undefined) params.append('month', month.toString())
+    
+    const queryString = params.toString()
+    const url = `/shared-spaces/${spaceId}/budget-entries${queryString ? `?${queryString}` : ''}`
+    
+    const response = await apiClient.get<BudgetEntryResponse[]>(url)
     return response.data
   },
 
