@@ -1,4 +1,5 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
+import { Calendar, Clock } from 'lucide-react'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
 
 interface Props {
@@ -123,64 +124,76 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         </label>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label htmlFor="startDate" className="block text-sm font-semibold text-gray-900 mb-2">
             시작 날짜
           </label>
-          <input
-            id="startDate"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            required
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
-          />
+          <div className="relative">
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+          </div>
         </div>
         {!isAllDay && (
           <div>
             <label htmlFor="startTime" className="block text-sm font-semibold text-gray-900 mb-2">
               시작 시간
             </label>
-            <input
-              id="startTime"
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
-            />
+            <div className="relative">
+              <input
+                id="startTime"
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+              />
+              <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div>
           <label htmlFor="endDate" className="block text-sm font-semibold text-gray-900 mb-2">
             종료 날짜
           </label>
-          <input
-            id="endDate"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            required
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
-          />
+          <div className="relative">
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+          </div>
         </div>
         {!isAllDay && (
           <div>
             <label htmlFor="endTime" className="block text-sm font-semibold text-gray-900 mb-2">
               종료 시간
             </label>
-            <input
-              id="endTime"
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10"
-            />
+            <div className="relative">
+              <input
+                id="endTime"
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#667eea] focus:ring-4 focus:ring-[#667eea]/10 appearance-none pr-10"
+              />
+              <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
           </div>
         )}
       </div>
