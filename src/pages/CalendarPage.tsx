@@ -622,30 +622,61 @@ export const CalendarPage: FC<Props> = ({
         ) : (
           <>
             {/* List View - Budget (with sub-tabs) or Schedule */}
-            <div className="flex gap-2 mb-6 border-b border-gray-200">
-              <button
-                onClick={() => {
-                  setFilterType('budget')
-                  setBudgetSubTab('entries')
-                }}
-                className={`pb-3 px-4 text-lg font-bold transition-colors ${
-                  filterType === 'budget'
-                    ? 'text-gray-900 border-b-2 border-[#667eea]'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                <Wallet className="w-5 h-5 inline-block" /> 가계부
-              </button>
-              <button
-                onClick={() => setFilterType('schedule')}
-                className={`pb-3 px-4 text-lg font-bold transition-colors ${
-                  filterType === 'schedule'
-                    ? 'text-gray-900 border-b-2 border-[#667eea]'
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-              >
-                <Calendar className="w-5 h-5 inline-block" /> 일정
-              </button>
+            {/* List View - Date Navigation & Tabs */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-gray-200 pb-4">
+              {/* Tabs */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setFilterType('budget')
+                    setBudgetSubTab('entries')
+                  }}
+                  className={`px-4 py-2 text-lg font-bold transition-colors ${
+                    filterType === 'budget'
+                      ? 'text-gray-900'
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  <Wallet className="w-5 h-5 inline-block mr-1" /> 가계부
+                </button>
+                <button
+                  onClick={() => setFilterType('schedule')}
+                  className={`px-4 py-2 text-lg font-bold transition-colors ${
+                    filterType === 'schedule'
+                      ? 'text-gray-900'
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  <Calendar className="w-5 h-5 inline-block mr-1" /> 일정
+                </button>
+              </div>
+
+              {/* Date Navigation */}
+              <div className="flex items-center justify-between md:justify-end gap-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {year}년 {month + 1}월
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={prevMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={() => onDateChange(new Date())}
+                    className="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    오늘
+                  </button>
+                  <button
+                    onClick={nextMonth}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Budget Sub-tabs */}
