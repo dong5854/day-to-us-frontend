@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { scheduleApi } from '../api/scheduleApi'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
 
-export const useSchedule = (spaceId: string | null) => {
+export const useSchedule = (spaceId: string | null, year?: number, month?: number) => {
   const [schedules, setSchedules] = useState<ScheduleResponse[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchSchedules = async (year?: number, month?: number) => {
+  const fetchSchedules = async () => {
     if (!spaceId) {
       setLoading(false)
       return
@@ -17,7 +17,7 @@ export const useSchedule = (spaceId: string | null) => {
       setLoading(true)
       setError(null)
       const data = await scheduleApi.getAll(spaceId, year, month)
-      setSchedules(data)
+      setSchedules(data)  
     } catch (err) {
       setError('일정을 불러오는데 실패했습니다.')
       console.error(err)
@@ -68,7 +68,7 @@ export const useSchedule = (spaceId: string | null) => {
 
   useEffect(() => {
     fetchSchedules()
-  }, [spaceId])
+  }, [spaceId, year, month])
 
   return {
     schedules,

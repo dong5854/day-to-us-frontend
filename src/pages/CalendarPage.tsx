@@ -34,6 +34,8 @@ interface Props {
   onCreateSchedule: (data: ScheduleRequest) => Promise<void>
   onUpdateSchedule: (id: string, data: ScheduleRequest) => Promise<void>
   onDeleteSchedule: (id: string) => Promise<void>
+  currentDate: Date
+  onDateChange: (date: Date) => void
 }
 
 export const CalendarPage: FC<Props> = ({
@@ -53,11 +55,13 @@ export const CalendarPage: FC<Props> = ({
   onCreateSchedule,
   onUpdateSchedule,
   onDeleteSchedule,
+  currentDate,
+  onDateChange,
 }) => {
   const [viewType, setViewType] = useState<ViewType>('calendar')
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [budgetSubTab, setBudgetSubTab] = useState<BudgetSubTab>('entries')
-  const [currentDate, setCurrentDate] = useState(new Date())
+  // currentDate state removed (lifted up)
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
   const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false)
@@ -206,11 +210,11 @@ export const CalendarPage: FC<Props> = ({
 
 
   const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+    onDateChange(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
   }
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+    onDateChange(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
   }
 
   const handleDateClick = (year: number, month: number, day: number) => {
@@ -395,7 +399,7 @@ export const CalendarPage: FC<Props> = ({
                   ←
                 </button>
                 <button
-                  onClick={() => setCurrentDate(new Date())}
+                  onClick={() => onDateChange(new Date())}
                   className="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   오늘

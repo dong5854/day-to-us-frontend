@@ -16,6 +16,10 @@ import type { ScheduleRequest } from './features/schedule/types/schedule.types'
 function AppContent() {
   const navigate = useNavigate()
   
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1
+
   const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
     message: '',
     type: 'info',
@@ -77,7 +81,7 @@ function AppContent() {
     createSchedule,
     updateSchedule,
     deleteSchedule,
-  } = useSchedule(space?.id || null)
+  } = useSchedule(space?.id || null, currentYear, currentMonth)
 
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false)
 
@@ -255,6 +259,8 @@ function AppContent() {
               onCreateSchedule={handleCreateSchedule}
               onUpdateSchedule={handleUpdateSchedule}
               onDeleteSchedule={handleDeleteSchedule}
+              currentDate={currentDate}
+              onDateChange={setCurrentDate}
             />
           }
         />
@@ -282,6 +288,8 @@ function AppContent() {
               onCreateSchedule={handleCreateSchedule}
               onUpdateSchedule={handleUpdateSchedule}
               onDeleteSchedule={handleDeleteSchedule}
+              currentDate={currentDate}
+              onDateChange={setCurrentDate}
             />
           }
         />
