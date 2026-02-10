@@ -315,7 +315,7 @@ export const CalendarPage: FC<Props> = ({
   }
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       {/* View Toggle & Filters */}
       <div className="mb-4">
         {/* View Type Toggle */}
@@ -383,9 +383,9 @@ export const CalendarPage: FC<Props> = ({
       </div>
 
       {/* Content */}
-      <div className="animate-[slide-up_0.3s_ease-out]">
+      <div className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col min-h-0">
         {viewType === 'calendar' ? (
-          <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0">
+          <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0 flex-1 flex flex-col min-h-0">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -415,7 +415,7 @@ export const CalendarPage: FC<Props> = ({
 
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-1 flex-1">
               {/* Day Headers */}
               {['일', '월', '화', '수', '목', '금', '토'].map((day, index) => (
                 <div
@@ -430,7 +430,7 @@ export const CalendarPage: FC<Props> = ({
 
               {/* Empty cells for days before month starts */}
               {Array.from({ length: startingDayOfWeek }).map((_, index) => (
-                <div key={`empty-${index}`} className="min-h-[120px] bg-gray-50 rounded-lg" />
+                <div key={`empty-${index}`} className="md:min-h-[120px] bg-gray-50 rounded-lg" />
               ))}
 
               {/* Calendar Days */}
@@ -470,7 +470,7 @@ export const CalendarPage: FC<Props> = ({
                   <div
                     key={day}
                     onClick={() => handleDateClick(year, month, day)}
-                    className={`min-h-[90px] md:min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+                    className={`md:min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
                       isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
                     }`}
                   >
@@ -734,26 +734,28 @@ export const CalendarPage: FC<Props> = ({
         )}
       </div>
 
-      {/* Floating Add Button */}
-      <button
-        onClick={
-          viewType === 'list' && filterType === 'budget' && budgetSubTab === 'fixed'
-            ? handleAddFixedExpense
-            : viewType === 'list' && filterType === 'schedule'
-            ? handleAddSchedule
-            : handleAddEntry
-        }
-        className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
-        title={
-          viewType === 'list' && filterType === 'budget' && budgetSubTab === 'fixed'
-            ? '고정지출 추가'
-            : viewType === 'list' && filterType === 'schedule'
-            ? '일정 추가'
-            : '항목 추가'
-        }
-      >
-        +
-      </button>
+      {/* Floating Add Button - only in list view */}
+      {viewType === 'list' && (
+        <button
+          onClick={
+            filterType === 'budget' && budgetSubTab === 'fixed'
+              ? handleAddFixedExpense
+              : filterType === 'schedule'
+              ? handleAddSchedule
+              : handleAddEntry
+          }
+          className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
+          title={
+            filterType === 'budget' && budgetSubTab === 'fixed'
+              ? '고정지출 추가'
+              : filterType === 'schedule'
+              ? '일정 추가'
+              : '항목 추가'
+          }
+        >
+          +
+        </button>
+      )}
 
       {/* Date Choice Modal */}
       <Modal isOpen={isDateChoiceModalOpen} onClose={() => setIsDateChoiceModalOpen(false)}>
@@ -910,6 +912,6 @@ export const CalendarPage: FC<Props> = ({
           )}
         </div>
       </Drawer>
-    </>
+    </div>
   )
 }

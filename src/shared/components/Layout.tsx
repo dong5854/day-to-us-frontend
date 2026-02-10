@@ -16,7 +16,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   const isSettingsPage = location.pathname === '/settings'
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <header 
         className="gradient-bg text-white py-6 shadow-md transition-all duration-300 sticky top-0 z-50"
         style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}
@@ -53,7 +53,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-2 md:px-4 py-3 md:py-8 pb-24">{children}</main>
+      <main className="flex-1 overflow-y-auto container mx-auto px-2 md:px-4 py-2 md:py-8">{children}</main>
     </div>
   )
 }
