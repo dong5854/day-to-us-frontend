@@ -849,10 +849,14 @@ export const CalendarPage: FC<Props> = ({
                   const dateEntries = getEntriesForDate(y, m - 1, d)
                   const dateSchedules = getSchedulesForDate(y, m - 1, d)
                   
+                  const showBudget = filterType === 'all' || filterType === 'budget'
+                  const showSchedule = filterType === 'all' || filterType === 'schedule'
+                  const hasVisibleItems = (showBudget && dateEntries.length > 0) || (showSchedule && dateSchedules.length > 0)
+                  
                   return (
                     <>
                       {/* Budget entries */}
-                      {dateEntries.map((entry) => (
+                      {showBudget && dateEntries.map((entry) => (
                         <div
                           key={entry.id}
                           onClick={() => {
@@ -874,7 +878,7 @@ export const CalendarPage: FC<Props> = ({
                       ))}
                       
                       {/* Schedules */}
-                      {dateSchedules.map((schedule) => (
+                      {showSchedule && dateSchedules.map((schedule) => (
                         <div
                           key={schedule.id}
                           onClick={() => {
@@ -896,9 +900,10 @@ export const CalendarPage: FC<Props> = ({
                       ))}
                       
                       {/* Empty state */}
-                      {dateEntries.length === 0 && dateSchedules.length === 0 && (
+                      {!hasVisibleItems && (
                         <div className="text-center py-8 text-gray-400">
-                          등록된 항목이 없습니다
+                          {filterType === 'all' ? '등록된 항목이 없습니다' : 
+                           filterType === 'budget' ? '등록된 가계부 내역이 없습니다' : '등록된 일정이 없습니다'}
                         </div>
                       )}
                     </>
