@@ -9,6 +9,7 @@ import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
 import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
+import { useSwipe } from '@/shared/hooks/useSwipe'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
@@ -314,6 +315,11 @@ export const CalendarPage: FC<Props> = ({
     })
   }
 
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: nextMonth,
+    onSwipeRight: prevMonth,
+  })
+
   return (
     <div className="flex flex-col h-full">
       {/* View Toggle & Filters */}
@@ -383,7 +389,10 @@ export const CalendarPage: FC<Props> = ({
       </div>
 
       {/* Content */}
-      <div className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col min-h-0">
+      <div 
+        {...swipeHandlers}
+        className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col min-h-0 touch-pan-y"
+      >
         {viewType === 'calendar' ? (
           <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0 flex-1 flex flex-col min-h-0">
             {/* Calendar Header */}
