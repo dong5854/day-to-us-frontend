@@ -189,8 +189,11 @@ function AppContent() {
 
   if (spaceLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4F46E5]"></div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#4F46E5] z-50">
+        <div className="flex flex-col items-center gap-6 animate-fade-in">
+          <div className="text-6xl animate-bounce">💑</div>
+          <h1 className="text-3xl font-bold text-white font-['Geist'] tracking-tight">Day To Us</h1>
+        </div>
       </div>
     )
   }
