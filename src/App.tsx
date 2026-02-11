@@ -199,7 +199,7 @@ function AppContent() {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <header 
-          className="gradient-bg text-white py-6 shadow-md sticky top-0 z-50"
+          className="bg-[#4F46E5] text-white py-6 shadow-md sticky top-0 z-50"
           style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}
         >
           <div className="container mx-auto px-4">

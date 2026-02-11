@@ -546,7 +546,7 @@ export const CalendarPage: FC<Props> = ({
                         <div
                           key={entry.id}
                           className={`w-1.5 h-1.5 rounded-full ${
-                            entry.amount > 0 ? 'bg-green-500' : 'bg-rose-300'
+                            entry.amount > 0 ? 'bg-emerald-500' : 'bg-rose-500'
                           }`}
                         />
                       ))}
@@ -554,7 +554,7 @@ export const CalendarPage: FC<Props> = ({
                       {(filterType === 'all' || filterType === 'schedule') && singleDaySchedules.slice(0, 4).map((schedule) => (
                         <div
                           key={schedule.id}
-                          className="w-1.5 h-1.5 rounded-full bg-violet-200"
+                          className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]"
                         />
                       ))}
                       {/* Overflow indicator */}
@@ -575,8 +575,8 @@ export const CalendarPage: FC<Props> = ({
                             }}
                             className={`text-xs font-medium truncate px-2 py-1 rounded-md cursor-pointer hover:opacity-90 transition-opacity shadow-sm ${
                               entry.amount > 0
-                                ? 'bg-green-500 text-white'
-                                : 'bg-rose-300 text-white'
+                                ? 'bg-emerald-500 text-white'
+                                : 'bg-rose-500 text-white'
                             }`}
                             title={`${entry.description}: ${entry.amount > 0 ? '+' : ''}${entry.amount.toLocaleString()}원`}
                           >

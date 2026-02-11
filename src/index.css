@@ -7,6 +7,7 @@ html, body {
   height: 100%;
   position: fixed;
   width: 100%;
+  background-color: #4F46E5; /* Safari reads root background for status bar */
 }
 
 /* Pretendard Font for Body */
@@ -53,13 +54,10 @@ body {
 /* Custom gradient utility */
 @layer utilities {
   .gradient-bg {
-    background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%);
+    background: #4F46E5;
   }
   
   .gradient-text {
-    background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #4F46E5;
   }
 }

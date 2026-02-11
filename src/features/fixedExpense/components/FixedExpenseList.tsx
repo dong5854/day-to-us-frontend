@@ -65,7 +65,7 @@ export const FixedExpenseList: FC<Props> = ({ expenses, loading }) => {
   return (
     <div className="space-y-4">
       {/* 월간 총액 카드 */}
-      <div className="bg-gradient-to-r from-[#4F46E5] to-[#6D28D9] rounded-xl p-6 text-white shadow-lg">
+      <div className="bg-[#4F46E5] rounded-xl p-6 text-white shadow-lg">
         <div className="text-sm opacity-90 mb-1">월 예상 고정지출</div>
         <div className="text-3xl font-bold">{formatCurrency(totalMonthlyExpense)}</div>
       </div>
