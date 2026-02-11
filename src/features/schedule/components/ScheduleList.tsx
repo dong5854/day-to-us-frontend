@@ -85,7 +85,11 @@ export const ScheduleList: FC<Props> = ({ schedules, loading, onEdit, onDelete }
                     </div>
                     
                     <div className="text-sm text-gray-600 mb-2">
-                      {formatDateTime(schedule.startDateTime, schedule.isAllDay)} ~ {formatDateTime(schedule.endDateTime, schedule.isAllDay)}
+                      {(() => {
+                        const startStr = formatDateTime(schedule.startDateTime, schedule.isAllDay)
+                        const endStr = formatDateTime(schedule.endDateTime, schedule.isAllDay)
+                        return startStr === endStr ? startStr : `${startStr} ~ ${endStr}`
+                      })()}
                     </div>
 
                     {schedule.description && (
