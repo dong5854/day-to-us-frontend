@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production
     steps:
     - uses: actions/checkout@v4
     
@@ -21,11 +22,21 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         
+    - name: Update Kustomization image tag
+      run: |
+        # Update image tag in overlays/prod/kustomization.yaml
+        cd overlays/prod
+        if [ -f "kustomization.yaml" ]; then
+          sed -i "s|newTag: .*|newTag: ${{ github.sha }}|g" kustomization.yaml
+        fi
+        
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
         context: .
         push: true
+        build-args: |
+          VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}
         tags: |
           dong5854/day-to-us-frontend:latest
           dong5854/day-to-us-frontend:${{ github.sha }}
