@@ -22,14 +22,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         
-    - name: Update Kustomization image tag
-      run: |
-        # Update image tag in overlays/prod/kustomization.yaml
-        cd overlays/prod
-        if [ -f "kustomization.yaml" ]; then
-          sed -i "s|newTag: .*|newTag: ${{ github.sha }}|g" kustomization.yaml
-        fi
-        
+
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
