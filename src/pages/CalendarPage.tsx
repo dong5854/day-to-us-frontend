@@ -321,7 +321,7 @@ export const CalendarPage: FC<Props> = ({
   })
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col min-h-full">
       {/* View Toggle & Filters */}
       <div className="mb-4">
         {/* View Type Toggle */}
@@ -391,10 +391,10 @@ export const CalendarPage: FC<Props> = ({
       {/* Content */}
       <div 
         {...swipeHandlers}
-        className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col min-h-0 touch-pan-y"
+        className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col touch-pan-y"
       >
         {viewType === 'calendar' ? (
-          <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0 flex-1 flex flex-col min-h-0">
+          <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0 flex-1 flex flex-col">
             {/* Calendar Header */}
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
