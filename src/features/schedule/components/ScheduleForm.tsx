@@ -2,6 +2,19 @@ import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { Calendar, Clock } from 'lucide-react'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
 
+const toLocalDateString = (date: Date): string => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+const toLocalTimeString = (date: Date): string => {
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${h}:${min}`
+}
+
 interface Props {
   schedule?: ScheduleResponse | null
   initialDate?: string | null
@@ -25,12 +38,12 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
       setDescription(schedule.description || '')
       
       const start = new Date(schedule.startDateTime)
-      setStartDate(start.toISOString().split('T')[0])
-      setStartTime(start.toTimeString().slice(0, 5))
+      setStartDate(toLocalDateString(start))
+      setStartTime(toLocalTimeString(start))
       
       const end = new Date(schedule.endDateTime)
-      setEndDate(end.toISOString().split('T')[0])
-      setEndTime(end.toTimeString().slice(0, 5))
+      setEndDate(toLocalDateString(end))
+      setEndTime(toLocalTimeString(end))
       
       setIsAllDay(schedule.isAllDay)
     } else if (initialDate) {
