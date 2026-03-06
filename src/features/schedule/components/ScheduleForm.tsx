@@ -1,19 +1,7 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { Calendar, Clock } from 'lucide-react'
+import { toDateString, toTimeString } from '@/shared/utils/dateUtils'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
-
-const toLocalDateString = (date: Date): string => {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-const toLocalTimeString = (date: Date): string => {
-  const h = String(date.getHours()).padStart(2, '0')
-  const min = String(date.getMinutes()).padStart(2, '0')
-  return `${h}:${min}`
-}
 
 interface Props {
   schedule?: ScheduleResponse | null
@@ -25,44 +13,63 @@ interface Props {
 export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCancel }) => {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [startDate, setStartDate] = useState(toDateString(new Date()))
   const [startTime, setStartTime] = useState('09:00')
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0])
+  const [endDate, setEndDate] = useState(toDateString(new Date()))
   const [endTime, setEndTime] = useState('10:00')
   const [isAllDay, setIsAllDay] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [dateError, setDateError] = useState<string | null>(null)
 
   useEffect(() => {
     if (schedule) {
       setTitle(schedule.title)
       setDescription(schedule.description || '')
-      
+
       const start = new Date(schedule.startDateTime)
-      setStartDate(toLocalDateString(start))
-      setStartTime(toLocalTimeString(start))
-      
+      setStartDate(toDateString(start))
+      setStartTime(toTimeString(start))
+
       const end = new Date(schedule.endDateTime)
-      setEndDate(toLocalDateString(end))
-      setEndTime(toLocalTimeString(end))
-      
+      setEndDate(toDateString(end))
+      setEndTime(toTimeString(end))
+
       setIsAllDay(schedule.isAllDay)
     } else if (initialDate) {
       setStartDate(initialDate)
       setEndDate(initialDate)
     }
+    setDateError(null)
   }, [schedule, initialDate])
+
+  // 날짜/시간 변경 시 실시간 유효성 검사
+  useEffect(() => {
+    const startDateTime = isAllDay ? `${startDate}T00:00:00` : `${startDate}T${startTime}:00`
+    const endDateTime = isAllDay ? `${endDate}T23:59:59` : `${endDate}T${endTime}:00`
+
+    if (startDate && endDate && new Date(endDateTime) < new Date(startDateTime)) {
+      setDateError(
+        isAllDay
+          ? '종료 날짜는 시작 날짜 이후여야 합니다.'
+          : '종료 시간은 시작 시간 이후여야 합니다.'
+      )
+    } else {
+      setDateError(null)
+    }
+  }, [startDate, startTime, endDate, endTime, isAllDay])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    
+
     if (!title.trim()) return
+    if (dateError) return
 
     setLoading(true)
     try {
-      const startDateTime = isAllDay 
+      const startDateTime = isAllDay
         ? `${startDate}T00:00:00`
         : `${startDate}T${startTime}:00`
-      
+
       const endDateTime = isAllDay
         ? `${endDate}T23:59:59`
         : `${endDate}T${endTime}:00`
@@ -74,15 +81,16 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         endDateTime,
         isAllDay,
       })
-      
+
       // Reset form
       setTitle('')
       setDescription('')
-      setStartDate(new Date().toISOString().split('T')[0])
+      setStartDate(toDateString(new Date()))
       setStartTime('09:00')
-      setEndDate(new Date().toISOString().split('T')[0])
+      setEndDate(toDateString(new Date()))
       setEndTime('10:00')
       setIsAllDay(false)
+      setDateError(null)
     } catch (error) {
       console.error(error)
     } finally {
@@ -174,7 +182,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
         <div>
           <label htmlFor="endDate" className="block text-sm font-semibold text-gray-900 mb-2">
             종료 날짜
@@ -186,7 +194,11 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
+              className={`w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:ring-4 appearance-none pr-10 ${
+                dateError
+                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10'
+                  : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
+              }`}
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
           </div>
@@ -203,13 +215,25 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
+                className={`w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:ring-4 appearance-none pr-10 ${
+                  dateError
+                    ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10'
+                    : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
+                }`}
               />
               <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
           </div>
         )}
       </div>
+
+      {/* Date/Time validation error */}
+      {dateError && (
+        <p className="text-sm text-red-500 mb-6 flex items-center gap-1">
+          <span>⚠</span> {dateError}
+        </p>
+      )}
+      {!dateError && <div className="mb-8" />}
 
       <div className="grid grid-cols-2 gap-4">
         <button
@@ -222,7 +246,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !!dateError}
           className="px-6 py-3 rounded-lg font-semibold text-base gradient-bg text-white transition-all hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? '처리 중...' : schedule ? '수정' : '추가'}
