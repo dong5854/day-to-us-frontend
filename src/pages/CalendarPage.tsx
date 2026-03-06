@@ -1,5 +1,8 @@
 import { useState, type FC } from 'react'
 import { Calendar, List, Wallet } from 'lucide-react'
+import { useBudget } from '@/features/budget/hooks/useBudget'
+import { useFixedExpense } from '@/features/fixedExpense/hooks/useFixedExpense'
+import { useSchedule } from '@/features/schedule/hooks/useSchedule'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
@@ -9,9 +12,10 @@ import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
 import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
+import { Toast, type ToastType } from '@/shared/components/Toast'
 import { useSwipe } from '@/shared/hooks/useSwipe'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
-import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
+import type { FixedExpenseRequest } from '@/features/fixedExpense/types/fixedExpense.types'
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
 type ViewType = 'calendar' | 'list'
@@ -19,50 +23,60 @@ type FilterType = 'all' | 'budget' | 'schedule'
 type BudgetSubTab = 'entries' | 'fixed'
 
 interface Props {
-  entries: BudgetEntryResponse[]
-  loading: boolean
-  totalIncome: number
-  totalExpense: number
-  balance: number
-  onCreateEntry: (data: { description: string; amount: number; date: string }) => Promise<void>
-  onUpdateEntry: (id: string, data: { description: string; amount: number; date: string }) => Promise<void>
-  onDeleteEntry: (id: string) => Promise<void>
-  fixedExpenses: FixedExpenseResponse[]
-  fixedExpenseLoading: boolean
-  onCreateFixedExpense: (data: FixedExpenseRequest) => Promise<void>
-  schedules: ScheduleResponse[]
-  scheduleLoading: boolean
-  onCreateSchedule: (data: ScheduleRequest) => Promise<void>
-  onUpdateSchedule: (id: string, data: ScheduleRequest) => Promise<void>
-  onDeleteSchedule: (id: string) => Promise<void>
+  spaceId: string
   currentDate: Date
   onDateChange: (date: Date) => void
 }
 
-export const CalendarPage: FC<Props> = ({
-  entries,
-  loading,
-  totalIncome,
-  totalExpense,
-  balance,
-  onCreateEntry,
-  onUpdateEntry,
-  onDeleteEntry,
-  fixedExpenses,
-  fixedExpenseLoading,
-  onCreateFixedExpense,
-  schedules,
-  scheduleLoading,
-  onCreateSchedule,
-  onUpdateSchedule,
-  onDeleteSchedule,
-  currentDate,
-  onDateChange,
-}) => {
+export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) => {
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1
+
+  // Data Hooks
+  const {
+    entries,
+    loading: budgetLoading,
+    createEntry,
+    updateEntry,
+    deleteEntry,
+    totalIncome,
+    totalExpense,
+    balance,
+  } = useBudget(spaceId, currentYear, currentMonth)
+
+  const {
+    expenses: fixedExpenses,
+    loading: fixedExpenseLoading,
+    createExpense: createFixedExpense,
+  } = useFixedExpense(spaceId)
+
+  const {
+    schedules,
+    loading: scheduleLoading,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
+  } = useSchedule(spaceId, currentYear, currentMonth)
+
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  })
+
+  const showToast = (message: string, type: ToastType = 'info') => {
+    setToast({ message, type, isVisible: true })
+  }
+
+  const hideToast = () => {
+    setToast((prev) => ({ ...prev, isVisible: false }))
+  }
+
+  // UI State
   const [viewType, setViewType] = useState<ViewType>('calendar')
   const [filterType, setFilterType] = useState<FilterType>('all')
   const [budgetSubTab, setBudgetSubTab] = useState<BudgetSubTab>('entries')
-  // currentDate state removed (lifted up)
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
   const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false)
@@ -79,11 +93,12 @@ export const CalendarPage: FC<Props> = ({
     message: '',
     onConfirm: () => {},
   })
-  
+
   // Mobile drawer state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedDateForDrawer, setSelectedDateForDrawer] = useState<string | null>(null)
 
+  // Calendar helpers
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
     const month = date.getMonth()
@@ -107,7 +122,7 @@ export const CalendarPage: FC<Props> = ({
     return schedules.filter((schedule) => {
       const scheduleStartDate = schedule.startDateTime.split('T')[0]
       const scheduleEndDate = schedule.endDateTime.split('T')[0]
-      
+
       // Check if the date falls within the schedule's date range
       return dateStr >= scheduleStartDate && dateStr <= scheduleEndDate
     })
@@ -124,46 +139,46 @@ export const CalendarPage: FC<Props> = ({
 
   const getScheduleEventBars = (): EventBar[] => {
     if (filterType === 'budget') return []
-    
+
     const bars: EventBar[] = []
     const totalCells = startingDayOfWeek + daysInMonth
     const weeks = Math.ceil(totalCells / 7)
-    
+
     // Process each schedule
     schedules.forEach((schedule) => {
       const scheduleStart = new Date(schedule.startDateTime.split('T')[0])
       const scheduleEnd = new Date(schedule.endDateTime.split('T')[0])
-      
+
       // Only create bars for multi-day events
       const daysDiff = Math.ceil((scheduleEnd.getTime() - scheduleStart.getTime()) / (1000 * 60 * 60 * 24))
       if (daysDiff === 0) return // Skip single-day events
-      
+
       // For each week, check if schedule appears
       for (let weekIdx = 0; weekIdx < weeks; weekIdx++) {
         const weekStartCell = weekIdx * 7
         const weekEndCell = Math.min(weekStartCell + 6, totalCells - 1)
-        
+
         // Calculate which day of month corresponds to each cell
         const weekStartDay = weekStartCell - startingDayOfWeek + 1
         const weekEndDay = weekEndCell - startingDayOfWeek + 1
-        
+
         // Create date objects for this week's range
         const weekStartDate = new Date(year, month, Math.max(1, weekStartDay))
         const weekEndDate = new Date(year, month, Math.min(daysInMonth, weekEndDay))
-        
+
         // Check if schedule overlaps with this week
         if (scheduleEnd >= weekStartDate && scheduleStart <= weekEndDate) {
           // Calculate start column (1-7) for this week
           let startCol = 1
           let span = 7
-          
+
           if (scheduleStart >= weekStartDate) {
             // Event starts this week
             const dayInMonth = scheduleStart.getDate()
             const cellIndex = dayInMonth - 1 + startingDayOfWeek
             startCol = (cellIndex % 7) + 1
           }
-          
+
           if (scheduleEnd <= weekEndDate) {
             // Event ends this week
             const dayInMonth = scheduleEnd.getDate()
@@ -174,7 +189,7 @@ export const CalendarPage: FC<Props> = ({
             // Event continues past this week
             span = 8 - startCol
           }
-          
+
           bars.push({
             schedule,
             weekIndex: weekIdx,
@@ -185,30 +200,29 @@ export const CalendarPage: FC<Props> = ({
         }
       }
     })
-    
+
     // Calculate row offsets for overlapping events
     const weekGroups: { [key: number]: EventBar[] } = {}
     bars.forEach((bar) => {
       if (!weekGroups[bar.weekIndex]) weekGroups[bar.weekIndex] = []
       weekGroups[bar.weekIndex].push(bar)
     })
-    
+
     Object.values(weekGroups).forEach((weekBars) => {
       weekBars.sort((a, b) => {
         if (a.startCol !== b.startCol) return a.startCol - b.startCol
         return b.span - a.span
       })
-      
+
       weekBars.forEach((bar, idx) => {
         bar.rowOffset = idx
       })
     })
-    
+
     return bars
   }
 
   const eventBars = getScheduleEventBars()
-
 
   const prevMonth = () => {
     onDateChange(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
@@ -220,7 +234,7 @@ export const CalendarPage: FC<Props> = ({
 
   const handleDateClick = (year: number, month: number, day: number) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    
+
     // Check if mobile (< 768px, md breakpoint)
     if (window.innerWidth < 768) {
       setSelectedDateForDrawer(dateStr)
@@ -255,13 +269,20 @@ export const CalendarPage: FC<Props> = ({
   }
 
   const handleSubmitEntry = async (data: { description: string; amount: number; date: string }) => {
-    if (editingEntry) {
-      await onUpdateEntry(editingEntry.id, data)
-    } else {
-      await onCreateEntry(data)
+    try {
+      if (editingEntry) {
+        await updateEntry(editingEntry.id, data)
+        showToast('항목이 수정되었습니다', 'success')
+      } else {
+        await createEntry(data)
+        showToast('내역이 추가되었습니다', 'success')
+      }
+      setIsBudgetFormOpen(false)
+      setEditingEntry(null)
+    } catch {
+      showToast('저장에 실패했습니다', 'error')
+      throw new Error('저장에 실패했습니다')
     }
-    setIsBudgetFormOpen(false)
-    setEditingEntry(null)
   }
 
   const handleDeleteEntry = (entryId: string) => {
@@ -269,7 +290,12 @@ export const CalendarPage: FC<Props> = ({
       isOpen: true,
       message: '정말 이 내역을 삭제하시겠습니까?',
       onConfirm: async () => {
-        await onDeleteEntry(entryId)
+        try {
+          await deleteEntry(entryId)
+          showToast('삭제되었습니다', 'info')
+        } catch {
+          showToast('삭제에 실패했습니다', 'error')
+        }
         setConfirmState((prev) => ({ ...prev, isOpen: false }))
       },
     })
@@ -280,8 +306,14 @@ export const CalendarPage: FC<Props> = ({
   }
 
   const handleSubmitFixedExpense = async (data: FixedExpenseRequest) => {
-    await onCreateFixedExpense(data)
-    setIsFixedExpenseFormOpen(false)
+    try {
+      await createFixedExpense(data)
+      showToast('고정지출이 추가되었습니다', 'success')
+      setIsFixedExpenseFormOpen(false)
+    } catch {
+      showToast('저장에 실패했습니다', 'error')
+      throw new Error('저장에 실패했습니다')
+    }
   }
 
   const handleAddSchedule = () => {
@@ -295,13 +327,20 @@ export const CalendarPage: FC<Props> = ({
   }
 
   const handleSubmitSchedule = async (data: ScheduleRequest) => {
-    if (editingSchedule) {
-      await onUpdateSchedule(editingSchedule.id, data)
-    } else {
-      await onCreateSchedule(data)
+    try {
+      if (editingSchedule) {
+        await updateSchedule(editingSchedule.id, data)
+        showToast('일정이 수정되었습니다', 'success')
+      } else {
+        await createSchedule(data)
+        showToast('일정이 추가되었습니다', 'success')
+      }
+      setIsScheduleFormOpen(false)
+      setEditingSchedule(null)
+    } catch {
+      showToast(editingSchedule ? '일정 수정에 실패했습니다' : '일정 추가에 실패했습니다', 'error')
+      throw new Error('일정 처리에 실패했습니다')
     }
-    setIsScheduleFormOpen(false)
-    setEditingSchedule(null)
   }
 
   const handleDeleteSchedule = (scheduleId: string) => {
@@ -309,7 +348,12 @@ export const CalendarPage: FC<Props> = ({
       isOpen: true,
       message: '정말 이 일정을 삭제하시겠습니까?',
       onConfirm: async () => {
-        await onDeleteSchedule(scheduleId)
+        try {
+          await deleteSchedule(scheduleId)
+          showToast('일정이 삭제되었습니다', 'success')
+        } catch {
+          showToast('일정 삭제에 실패했습니다', 'error')
+        }
         setConfirmState((prev) => ({ ...prev, isOpen: false }))
       },
     })
@@ -389,7 +433,7 @@ export const CalendarPage: FC<Props> = ({
       </div>
 
       {/* Content */}
-      <div 
+      <div
         {...swipeHandlers}
         className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col touch-pan-y"
       >
@@ -452,26 +496,26 @@ export const CalendarPage: FC<Props> = ({
                 const dayOfWeek = (startingDayOfWeek + index) % 7
                 const dayEntries = getEntriesForDate(year, month, day)
                 const daySchedules = getSchedulesForDate(year, month, day)
-                
+
                 // Get event bars for this specific cell
                 const cellIndex = index + startingDayOfWeek
                 const currentWeek = Math.floor(cellIndex / 7)
                 const currentDayOfWeek = (cellIndex % 7) + 1
-                
+
                 const cellEventBars = eventBars.filter(
-                  (bar) => 
+                  (bar) =>
                     bar.weekIndex === currentWeek &&
                     currentDayOfWeek >= bar.startCol &&
                     currentDayOfWeek < bar.startCol + bar.span
                 )
-                
+
                 // Filter out multi-day schedules from cell display
                 const singleDaySchedules = daySchedules.filter((schedule) => {
                   const scheduleStart = schedule.startDateTime.split('T')[0]
                   const scheduleEnd = schedule.endDateTime.split('T')[0]
                   return scheduleStart === scheduleEnd
                 })
-                
+
                 const hasEntries = dayEntries.length > 0
                 const hasSingleDaySchedules = singleDaySchedules.length > 0
 
@@ -497,7 +541,7 @@ export const CalendarPage: FC<Props> = ({
                     >
                       {day}
                     </div>
-                    
+
                     {/* + Button */}
                     <button
                       onClick={(e) => {
@@ -516,7 +560,7 @@ export const CalendarPage: FC<Props> = ({
                         {cellEventBars.map((bar) => {
                           const isStartOfBar = currentDayOfWeek === bar.startCol
                           const isEndOfBar = currentDayOfWeek === bar.startCol + bar.span - 1
-                          
+
                           return (
                             <div
                               key={`${bar.schedule.id}-${bar.weekIndex}`}
@@ -526,7 +570,7 @@ export const CalendarPage: FC<Props> = ({
                               }}
                               className="cursor-pointer hover:opacity-80 transition-opacity"
                             >
-                              <div 
+                              <div
                                 className={`h-3 md:h-6 bg-indigo-200/80 text-indigo-800 text-xs px-2 py-0.5 flex items-center font-medium shadow-sm ${
                                   isStartOfBar && isEndOfBar
                                     ? 'rounded-md'
@@ -546,8 +590,8 @@ export const CalendarPage: FC<Props> = ({
                         })}
                       </div>
                     )}
-                    
-                    
+
+
                     {/* Mobile: Event dots */}
                     <div className="md:hidden absolute bottom-2 left-0 right-0 flex justify-center gap-1">
                       {/* Budget entry dots */}
@@ -571,7 +615,7 @@ export const CalendarPage: FC<Props> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                       )}
                     </div>
-                    
+
                     {/* Desktop: Display budget entries */}
                     {hasEntries && (filterType === 'all' || filterType === 'budget') && (
                       <div className="hidden md:block space-y-1">
@@ -722,7 +766,7 @@ export const CalendarPage: FC<Props> = ({
                     totalIncome={totalIncome}
                     totalExpense={totalExpense}
                     balance={balance}
-                    loading={loading}
+                    loading={budgetLoading}
                   />
                 ) : (
                   <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} />
@@ -827,7 +871,7 @@ export const CalendarPage: FC<Props> = ({
         confirmText="삭제"
         isDangerous
       />
-      
+
       {/* Mobile Drawer */}
       <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
         <div className="p-4 pb-8">
@@ -841,18 +885,18 @@ export const CalendarPage: FC<Props> = ({
                   day: 'numeric'
                 })}
               </h3>
-              
+
               {/* Event list */}
               <div className="space-y-2 mb-4">
                 {(() => {
                   const [y, m, d] = selectedDateForDrawer.split('-').map(Number)
                   const dateEntries = getEntriesForDate(y, m - 1, d)
                   const dateSchedules = getSchedulesForDate(y, m - 1, d)
-                  
+
                   const showBudget = filterType === 'all' || filterType === 'budget'
                   const showSchedule = filterType === 'all' || filterType === 'schedule'
                   const hasVisibleItems = (showBudget && dateEntries.length > 0) || (showSchedule && dateSchedules.length > 0)
-                  
+
                   return (
                     <>
                       {/* Budget entries */}
@@ -876,7 +920,7 @@ export const CalendarPage: FC<Props> = ({
                           </div>
                         </div>
                       ))}
-                      
+
                       {/* Schedules */}
                       {showSchedule && dateSchedules.map((schedule) => (
                         <div
@@ -898,11 +942,11 @@ export const CalendarPage: FC<Props> = ({
                           </div>
                         </div>
                       ))}
-                      
+
                       {/* Empty state */}
                       {!hasVisibleItems && (
                         <div className="text-center py-8 text-gray-400">
-                          {filterType === 'all' ? '등록된 항목이 없습니다' : 
+                          {filterType === 'all' ? '등록된 항목이 없습니다' :
                            filterType === 'budget' ? '등록된 가계부 내역이 없습니다' : '등록된 일정이 없습니다'}
                         </div>
                       )}
@@ -910,7 +954,7 @@ export const CalendarPage: FC<Props> = ({
                   )
                 })()}
               </div>
-              
+
               {/* Add button */}
               <button
                 onClick={() => {
@@ -926,6 +970,9 @@ export const CalendarPage: FC<Props> = ({
           )}
         </div>
       </Drawer>
+
+      {/* Toast */}
+      <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />
     </div>
   )
 }
