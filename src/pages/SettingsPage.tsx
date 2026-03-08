@@ -1,4 +1,5 @@
-import type { FC } from 'react'
+import { useState, type FC } from 'react'
+import { Toast, type ToastType } from '@/shared/components/Toast'
 import type { SharedSpaceResponse, UserResponse } from '@/features/space/types/space.types'
 
 interface Props {
@@ -7,10 +8,22 @@ interface Props {
 }
 
 export const SettingsPage: FC<Props> = ({ space, members }) => {
-  const handleCopyCode = () => {
-    if (space?.inviteCode) {
-      navigator.clipboard.writeText(space.inviteCode)
-      alert('초대 코드가 복사되었습니다!')
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  })
+
+  const showToast = (message: string, type: ToastType = 'info') =>
+    setToast({ message, type, isVisible: true })
+
+  const handleCopyCode = async () => {
+    if (!space?.inviteCode) return
+    try {
+      await navigator.clipboard.writeText(space.inviteCode)
+      showToast('초대 코드가 복사되었습니다!', 'success')
+    } catch {
+      showToast('복사에 실패했습니다. 직접 선택해서 복사해주세요.', 'error')
     }
   }
 
@@ -79,6 +92,13 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
           </button>
         </div>
       </div>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
+      />
     </div>
   )
 }
