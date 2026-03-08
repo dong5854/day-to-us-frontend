@@ -59,7 +59,10 @@ export const CalendarListView: FC<Props> = ({
 }) => {
   const [budgetSubTab, setBudgetSubTab] = useState<BudgetSubTab>('entries')
 
-  const addTarget = filterType === 'budget' && budgetSubTab === 'fixed' ? 'fixed' : filterType
+  const addTarget: BudgetSubTab | 'schedule' =
+    filterType === 'schedule' ? 'schedule'
+    : budgetSubTab === 'fixed' ? 'fixed'
+    : 'entries'
 
   return (
     <>

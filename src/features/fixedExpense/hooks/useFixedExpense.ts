@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fixedExpenseApi } from '../api/fixedExpenseApi'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '../types/fixedExpense.types'
 
@@ -7,7 +7,7 @@ export const useFixedExpense = (spaceId: string | null) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!spaceId) return
 
     try {
@@ -21,9 +21,9 @@ export const useFixedExpense = (spaceId: string | null) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [spaceId])
 
-  const createExpense = async (data: FixedExpenseRequest) => {
+  const createExpense = useCallback(async (data: FixedExpenseRequest) => {
     if (!spaceId) throw new Error('공간 ID가 필요합니다.')
 
     try {
@@ -36,11 +36,11 @@ export const useFixedExpense = (spaceId: string | null) => {
       console.error(err)
       throw err
     }
-  }
+  }, [spaceId])
 
   useEffect(() => {
     fetchExpenses()
-  }, [spaceId])
+  }, [fetchExpenses])
 
   return {
     expenses,
