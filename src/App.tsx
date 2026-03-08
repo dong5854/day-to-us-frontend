@@ -5,6 +5,7 @@ import { CalendarPage } from './pages/CalendarPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { SpaceForm } from './features/space/components/SpaceForm'
 import { LoginPage } from './features/auth/components/LoginPage'
+import { OAuth2RedirectPage } from './features/auth/components/OAuth2RedirectPage'
 import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
 import { Toast, type ToastType } from './shared/components/Toast'
@@ -26,30 +27,6 @@ function AppContent() {
 
   const hideToast = () => {
     setToast((prev) => ({ ...prev, isVisible: false }))
-  }
-
-  // OAuth2 Redirect Handler
-  useEffect(() => {
-    const path = window.location.pathname
-    if (path === '/oauth2/redirect') {
-      const params = new URLSearchParams(window.location.search)
-      const token = params.get('token')
-      if (token) {
-        localStorage.setItem('accessToken', token)
-        window.location.replace('/')
-      }
-    }
-  }, [])
-
-  if (window.location.pathname === '/oauth2/redirect') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4F46E5]"></div>
-          <p className="text-gray-500 font-medium">로그인 처리 중...</p>
-        </div>
-      </div>
-    )
   }
 
   const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
@@ -175,7 +152,10 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <Routes>
+        <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
+        <Route path="*" element={<AppContent />} />
+      </Routes>
     </BrowserRouter>
   )
 }
