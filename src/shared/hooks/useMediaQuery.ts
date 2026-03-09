@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * 미디어 쿼리를 구독하는 훅.
@@ -15,7 +15,7 @@ export const useMediaQuery = (query: string): boolean => {
 
   const [matches, setMatches] = useState<boolean>(getMatches)
 
-  useState(() => {
+  useEffect(() => {
     const mediaQueryList = window.matchMedia(query)
     const handleChange = (e: MediaQueryListEvent) => setMatches(e.matches)
 
