@@ -1,5 +1,6 @@
-import { useState, type FC } from 'react'
-import { Toast, type ToastType } from '@/shared/components/Toast'
+import { type FC } from 'react'
+import { Toast } from '@/shared/components/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import type { SharedSpaceResponse, UserResponse } from '@/features/space/types/space.types'
 
 interface Props {
@@ -8,14 +9,7 @@ interface Props {
 }
 
 export const SettingsPage: FC<Props> = ({ space, members }) => {
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false,
-  })
-
-  const showToast = (message: string, type: ToastType = 'info') =>
-    setToast({ message, type, isVisible: true })
+  const { toast, showToast, hideToast } = useToast()
 
   const handleCopyCode = async () => {
     if (!space?.inviteCode) return
@@ -97,7 +91,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         message={toast.message}
         type={toast.type}
         isVisible={toast.isVisible}
-        onClose={() => setToast((prev) => ({ ...prev, isVisible: false }))}
+        onClose={hideToast}
       />
     </div>
   )

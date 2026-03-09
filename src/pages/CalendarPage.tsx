@@ -14,7 +14,8 @@ import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
 import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
-import { Toast, type ToastType } from '@/shared/components/Toast'
+import { Toast } from '@/shared/components/Toast'
+import { useToast } from '@/shared/hooks/useToast'
 import { buildDateStr } from '@/shared/utils/dateUtils'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest } from '@/features/fixedExpense/types/fixedExpense.types'
@@ -91,15 +92,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   const isMobile = useMediaQuery('(max-width: 767px)')
 
   // ─── Toast ────────────────────────────────────────────────────────────────
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false,
-  })
-
-  const showToast = (message: string, type: ToastType = 'info') =>
-    setToast({ message, type, isVisible: true })
-  const hideToast = () => setToast((prev) => ({ ...prev, isVisible: false }))
+  const { toast, showToast, hideToast } = useToast()
 
   // ─── UI State ─────────────────────────────────────────────────────────────
   const [viewType, setViewType] = useState<ViewType>('calendar')

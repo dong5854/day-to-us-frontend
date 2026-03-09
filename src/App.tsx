@@ -8,27 +8,16 @@ import { LoginPage } from './features/auth/components/LoginPage'
 import { OAuth2RedirectPage } from './features/auth/components/OAuth2RedirectPage'
 import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
-import { Toast, type ToastType } from './shared/components/Toast'
+import { Toast } from './shared/components/Toast'
 import { ErrorBoundary } from './shared/components/ErrorBoundary'
+import { useToast } from './shared/hooks/useToast'
 
 function AppContent() {
   const navigate = useNavigate()
 
   const [currentDate, setCurrentDate] = useState(new Date())
 
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false,
-  })
-
-  const showToast = (message: string, type: ToastType = 'info') => {
-    setToast({ message, type, isVisible: true })
-  }
-
-  const hideToast = () => {
-    setToast((prev) => ({ ...prev, isVisible: false }))
-  }
+  const { toast, showToast, hideToast } = useToast()
 
   const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
 
