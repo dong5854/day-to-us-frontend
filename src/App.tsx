@@ -9,6 +9,7 @@ import { OAuth2RedirectPage } from './features/auth/components/OAuth2RedirectPag
 import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
 import { Toast, type ToastType } from './shared/components/Toast'
+import { ErrorBoundary } from './shared/components/ErrorBoundary'
 
 function AppContent() {
   const navigate = useNavigate()
@@ -130,16 +131,22 @@ function AppContent() {
         <Route
           path="/"
           element={
-            <CalendarPage
-              spaceId={space!.id}
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-            />
+            <ErrorBoundary>
+              <CalendarPage
+                spaceId={space!.id}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+              />
+            </ErrorBoundary>
           }
         />
         <Route
           path="/settings"
-          element={<SettingsPage space={space} members={members} />}
+          element={
+            <ErrorBoundary>
+              <SettingsPage space={space} members={members} />
+            </ErrorBoundary>
+          }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -151,12 +158,14 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
-        <Route path="*" element={<AppContent />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 
