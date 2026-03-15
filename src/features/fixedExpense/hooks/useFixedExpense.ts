@@ -38,6 +38,35 @@ export const useFixedExpense = (spaceId: string | null) => {
     }
   }, [spaceId])
 
+  const updateExpense = useCallback(async (expenseId: string, data: FixedExpenseRequest) => {
+    if (!spaceId) throw new Error('공간 ID가 필요합니다.')
+
+    try {
+      setError(null)
+      const updated = await fixedExpenseApi.update(spaceId, expenseId, data)
+      setExpenses((prev) => prev.map((e) => (e.id === expenseId ? updated : e)))
+      return updated
+    } catch (err) {
+      setError('고정지출 수정에 실패했습니다.')
+      console.error(err)
+      throw err
+    }
+  }, [spaceId])
+
+  const deleteExpense = useCallback(async (expenseId: string) => {
+    if (!spaceId) throw new Error('공간 ID가 필요합니다.')
+
+    try {
+      setError(null)
+      await fixedExpenseApi.delete(spaceId, expenseId)
+      setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
+    } catch (err) {
+      setError('고정지출 삭제에 실패했습니다.')
+      console.error(err)
+      throw err
+    }
+  }, [spaceId])
+
   useEffect(() => {
     fetchExpenses()
   }, [fetchExpenses])
@@ -47,6 +76,8 @@ export const useFixedExpense = (spaceId: string | null) => {
     loading,
     error,
     createExpense,
+    updateExpense,
+    deleteExpense,
     refetch: fetchExpenses,
   }
 }

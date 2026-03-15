@@ -26,6 +26,8 @@ interface Props {
   onFilterChange: (filter: FilterType) => void
   onEditEntry: (entry: BudgetEntryResponse) => void
   onDeleteEntry: (id: string) => void
+  onEditFixedExpense: (expense: FixedExpenseResponse) => void
+  onDeleteFixedExpense: (id: string) => void
   onEditSchedule: (schedule: ScheduleResponse) => void
   onDeleteSchedule: (id: string) => void
   onAdd: (tab: BudgetSubTab | 'schedule') => void
@@ -50,6 +52,8 @@ export const CalendarListView: FC<Props> = ({
   onFilterChange,
   onEditEntry,
   onDeleteEntry,
+  onEditFixedExpense,
+  onDeleteFixedExpense,
   onEditSchedule,
   onDeleteSchedule,
   onAdd,
@@ -130,7 +134,7 @@ export const CalendarListView: FC<Props> = ({
               loading={budgetLoading}
             />
           ) : (
-            <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} />
+            <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} onEdit={onEditFixedExpense} onDelete={onDeleteFixedExpense} />
           )}
         </>
       )}

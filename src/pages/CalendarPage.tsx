@@ -18,7 +18,7 @@ import { Toast } from '@/shared/components/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { buildDateStr } from '@/shared/utils/dateUtils'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
-import type { FixedExpenseRequest } from '@/features/fixedExpense/types/fixedExpense.types'
+import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
 type ViewType = 'calendar' | 'list'
@@ -51,6 +51,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     expenses: fixedExpenses,
     loading: fixedExpenseLoading,
     createExpense: createFixedExpense,
+    updateExpense: updateFixedExpense,
+    deleteExpense: deleteFixedExpense,
   } = useFixedExpense(spaceId)
 
   const {
@@ -98,6 +100,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   const [viewType, setViewType] = useState<ViewType>('calendar')
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
+  const [editingFixedExpense, setEditingFixedExpense] = useState<FixedExpenseResponse | null>(null)
   const [isScheduleFormOpen, setIsScheduleFormOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<BudgetEntryResponse | null>(null)
   const [editingSchedule, setEditingSchedule] = useState<ScheduleResponse | null>(null)
@@ -172,15 +175,42 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   }
 
   // ─── Handler: Fixed Expense ───────────────────────────────────────────────
+  const handleEditFixedExpense = (expense: FixedExpenseResponse) => {
+    setEditingFixedExpense(expense)
+    setIsFixedExpenseFormOpen(true)
+  }
+
   const handleSubmitFixedExpense = async (data: FixedExpenseRequest) => {
     try {
-      await createFixedExpense(data)
-      showToast('고정지출이 추가되었습니다', 'success')
+      if (editingFixedExpense) {
+        await updateFixedExpense(editingFixedExpense.id, data)
+        showToast('고정지출이 수정되었습니다', 'success')
+      } else {
+        await createFixedExpense(data)
+        showToast('고정지출이 추가되었습니다', 'success')
+      }
       setIsFixedExpenseFormOpen(false)
+      setEditingFixedExpense(null)
     } catch {
       showToast('저장에 실패했습니다', 'error')
       throw new Error('저장에 실패했습니다')
     }
+  }
+
+  const handleDeleteFixedExpense = (expenseId: string) => {
+    setConfirmState({
+      isOpen: true,
+      message: '정말 이 고정지출을 삭제하시겠습니까?',
+      onConfirm: async () => {
+        try {
+          await deleteFixedExpense(expenseId)
+          showToast('고정지출이 삭제되었습니다', 'info')
+        } catch {
+          showToast('삭제에 실패했습니다', 'error')
+        }
+        setConfirmState((prev) => ({ ...prev, isOpen: false }))
+      },
+    })
   }
 
   // ─── Handler: Schedule ────────────────────────────────────────────────────
@@ -227,6 +257,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     setSelectedDate(null)
     setEditingEntry(null)
     setEditingSchedule(null)
+    setEditingFixedExpense(null)
     if (target === 'fixed') setIsFixedExpenseFormOpen(true)
     else if (target === 'schedule') setIsScheduleFormOpen(true)
     else setIsBudgetFormOpen(true)
@@ -322,6 +353,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             onFilterChange={setListFilterType}
             onEditEntry={handleEditEntry}
             onDeleteEntry={handleDeleteEntry}
+            onEditFixedExpense={handleEditFixedExpense}
+            onDeleteFixedExpense={handleDeleteFixedExpense}
             onEditSchedule={handleEditSchedule}
             onDeleteSchedule={handleDeleteSchedule}
             onAdd={handleListAdd}
@@ -368,10 +401,11 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       </Modal>
 
       {/* Fixed Expense Form */}
-      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => setIsFixedExpenseFormOpen(false)}>
+      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
+          expense={editingFixedExpense}
           onSubmit={handleSubmitFixedExpense}
-          onCancel={() => setIsFixedExpenseFormOpen(false)}
+          onCancel={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}
         />
       </Modal>
 

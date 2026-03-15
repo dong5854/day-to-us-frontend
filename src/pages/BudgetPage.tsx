@@ -22,6 +22,8 @@ interface Props {
   fixedExpenses: FixedExpenseResponse[]
   fixedExpenseLoading: boolean
   onCreateFixedExpense: (data: FixedExpenseRequest) => Promise<void>
+  onUpdateFixedExpense: (id: string, data: FixedExpenseRequest) => Promise<void>
+  onDeleteFixedExpense: (id: string) => Promise<void>
 }
 
 export const BudgetPage: FC<Props> = ({
@@ -36,11 +38,14 @@ export const BudgetPage: FC<Props> = ({
   fixedExpenses,
   fixedExpenseLoading,
   onCreateFixedExpense,
+  onUpdateFixedExpense,
+  onDeleteFixedExpense,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('entries')
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
   const [editingEntry, setEditingEntry] = useState<BudgetEntryResponse | null>(null)
+  const [editingFixedExpense, setEditingFixedExpense] = useState<FixedExpenseResponse | null>(null)
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean
     message: string
@@ -83,12 +88,34 @@ export const BudgetPage: FC<Props> = ({
   }
 
   const handleAddFixedExpense = () => {
+    setEditingFixedExpense(null)
+    setIsFixedExpenseFormOpen(true)
+  }
+
+  const handleEditFixedExpense = (expense: FixedExpenseResponse) => {
+    setEditingFixedExpense(expense)
     setIsFixedExpenseFormOpen(true)
   }
 
   const handleSubmitFixedExpense = async (data: FixedExpenseRequest) => {
-    await onCreateFixedExpense(data)
+    if (editingFixedExpense) {
+      await onUpdateFixedExpense(editingFixedExpense.id, data)
+    } else {
+      await onCreateFixedExpense(data)
+    }
     setIsFixedExpenseFormOpen(false)
+    setEditingFixedExpense(null)
+  }
+
+  const handleDeleteFixedExpense = (expenseId: string) => {
+    setConfirmState({
+      isOpen: true,
+      message: '정말 이 고정지출을 삭제하시겠습니까?',
+      onConfirm: async () => {
+        await onDeleteFixedExpense(expenseId)
+        setConfirmState((prev) => ({ ...prev, isOpen: false }))
+      },
+    })
   }
 
   const handleAddClick = () => {
@@ -138,7 +165,7 @@ export const BudgetPage: FC<Props> = ({
             loading={loading}
           />
         ) : (
-          <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} />
+          <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} onEdit={handleEditFixedExpense} onDelete={handleDeleteFixedExpense} />
         )}
       </div>
 
@@ -161,10 +188,11 @@ export const BudgetPage: FC<Props> = ({
       </Modal>
 
       {/* Fixed Expense Form Modal */}
-      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => setIsFixedExpenseFormOpen(false)}>
+      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
+          expense={editingFixedExpense}
           onSubmit={handleSubmitFixedExpense}
-          onCancel={() => setIsFixedExpenseFormOpen(false)}
+          onCancel={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}
         />
       </Modal>
 
