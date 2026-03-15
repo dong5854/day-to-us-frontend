@@ -2,6 +2,7 @@ import { type FC } from 'react'
 import { Toast } from '@/shared/components/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { SyncSettingCard } from '@/features/syncSetting/components/SyncSettingCard'
+import { NotificationSettingCard } from '@/features/notification/components/NotificationSettingCard'
 import type { SharedSpaceResponse, UserResponse } from '@/features/space/types/space.types'
 
 interface Props {
@@ -73,6 +74,8 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
       </div>
 
       <SyncSettingCard />
+
+      <NotificationSettingCard />
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4">계정</h3>
