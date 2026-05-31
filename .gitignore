@@ -45,3 +45,4 @@ Thumbs.db
 coverage
 *.lcov
 .nyc_output
+*secret*
