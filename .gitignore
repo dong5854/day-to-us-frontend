@@ -14,6 +14,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
 
 # PWA generated files
 dev-dist
@@ -44,3 +45,4 @@ Thumbs.db
 coverage
 *.lcov
 .nyc_output
+*secret*

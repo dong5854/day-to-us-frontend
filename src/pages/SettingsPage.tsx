@@ -1,4 +1,8 @@
-import type { FC } from 'react'
+import { type FC } from 'react'
+import { Toast } from '@/shared/components/Toast'
+import { useToast } from '@/shared/hooks/useToast'
+import { SyncSettingCard } from '@/features/syncSetting/components/SyncSettingCard'
+import { NotificationSettingCard } from '@/features/notification/components/NotificationSettingCard'
 import type { SharedSpaceResponse, UserResponse } from '@/features/space/types/space.types'
 
 interface Props {
@@ -7,10 +11,15 @@ interface Props {
 }
 
 export const SettingsPage: FC<Props> = ({ space, members }) => {
-  const handleCopyCode = () => {
-    if (space?.inviteCode) {
-      navigator.clipboard.writeText(space.inviteCode)
-      alert('초대 코드가 복사되었습니다!')
+  const { toast, showToast, hideToast } = useToast()
+
+  const handleCopyCode = async () => {
+    if (!space?.inviteCode) return
+    try {
+      await navigator.clipboard.writeText(space.inviteCode)
+      showToast('초대 코드가 복사되었습니다!', 'success')
+    } catch {
+      showToast('복사에 실패했습니다. 직접 선택해서 복사해주세요.', 'error')
     }
   }
 
@@ -18,7 +27,6 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
     <div className="animate-[fade-in_0.3s_ease-out] space-y-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">설정</h2>
 
-      {/* Space Info Card */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4">공간 정보</h3>
         
@@ -45,7 +53,6 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         </div>
       </div>
 
-      {/* Members Card */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <span>👫</span> 함께하는 멤버
@@ -66,7 +73,10 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         </div>
       </div>
 
-      {/* Account Actions */}
+      <SyncSettingCard />
+
+      <NotificationSettingCard />
+
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4">계정</h3>
         
@@ -79,6 +89,13 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
           </button>
         </div>
       </div>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   )
 }
