@@ -17,7 +17,10 @@ export const useBudget = (spaceId: string | null, year?: number, month?: number)
       setLoading(true)
       setError(null)
       const data = await budgetApi.getAll(spaceId, year, month)
-      setEntries(Array.isArray(data) ? data : [])
+      if (!Array.isArray(data)) {
+        throw new Error('가계부 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setEntries(data)
     } catch (err) {
       setError('가계부 목록을 불러오는데 실패했습니다.')
       console.error(err)

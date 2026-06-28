@@ -14,7 +14,10 @@ export const useFixedExpense = (spaceId: string | null) => {
       setLoading(true)
       setError(null)
       const data = await fixedExpenseApi.getAll(spaceId)
-      setExpenses(Array.isArray(data) ? data : [])
+      if (!Array.isArray(data)) {
+        throw new Error('고정지출 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setExpenses(data)
     } catch (err) {
       setError('고정지출 목록을 불러오는데 실패했습니다.')
       console.error(err)

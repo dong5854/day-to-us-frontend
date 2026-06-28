@@ -17,7 +17,10 @@ export const useSchedule = (spaceId: string | null, year?: number, month?: numbe
       setLoading(true)
       setError(null)
       const data = await scheduleApi.getAll(spaceId, year, month)
-      setSchedules(Array.isArray(data) ? data : [])
+      if (!Array.isArray(data)) {
+        throw new Error('일정 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setSchedules(data)
     } catch (err) {
       setError('일정을 불러오는데 실패했습니다.')
       console.error(err)

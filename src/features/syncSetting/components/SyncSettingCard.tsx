@@ -11,8 +11,19 @@ const SYNC_DIRECTION_LABELS: Record<SyncDirection, string> = {
 }
 
 export const SyncSettingCard: FC = () => {
-  const { syncSetting, calendars, loading, updateSyncSetting, syncNow } = useSyncSetting()
+  const { syncSetting, calendars, loading, error, updateSyncSetting, syncNow } = useSyncSetting()
   const { toast, showToast, hideToast } = useToast()
+
+  if (!syncSetting && error) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Google 캘린더 동기화</h3>
+        <div className="p-4 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
+          {error}
+        </div>
+      </div>
+    )
+  }
 
   if (loading || !syncSetting) {
     return (
@@ -89,6 +100,12 @@ export const SyncSettingCard: FC = () => {
           지금 동기화
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
