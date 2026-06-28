@@ -10,11 +10,21 @@ export const useSpace = () => {
   const [isUnauthorized, setIsUnauthorized] = useState(false)
 
   const fetchSpace = async () => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      setIsUnauthorized(true)
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       setError(null)
       setIsUnauthorized(false)
       const data = await spaceApi.getAll()
+      if (!Array.isArray(data)) {
+        throw new Error('공간 데이터가 올바른 배열 형식이 아닙니다.')
+      }
       if (data.length > 0) {
         setSpace(data[0])
         const membersData = await spaceApi.getMembers()
