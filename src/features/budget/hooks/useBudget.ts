@@ -17,7 +17,7 @@ export const useBudget = (spaceId: string | null, year?: number, month?: number)
       setLoading(true)
       setError(null)
       const data = await budgetApi.getAll(spaceId, year, month)
-      setEntries(data)
+      setEntries(Array.isArray(data) ? data : [])
     } catch (err) {
       setError('가계부 목록을 불러오는데 실패했습니다.')
       console.error(err)

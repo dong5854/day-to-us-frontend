@@ -14,7 +14,7 @@ export const useFixedExpense = (spaceId: string | null) => {
       setLoading(true)
       setError(null)
       const data = await fixedExpenseApi.getAll(spaceId)
-      setExpenses(data)
+      setExpenses(Array.isArray(data) ? data : [])
     } catch (err) {
       setError('고정지출 목록을 불러오는데 실패했습니다.')
       console.error(err)

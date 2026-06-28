@@ -18,7 +18,7 @@ export const useSpace = () => {
       if (data.length > 0) {
         setSpace(data[0])
         const membersData = await spaceApi.getMembers()
-        setMembers(membersData)
+        setMembers(Array.isArray(membersData) ? membersData : [])
       } else {
         setSpace(null)
         setMembers([])
@@ -44,7 +44,7 @@ export const useSpace = () => {
       const newSpace = await spaceApi.create({ name })
       setSpace(newSpace)
       const membersData = await spaceApi.getMembers()
-      setMembers(membersData)
+      setMembers(Array.isArray(membersData) ? membersData : [])
       return newSpace
     } catch (err) {
       setError('공간 생성에 실패했습니다.')
@@ -61,7 +61,7 @@ export const useSpace = () => {
       const joinedSpace = await spaceApi.join({ inviteCode })
       setSpace(joinedSpace)
       const membersData = await spaceApi.getMembers()
-      setMembers(membersData)
+      setMembers(Array.isArray(membersData) ? membersData : [])
       return joinedSpace
     } catch (err) {
       setError('공간 참여에 실패했습니다. 초대 코드를 확인해주세요.')
