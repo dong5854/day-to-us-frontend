@@ -59,7 +59,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         </h3>
         
         <div className="space-y-3">
-          {members.map((member) => (
+          {members?.map((member) => (
             <div key={member.email} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold shrink-0">
                 {member.name[0]}
