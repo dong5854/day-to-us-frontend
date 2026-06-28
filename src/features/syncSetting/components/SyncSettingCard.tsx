@@ -139,7 +139,7 @@ export const SyncSettingCard: FC = () => {
                 {syncSetting.googleCalendarId === 'primary' ? '기본 캘린더' : syncSetting.googleCalendarId}
               </option>
             )}
-            {calendars.map((cal) => (
+            {calendars?.map((cal) => (
               <option key={cal.id} value={cal.id}>
                 {cal.summary}{cal.primary ? ' (기본)' : ''}
               </option>
