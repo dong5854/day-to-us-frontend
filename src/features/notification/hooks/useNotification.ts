@@ -59,7 +59,7 @@ export const useNotification = () => {
     const applicationServerKey = urlBase64ToUint8Array(vapidKey)
     const pushSubscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey,
+      applicationServerKey: applicationServerKey.buffer as ArrayBuffer,
     })
 
     // Send subscription to backend

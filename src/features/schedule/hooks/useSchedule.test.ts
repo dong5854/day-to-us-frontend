@@ -70,6 +70,7 @@ describe('useSchedule', () => {
         title: '영화',
         startDateTime: '2024-01-20T18:00:00',
         endDateTime: '2024-01-20T20:00:00',
+        isAllDay: false,
       })
     })
 
@@ -89,6 +90,7 @@ describe('useSchedule', () => {
         title: '변경된 제목',
         startDateTime: mockSchedule.startDateTime,
         endDateTime: mockSchedule.endDateTime,
+        isAllDay: false,
       })
     })
 

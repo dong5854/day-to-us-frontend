@@ -56,14 +56,14 @@ describe('useBudget', () => {
 
   it('createEntry 성공 시 entries에 새 항목을 추가한다', async () => {
     vi.mocked(budgetApi.getAll).mockResolvedValue([])
-    const newEntry = { id: '3', amount: 20000, date: '2024-01-17', description: '마트', category: 'food' }
+    const newEntry = { id: '3', amount: 20000, date: '2024-01-17', description: '마트' }
     vi.mocked(budgetApi.create).mockResolvedValue(newEntry as never)
 
     const { result } = renderHook(() => useBudget('space-1'))
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
-      await result.current.createEntry({ amount: 20000, date: '2024-01-17', description: '마트', category: 'food' })
+      await result.current.createEntry({ amount: 20000, date: '2024-01-17', description: '마트' })
     })
 
     expect(result.current.entries).toContainEqual(newEntry)
