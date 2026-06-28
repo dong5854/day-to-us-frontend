@@ -1,87 +1,25 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useSpace } from './features/space/hooks/useSpace'
-import { useBudget } from './features/budget/hooks/useBudget'
-import { useFixedExpense } from './features/fixedExpense/hooks/useFixedExpense'
-import { useSchedule } from './features/schedule/hooks/useSchedule'
 import { CalendarPage } from './pages/CalendarPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { SpaceForm } from './features/space/components/SpaceForm'
 import { LoginPage } from './features/auth/components/LoginPage'
+import { OAuth2RedirectPage } from './features/auth/components/OAuth2RedirectPage'
 import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
-import { Toast, type ToastType } from './shared/components/Toast'
-import type { ScheduleRequest } from './features/schedule/types/schedule.types'
+import { Toast } from './shared/components/Toast'
+import { ErrorBoundary } from './shared/components/ErrorBoundary'
+import { useToast } from './shared/hooks/useToast'
 
 function AppContent() {
   const navigate = useNavigate()
-  
+
   const [currentDate, setCurrentDate] = useState(new Date())
-  const currentYear = currentDate.getFullYear()
-  const currentMonth = currentDate.getMonth() + 1
 
-  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
-    message: '',
-    type: 'info',
-    isVisible: false,
-  })
+  const { toast, showToast, hideToast } = useToast()
 
-  const showToast = (message: string, type: ToastType = 'info') => {
-    setToast({ message, type, isVisible: true })
-  }
-
-  const hideToast = () => {
-    setToast((prev) => ({ ...prev, isVisible: false }))
-  }
-
-  // OAuth2 Redirect Handler
-  useEffect(() => {
-    const path = window.location.pathname
-    if (path === '/oauth2/redirect') {
-      const params = new URLSearchParams(window.location.search)
-      const token = params.get('token')
-      if (token) {
-        localStorage.setItem('accessToken', token)
-        window.location.replace('/')
-      }
-    }
-  }, [])
-
-  if (window.location.pathname === '/oauth2/redirect') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4F46E5]"></div>
-          <p className="text-gray-500 font-medium">로그인 처리 중...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Data Hooks
   const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
-  const {
-    entries,
-    loading: budgetLoading,
-    createEntry,
-    updateEntry,
-    deleteEntry,
-    totalIncome,
-    totalExpense,
-    balance,
-  } = useBudget(space?.id || null, currentYear, currentMonth)
-  const {
-    expenses: fixedExpenses,
-    loading: fixedExpenseLoading,
-    createExpense: createFixedExpense,
-  } = useFixedExpense(space?.id || null)
-  const {
-    schedules,
-    loading: scheduleLoading,
-    createSchedule,
-    updateSchedule,
-    deleteSchedule,
-  } = useSchedule(space?.id || null, currentYear, currentMonth)
 
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false)
 
@@ -97,7 +35,7 @@ function AppContent() {
       setIsSpaceFormOpen(false)
       showToast(`'${newSpace.name}' 공간이 시작되었습니다!`, 'success')
       navigate('/')
-    } catch (error) {
+    } catch {
       showToast('공간 생성에 실패했습니다', 'error')
     }
   }
@@ -108,78 +46,8 @@ function AppContent() {
       setIsSpaceFormOpen(false)
       showToast(`'${joinedSpace.name}' 공간에 참여했습니다!`, 'success')
       navigate('/')
-    } catch (error) {
+    } catch {
       showToast('공간 참여에 실패했습니다', 'error')
-    }
-  }
-
-  const handleCreateEntry = async (data: { description: string; amount: number; date: string }) => {
-    try {
-      await createEntry(data)
-      showToast('내역이 추가되었습니다', 'success')
-    } catch (error) {
-      showToast('저장에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleUpdateEntry = async (id: string, data: { description: string; amount: number; date: string }) => {
-    try {
-      await updateEntry(id, data)
-      showToast('항목이 수정되었습니다', 'success')
-    } catch (error) {
-      showToast('저장에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleDeleteEntry = async (entryId: string) => {
-    try {
-      await deleteEntry(entryId)
-      showToast('삭제되었습니다', 'info')
-    } catch (error) {
-      showToast('삭제에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleCreateFixedExpense = async (data: any) => {
-    try {
-      await createFixedExpense(data)
-      showToast('고정지출이 추가되었습니다', 'success')
-    } catch (error) {
-      showToast('저장에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleCreateSchedule = async (data: ScheduleRequest) => {
-    try {
-      await createSchedule(data)
-      showToast('일정이 추가되었습니다', 'success')
-    } catch (error) {
-      showToast('일정 추가에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleUpdateSchedule = async (id: string, data: ScheduleRequest) => {
-    try {
-      await updateSchedule(id, data)
-      showToast('일정이 수정되었습니다', 'success')
-    } catch (error) {
-      showToast('일정 수정에 실패했습니다', 'error')
-      throw error
-    }
-  }
-
-  const handleDeleteSchedule = async (id: string) => {
-    try {
-      await deleteSchedule(id)
-      showToast('일정이 삭제되었습니다', 'success')
-    } catch (error) {
-      showToast('일정 삭제에 실패했습니다', 'error')
-      throw error
     }
   }
 
@@ -205,7 +73,7 @@ function AppContent() {
   if (!hasSpace) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
-        <header 
+        <header
           className="bg-[#4F46E5] text-white py-6 shadow-md sticky top-0 z-50"
           style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}
         >
@@ -252,55 +120,21 @@ function AppContent() {
         <Route
           path="/"
           element={
-            <CalendarPage
-              entries={entries}
-              loading={budgetLoading}
-              totalIncome={totalIncome}
-              totalExpense={totalExpense}
-              balance={balance}
-              onCreateEntry={handleCreateEntry}
-              onUpdateEntry={handleUpdateEntry}
-              onDeleteEntry={handleDeleteEntry}
-              fixedExpenses={fixedExpenses}
-              fixedExpenseLoading={fixedExpenseLoading}
-              onCreateFixedExpense={handleCreateFixedExpense}
-              schedules={schedules}
-              scheduleLoading={scheduleLoading}
-              onCreateSchedule={handleCreateSchedule}
-              onUpdateSchedule={handleUpdateSchedule}
-              onDeleteSchedule={handleDeleteSchedule}
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-            />
+            <ErrorBoundary>
+              <CalendarPage
+                spaceId={space!.id}
+                currentDate={currentDate}
+                onDateChange={setCurrentDate}
+              />
+            </ErrorBoundary>
           }
         />
         <Route
           path="/settings"
-          element={<SettingsPage space={space} members={members} />}
-        />
-        <Route
-          path="/budget"
           element={
-            <CalendarPage
-              entries={entries}
-              loading={budgetLoading}
-              totalIncome={totalIncome}
-              totalExpense={totalExpense}
-              balance={balance}
-              onCreateEntry={handleCreateEntry}
-              onUpdateEntry={handleUpdateEntry}
-              onDeleteEntry={handleDeleteEntry}
-              fixedExpenses={fixedExpenses}
-              fixedExpenseLoading={fixedExpenseLoading}
-              onCreateFixedExpense={handleCreateFixedExpense}
-              schedules={schedules}
-              scheduleLoading={scheduleLoading}
-              onCreateSchedule={handleCreateSchedule}
-              onUpdateSchedule={handleUpdateSchedule}
-              onDeleteSchedule={handleDeleteSchedule}
-              currentDate={currentDate}
-              onDateChange={setCurrentDate}
-            />
+            <ErrorBoundary>
+              <SettingsPage space={space} members={members} />
+            </ErrorBoundary>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -313,9 +147,14 @@ function AppContent() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
+          <Route path="*" element={<AppContent />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

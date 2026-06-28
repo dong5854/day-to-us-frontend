@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: day-to-us-frontend
+  namespace: day-to-us
+  labels:
+    app: day-to-us-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: day-to-us-frontend
+  template:
+    metadata:
+      labels:
+        app: day-to-us-frontend
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - name: frontend
+          image: ghcr.io/dong5854/day-to-us-frontend:latest
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+

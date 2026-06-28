@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fixedExpenseApi } from '../api/fixedExpenseApi'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '../types/fixedExpense.types'
 
@@ -7,7 +7,7 @@ export const useFixedExpense = (spaceId: string | null) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!spaceId) return
 
     try {
@@ -21,9 +21,9 @@ export const useFixedExpense = (spaceId: string | null) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [spaceId])
 
-  const createExpense = async (data: FixedExpenseRequest) => {
+  const createExpense = useCallback(async (data: FixedExpenseRequest) => {
     if (!spaceId) throw new Error('공간 ID가 필요합니다.')
 
     try {
@@ -36,17 +36,48 @@ export const useFixedExpense = (spaceId: string | null) => {
       console.error(err)
       throw err
     }
-  }
+  }, [spaceId])
+
+  const updateExpense = useCallback(async (expenseId: string, data: FixedExpenseRequest) => {
+    if (!spaceId) throw new Error('공간 ID가 필요합니다.')
+
+    try {
+      setError(null)
+      const updated = await fixedExpenseApi.update(spaceId, expenseId, data)
+      setExpenses((prev) => prev.map((e) => (e.id === expenseId ? updated : e)))
+      return updated
+    } catch (err) {
+      setError('고정지출 수정에 실패했습니다.')
+      console.error(err)
+      throw err
+    }
+  }, [spaceId])
+
+  const deleteExpense = useCallback(async (expenseId: string) => {
+    if (!spaceId) throw new Error('공간 ID가 필요합니다.')
+
+    try {
+      setError(null)
+      await fixedExpenseApi.delete(spaceId, expenseId)
+      setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
+    } catch (err) {
+      setError('고정지출 삭제에 실패했습니다.')
+      console.error(err)
+      throw err
+    }
+  }, [spaceId])
 
   useEffect(() => {
     fetchExpenses()
-  }, [spaceId])
+  }, [fetchExpenses])
 
   return {
     expenses,
     loading,
     error,
     createExpense,
+    updateExpense,
+    deleteExpense,
     refetch: fetchExpenses,
   }
 }

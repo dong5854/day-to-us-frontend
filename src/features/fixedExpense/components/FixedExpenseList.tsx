@@ -1,11 +1,13 @@
 import { type FC } from 'react'
-import { CreditCard } from 'lucide-react'
+import { CreditCard, Pencil, Trash2 } from 'lucide-react'
 import type { FixedExpenseResponse, Frequency } from '../types/fixedExpense.types'
 import { formatCurrency } from '@/shared/utils/format'
 
 interface Props {
   expenses: FixedExpenseResponse[]
   loading: boolean
+  onEdit?: (expense: FixedExpenseResponse) => void
+  onDelete?: (id: string) => void
 }
 
 const frequencyLabels: Record<Frequency, string> = {
@@ -20,7 +22,7 @@ const frequencyColors: Record<Frequency, string> = {
   YEARLY: 'bg-green-50 text-green-700',
 }
 
-export const FixedExpenseList: FC<Props> = ({ expenses, loading }) => {
+export const FixedExpenseList: FC<Props> = ({ expenses, loading, onEdit, onDelete }) => {
   const calculateNextPaymentDate = (startDate: string, frequency: Frequency): string => {
     const start = new Date(startDate)
     const today = new Date()
@@ -111,6 +113,28 @@ export const FixedExpenseList: FC<Props> = ({ expenses, loading }) => {
                   )}
                 </div>
               </div>
+              {(onEdit || onDelete) && (
+                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(expense)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-[#4F46E5] hover:bg-[#4F46E5]/5 rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      수정
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(expense.id)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      삭제
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

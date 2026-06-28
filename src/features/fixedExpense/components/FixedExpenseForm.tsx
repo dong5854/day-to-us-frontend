@@ -1,17 +1,34 @@
-import { useState, type FC, type FormEvent } from 'react'
-import type { FixedExpenseRequest, Frequency } from '../types/fixedExpense.types'
+import { useState, useEffect, type FC, type FormEvent } from 'react'
+import type { FixedExpenseRequest, FixedExpenseResponse, Frequency } from '../types/fixedExpense.types'
 
 interface Props {
+  expense?: FixedExpenseResponse | null
   onSubmit: (data: FixedExpenseRequest) => Promise<void>
   onCancel: () => void
 }
 
-export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
+export const FixedExpenseForm: FC<Props> = ({ expense, onSubmit, onCancel }) => {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [frequency, setFrequency] = useState<Frequency>('MONTHLY')
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
+
+  const isEditing = !!expense
+
+  useEffect(() => {
+    if (expense) {
+      setDescription(expense.description)
+      setAmount(String(expense.amount))
+      setFrequency(expense.frequency)
+      setStartDate(expense.startDate)
+    } else {
+      setDescription('')
+      setAmount('')
+      setFrequency('MONTHLY')
+      setStartDate(new Date().toISOString().split('T')[0])
+    }
+  }, [expense])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -25,10 +42,12 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
         frequency,
         startDate,
       })
-      setDescription('')
-      setAmount('')
-      setFrequency('MONTHLY')
-      setStartDate(new Date().toISOString().split('T')[0])
+      if (!isEditing) {
+        setDescription('')
+        setAmount('')
+        setFrequency('MONTHLY')
+        setStartDate(new Date().toISOString().split('T')[0])
+      }
     } catch (error) {
       console.error(error)
     } finally {
@@ -37,8 +56,10 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg w-full max-w-md">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">고정지출 등록</h3>
+    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg">
+      <h3 className="text-xl font-bold text-gray-900 mb-6">
+        {isEditing ? '고정지출 수정' : '고정지출 등록'}
+      </h3>
 
       <div className="space-y-4 mb-6">
         {/* 설명 */}
@@ -122,7 +143,7 @@ export const FixedExpenseForm: FC<Props> = ({ onSubmit, onCancel }) => {
           disabled={loading || !description.trim() || !amount}
           className="px-5 py-2.5 rounded-lg font-medium text-white gradient-bg shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none"
         >
-          {loading ? '등록 중...' : '등록하기'}
+          {loading ? (isEditing ? '수정 중...' : '등록 중...') : (isEditing ? '수정하기' : '등록하기')}
         </button>
       </div>
     </form>
