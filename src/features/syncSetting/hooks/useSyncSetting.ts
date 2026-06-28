@@ -29,9 +29,13 @@ export const useSyncSetting = () => {
   const fetchGoogleCalendars = useCallback(async () => {
     try {
       const data = await syncSettingApi.getGoogleCalendars()
-      setCalendars(Array.isArray(data) ? data : [])
+      if (!Array.isArray(data)) {
+        throw new Error('캘린더 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setCalendars(data)
     } catch (err) {
       console.error('Google 캘린더 목록을 불러오는데 실패했습니다.', err)
+      setError('Google 캘린더 목록을 불러오는데 실패했습니다.')
     }
   }, [])
 
