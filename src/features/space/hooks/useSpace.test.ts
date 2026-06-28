@@ -17,6 +17,7 @@ const mockMembers = [{ id: 'user-1', name: '유저1' }, { id: 'user-2', name: '�
 
 describe('useSpace', () => {
   beforeEach(() => {
+    localStorage.setItem('accessToken', 'mock-token')
     vi.mocked(spaceApi.getAll).mockResolvedValue([mockSpace] as never)
     vi.mocked(spaceApi.getMembers).mockResolvedValue(mockMembers as never)
     vi.mocked(spaceApi.create).mockResolvedValue(mockSpace as never)
@@ -26,6 +27,13 @@ describe('useSpace', () => {
   it('초기 로딩 상태가 true이다', () => {
     const { result } = renderHook(() => useSpace())
     expect(result.current.loading).toBe(true)
+  })
+
+  it('토큰이 없으면 즉시 isUnauthorized를 true로 설정하고 로딩을 완료한다', () => {
+    localStorage.removeItem('accessToken')
+    const { result } = renderHook(() => useSpace())
+    expect(result.current.isUnauthorized).toBe(true)
+    expect(result.current.loading).toBe(false)
   })
 
   it('스페이스가 있을 때 space와 members를 설정한다', async () => {
