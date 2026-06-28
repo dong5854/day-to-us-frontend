@@ -26,7 +26,6 @@ interface Props {
 }
 
 export const CalendarGridView: FC<Props> = ({
-  currentDate,
   year,
   month,
   daysInMonth,
