@@ -18,7 +18,10 @@ export const useSpace = () => {
       if (data.length > 0) {
         setSpace(data[0])
         const membersData = await spaceApi.getMembers()
-        setMembers(Array.isArray(membersData) ? membersData : [])
+        if (!Array.isArray(membersData)) {
+          throw new Error('멤버 데이터가 올바른 배열 형식이 아닙니다.')
+        }
+        setMembers(membersData)
       } else {
         setSpace(null)
         setMembers([])
@@ -44,7 +47,10 @@ export const useSpace = () => {
       const newSpace = await spaceApi.create({ name })
       setSpace(newSpace)
       const membersData = await spaceApi.getMembers()
-      setMembers(Array.isArray(membersData) ? membersData : [])
+      if (!Array.isArray(membersData)) {
+        throw new Error('멤버 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setMembers(membersData)
       return newSpace
     } catch (err) {
       setError('공간 생성에 실패했습니다.')
@@ -61,7 +67,10 @@ export const useSpace = () => {
       const joinedSpace = await spaceApi.join({ inviteCode })
       setSpace(joinedSpace)
       const membersData = await spaceApi.getMembers()
-      setMembers(Array.isArray(membersData) ? membersData : [])
+      if (!Array.isArray(membersData)) {
+        throw new Error('멤버 데이터가 올바른 배열 형식이 아닙니다.')
+      }
+      setMembers(membersData)
       return joinedSpace
     } catch (err) {
       setError('공간 참여에 실패했습니다. 초대 코드를 확인해주세요.')
