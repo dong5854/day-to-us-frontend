@@ -29,7 +29,7 @@ export const useSyncSetting = () => {
   const fetchGoogleCalendars = useCallback(async () => {
     try {
       const data = await syncSettingApi.getGoogleCalendars()
-      setCalendars(data)
+      setCalendars(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error('Google 캘린더 목록을 불러오는데 실패했습니다.', err)
     }
