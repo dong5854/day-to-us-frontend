@@ -2,7 +2,8 @@ import { type FC } from 'react'
 
 export const LoginPage: FC = () => {
   const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+    window.location.href = `${apiBaseUrl}/oauth2/authorization/google`
   }
 
   return (
