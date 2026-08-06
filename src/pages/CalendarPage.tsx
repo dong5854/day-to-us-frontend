@@ -1,6 +1,8 @@
 import { useState, useMemo, type FC } from 'react'
 import { Calendar, List, Wallet } from 'lucide-react'
 import { useBudget } from '@/features/budget/hooks/useBudget'
+import { useExpenseCategories } from '@/features/budget/hooks/useExpenseCategories'
+import { usePaymentMethods } from '@/features/budget/hooks/usePaymentMethods'
 import { useFixedExpense } from '@/features/fixedExpense/hooks/useFixedExpense'
 import { useSchedule } from '@/features/schedule/hooks/useSchedule'
 import { useEventBars } from '@/features/schedule/hooks/useEventBars'
@@ -46,6 +48,9 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     totalExpense,
     balance,
   } = useBudget(spaceId, currentYear, currentMonth)
+
+  const { categories, createCategory } = useExpenseCategories(spaceId)
+  const { paymentMethods, createPaymentMethod } = usePaymentMethods(spaceId)
 
   const {
     expenses: fixedExpenses,
@@ -395,6 +400,10 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
         <BudgetForm
           entry={editingEntry}
           initialDate={selectedDate}
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onCreateCategory={createCategory}
+          onCreatePaymentMethod={createPaymentMethod}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
         />
