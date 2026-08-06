@@ -22,6 +22,20 @@ export const BudgetCard: FC<Props> = ({ entry, onEdit, onDelete }) => {
           {isIncome ? <TrendingUp className="w-8 h-8 text-green-500" /> : <TrendingDown className="w-8 h-8 text-red-500" />}
           <div className="flex-1">
             <h4 className="text-base font-semibold text-gray-900">{entry.description}</h4>
+            {(entry.category || entry.paymentMethod) && (
+              <div className="flex gap-2 mt-1 flex-wrap">
+                {entry.category && (
+                  <span className="inline-block px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                    {entry.category.name}
+                  </span>
+                )}
+                {entry.paymentMethod && (
+                  <span className="inline-block px-2 py-0.5 text-xs font-medium text-indigo-700 bg-indigo-50 rounded-full">
+                    {entry.paymentMethod.name}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="text-xl font-bold w-full sm:w-auto text-right">

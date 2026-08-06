@@ -5,19 +5,22 @@ import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpens
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
 import { Modal } from '@/shared/components/Modal'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
-import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
+import { useExpenseCategories } from '@/features/budget/hooks/useExpenseCategories'
+import { usePaymentMethods } from '@/features/budget/hooks/usePaymentMethods'
+import type { BudgetEntryRequest, BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
 
 type TabType = 'entries' | 'fixed'
 
 interface Props {
+  spaceId: string
   entries: BudgetEntryResponse[]
   loading: boolean
   totalIncome: number
   totalExpense: number
   balance: number
-  onCreateEntry: (data: { description: string; amount: number }) => Promise<void>
-  onUpdateEntry: (id: string, data: { description: string; amount: number }) => Promise<void>
+  onCreateEntry: (data: BudgetEntryRequest) => Promise<void>
+  onUpdateEntry: (id: string, data: BudgetEntryRequest) => Promise<void>
   onDeleteEntry: (id: string) => Promise<void>
   fixedExpenses: FixedExpenseResponse[]
   fixedExpenseLoading: boolean
@@ -27,6 +30,7 @@ interface Props {
 }
 
 export const BudgetPage: FC<Props> = ({
+  spaceId,
   entries,
   loading,
   totalIncome,
@@ -56,6 +60,9 @@ export const BudgetPage: FC<Props> = ({
     onConfirm: () => {},
   })
 
+  const { categories, createCategory } = useExpenseCategories(spaceId)
+  const { paymentMethods, createPaymentMethod } = usePaymentMethods(spaceId)
+
   const handleAddEntry = () => {
     setEditingEntry(null)
     setIsBudgetFormOpen(true)
@@ -66,7 +73,7 @@ export const BudgetPage: FC<Props> = ({
     setIsBudgetFormOpen(true)
   }
 
-  const handleSubmitEntry = async (data: { description: string; amount: number }) => {
+  const handleSubmitEntry = async (data: BudgetEntryRequest) => {
     if (editingEntry) {
       await onUpdateEntry(editingEntry.id, data)
     } else {
@@ -182,6 +189,10 @@ export const BudgetPage: FC<Props> = ({
       <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           entry={editingEntry}
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onCreateCategory={createCategory}
+          onCreatePaymentMethod={createPaymentMethod}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
         />
