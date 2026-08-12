@@ -10,6 +10,7 @@ export const useSyncSetting = () => {
   const [syncSetting, setSyncSetting] = useState<SyncSettingResponse | null>(null)
   const [calendars, setCalendars] = useState<GoogleCalendarListEntry[]>([])
   const [loading, setLoading] = useState(false)
+  const [calendarsLoading, setCalendarsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchSyncSetting = useCallback(async () => {
@@ -28,6 +29,7 @@ export const useSyncSetting = () => {
 
   const fetchGoogleCalendars = useCallback(async () => {
     try {
+      setCalendarsLoading(true)
       const data = await syncSettingApi.getGoogleCalendars()
       if (!Array.isArray(data)) {
         throw new Error('캘린더 데이터가 올바른 배열 형식이 아닙니다.')
@@ -36,6 +38,8 @@ export const useSyncSetting = () => {
     } catch (err) {
       console.error('Google 캘린더 목록을 불러오는데 실패했습니다.', err)
       setError('Google 캘린더 목록을 불러오는데 실패했습니다.')
+    } finally {
+      setCalendarsLoading(false)
     }
   }, [])
 
@@ -70,6 +74,7 @@ export const useSyncSetting = () => {
     syncSetting,
     calendars,
     loading,
+    calendarsLoading,
     error,
     fetchSyncSetting,
     fetchGoogleCalendars,
