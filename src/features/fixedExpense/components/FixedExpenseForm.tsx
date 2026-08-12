@@ -1,5 +1,6 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import type { FixedExpenseRequest, FixedExpenseResponse, Frequency } from '../types/fixedExpense.types'
+import { Select } from '@/shared/components/Select'
 
 interface Props {
   expense?: FixedExpenseResponse | null
@@ -102,16 +103,16 @@ export const FixedExpenseForm: FC<Props> = ({ expense, onSubmit, onCancel }) => 
           <label htmlFor="frequency" className="block text-sm font-semibold text-gray-900 mb-2">
             결제 주기
           </label>
-          <select
+          <Select
             id="frequency"
             value={frequency}
-            onChange={(e) => setFrequency(e.target.value as Frequency)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
-          >
-            <option value="WEEKLY">매주</option>
-            <option value="MONTHLY">매월</option>
-            <option value="YEARLY">매년</option>
-          </select>
+            onChange={(v) => setFrequency(v as Frequency)}
+            options={[
+              { value: 'WEEKLY', label: '매주' },
+              { value: 'MONTHLY', label: '매월' },
+              { value: 'YEARLY', label: '매년' },
+            ]}
+          />
         </div>
 
         {/* 시작일 */}

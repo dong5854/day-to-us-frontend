@@ -3,6 +3,7 @@ import { useSyncSetting } from '../hooks/useSyncSetting'
 import type { SyncDirection } from '../types/syncSetting.types'
 import { useToast } from '@/shared/hooks/useToast'
 import { Toast } from '@/shared/components/Toast'
+import { Select } from '@/shared/components/Select'
 
 const SYNC_DIRECTION_LABELS: Record<SyncDirection, string> = {
   BIDIRECTIONAL: '양방향 동기화',
@@ -11,7 +12,7 @@ const SYNC_DIRECTION_LABELS: Record<SyncDirection, string> = {
 }
 
 export const SyncSettingCard: FC = () => {
-  const { syncSetting, calendars, loading, error, updateSyncSetting, syncNow } = useSyncSetting()
+  const { syncSetting, calendars, calendarsLoading, loading, error, updateSyncSetting, syncNow } = useSyncSetting()
   const { toast, showToast, hideToast } = useToast()
 
   if (!syncSetting && error) {
@@ -129,39 +130,35 @@ export const SyncSettingCard: FC = () => {
 
         <div>
           <label className="text-sm font-medium text-gray-600 block mb-1">동기화 방향</label>
-          <select
+          <Select
             value={syncSetting.syncDirection}
-            onChange={(e) => handleDirectionChange(e.target.value as SyncDirection)}
+            onChange={(v) => handleDirectionChange(v as SyncDirection)}
             disabled={disabled}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 bg-white disabled:bg-gray-100 disabled:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-          >
-            {(Object.keys(SYNC_DIRECTION_LABELS) as SyncDirection[]).map((dir) => (
-              <option key={dir} value={dir}>
-                {SYNC_DIRECTION_LABELS[dir]}
-              </option>
-            ))}
-          </select>
+            size="sm"
+            options={(Object.keys(SYNC_DIRECTION_LABELS) as SyncDirection[]).map((dir) => ({
+              value: dir,
+              label: SYNC_DIRECTION_LABELS[dir],
+            }))}
+          />
         </div>
 
         <div>
           <label className="text-sm font-medium text-gray-600 block mb-1">대상 캘린더</label>
-          <select
-            value={syncSetting.googleCalendarId}
-            onChange={(e) => handleCalendarChange(e.target.value)}
-            disabled={disabled}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 bg-white disabled:bg-gray-100 disabled:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-          >
-            {calendars.length === 0 && (
-              <option value={syncSetting.googleCalendarId}>
-                {syncSetting.googleCalendarId === 'primary' ? '기본 캘린더' : syncSetting.googleCalendarId}
-              </option>
-            )}
-            {calendars?.map((cal) => (
-              <option key={cal.id} value={cal.id}>
-                {cal.summary}{cal.primary ? ' (기본)' : ''}
-              </option>
-            ))}
-          </select>
+          {calendarsLoading ? (
+            <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+          ) : (
+            <Select
+              value={syncSetting.googleCalendarId}
+              onChange={handleCalendarChange}
+              disabled={disabled}
+              size="sm"
+              options={
+                calendars.length === 0
+                  ? [{ value: syncSetting.googleCalendarId, label: syncSetting.googleCalendarId === 'primary' ? '기본 캘린더' : syncSetting.googleCalendarId }]
+                  : calendars.map((cal) => ({ value: cal.id, label: `${cal.summary}${cal.primary ? ' (기본)' : ''}` }))
+              }
+            />
+          )}
         </div>
       </div>
 

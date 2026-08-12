@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react'
 import type { BudgetEntryRequest, BudgetEntryResponse } from '../types/budget.types'
 import type { ExpenseCategoryResponse } from '../types/expenseCategory.types'
 import type { PaymentMethodResponse } from '../types/paymentMethod.types'
+import { Select } from '@/shared/components/Select'
 
 interface Props {
   entry?: BudgetEntryResponse | null
@@ -169,36 +170,34 @@ export const BudgetForm: FC<Props> = ({
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmNewCategory() } }}
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
+                className="flex-1 min-w-0 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={handleConfirmNewCategory}
-                className="px-4 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white"
+                className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white text-sm"
               >
                 추가
               </button>
               <button
                 type="button"
                 onClick={() => { setIsAddingCategory(false); setNewCategoryName('') }}
-                className="px-4 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 text-sm"
               >
                 취소
               </button>
             </div>
           ) : (
-            <select
+            <Select
               value={selectedCategoryId}
-              onChange={(e) => handleCategorySelectChange(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
-            >
-              <option value="">카테고리 없음</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-              {onCreateCategory && <option value="__add_new__">+ 새로 추가</option>}
-            </select>
+              onChange={handleCategorySelectChange}
+              options={[
+                { value: '', label: '카테고리 없음' },
+                ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+                ...(onCreateCategory ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
+              ]}
+            />
           )}
         </div>
       )}
@@ -215,36 +214,34 @@ export const BudgetForm: FC<Props> = ({
                 value={newPaymentMethodName}
                 onChange={(e) => setNewPaymentMethodName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleConfirmNewPaymentMethod() } }}
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
+                className="flex-1 min-w-0 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={handleConfirmNewPaymentMethod}
-                className="px-4 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white"
+                className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white text-sm"
               >
                 추가
               </button>
               <button
                 type="button"
                 onClick={() => { setIsAddingPaymentMethod(false); setNewPaymentMethodName('') }}
-                className="px-4 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 text-sm"
               >
                 취소
               </button>
             </div>
           ) : (
-            <select
+            <Select
               value={selectedPaymentMethodId}
-              onChange={(e) => handlePaymentMethodSelectChange(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
-            >
-              <option value="">결제 수단 없음</option>
-              {paymentMethods.map((pm) => (
-                <option key={pm.id} value={pm.id}>{pm.name}</option>
-              ))}
-              {onCreatePaymentMethod && <option value="__add_new__">+ 새로 추가</option>}
-            </select>
+              onChange={handlePaymentMethodSelectChange}
+              options={[
+                { value: '', label: '결제 수단 없음' },
+                ...paymentMethods.map((pm) => ({ value: pm.id, label: pm.name })),
+                ...(onCreatePaymentMethod ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
+              ]}
+            />
           )}
         </div>
       )}
@@ -276,7 +273,7 @@ export const BudgetForm: FC<Props> = ({
           value={date}
           onChange={(e) => setDate(e.target.value)}
           required
-          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
+          className="w-full min-w-0 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 
