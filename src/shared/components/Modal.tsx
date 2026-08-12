@@ -11,11 +11,15 @@ export const Modal: FC<Props> = ({ isOpen, onClose, children }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1050] p-4 animate-[fade-in_0.2s_ease-in-out]"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1050] px-4 animate-[fade-in_0.2s_ease-in-out]"
+      style={{
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+      }}
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative animate-[slide-up_0.2s_ease-in-out]"
+        className="bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-full overflow-y-auto overflow-x-hidden relative animate-[slide-up_0.2s_ease-in-out]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
