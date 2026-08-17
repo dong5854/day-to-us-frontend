@@ -1,7 +1,8 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
-import { Calendar, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { toDateString, toTimeString } from '@/shared/utils/dateUtils'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
+import { DatePicker } from '@/shared/components/DatePicker'
 
 interface Props {
   schedule?: ScheduleResponse | null
@@ -145,22 +146,17 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         </label>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 overflow-hidden">
         <div>
           <label htmlFor="startDate" className="block text-sm font-semibold text-gray-900 mb-2">
             시작 날짜
           </label>
-          <div className="relative">
-            <input
-              id="startDate"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
-            />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-          </div>
+          <DatePicker
+            id="startDate"
+            value={startDate}
+            onChange={setStartDate}
+            required
+          />
         </div>
         {!isAllDay && (
           <div>
@@ -174,7 +170,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
+                className="w-full min-w-0 box-border px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 appearance-none pr-10"
               />
               <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
@@ -182,26 +178,18 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 overflow-hidden">
         <div>
           <label htmlFor="endDate" className="block text-sm font-semibold text-gray-900 mb-2">
             종료 날짜
           </label>
-          <div className="relative">
-            <input
-              id="endDate"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-              className={`w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:ring-4 appearance-none pr-10 ${
-                dateError
-                  ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10'
-                  : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
-              }`}
-            />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-          </div>
+          <DatePicker
+            id="endDate"
+            value={endDate}
+            onChange={setEndDate}
+            required
+            hasError={!!dateError}
+          />
         </div>
         {!isAllDay && (
           <div>
@@ -215,7 +203,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
                 required
-                className={`w-full px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:ring-4 appearance-none pr-10 ${
+                className={`w-full min-w-0 box-border px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:ring-4 appearance-none pr-10 ${
                   dateError
                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10'
                     : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'
