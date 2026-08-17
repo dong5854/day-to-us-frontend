@@ -42,10 +42,17 @@ export const DatePicker: FC<Props> = ({ value, onChange, id, required, hasError 
     if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
     const popoverHeight = 340
-    const spaceBelow = window.innerHeight - rect.bottom
-    const top = spaceBelow >= popoverHeight
-      ? rect.bottom + 8
-      : rect.top - popoverHeight - 8
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight
+    
+    let top = rect.bottom + 8
+    
+    // 아래쪽 공간이 부족한 경우
+    if (top + popoverHeight > vh) {
+      // 위쪽으로 올림 (단, 위쪽 공간이 화면 밖으로 나가지 않도록 16px 마진 보장)
+      const topPosition = rect.top - popoverHeight - 8
+      top = Math.max(16, topPosition)
+    }
+    
     setPopoverStyle({ top, left: rect.left, width: rect.width })
   }, [])
 
