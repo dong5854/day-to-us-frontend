@@ -1,5 +1,5 @@
 import { type FC, type ReactNode } from 'react'
-import { Settings } from 'lucide-react'
+import { Settings, ArrowLeft } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { SharedSpaceResponse } from '@/features/space/types/space.types'
 
@@ -27,9 +27,9 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
               {isSettingsPage && hasSpace && (
                 <button
                   onClick={() => navigate('/')}
-                  className="mr-1 p-1 rounded-full hover:bg-white/20 transition-colors"
+                  className="mr-1 p-2 rounded-full hover:bg-white/20 transition-colors"
                 >
-                  <span className="text-2xl">←</span>
+                  <ArrowLeft className="w-6 h-6" />
                 </button>
               )}
               <div>

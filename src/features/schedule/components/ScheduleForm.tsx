@@ -1,5 +1,5 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
-import { Clock } from 'lucide-react'
+import { Clock, AlertTriangle } from 'lucide-react'
 import { toDateString, toTimeString } from '@/shared/utils/dateUtils'
 import type { ScheduleRequest, ScheduleResponse } from '../types/schedule.types'
 import { DatePicker } from '@/shared/components/DatePicker'
@@ -218,7 +218,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
       {/* Date/Time validation error */}
       {dateError && (
         <p className="text-sm text-red-500 mb-6 flex items-center gap-1">
-          <span>⚠</span> {dateError}
+          <AlertTriangle className="w-4 h-4" /> {dateError}
         </p>
       )}
       {!dateError && <div className="mb-8" />}

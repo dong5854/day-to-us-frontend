@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Heart } from 'lucide-react'
 import { useSpace } from './features/space/hooks/useSpace'
 import { CalendarPage } from './pages/CalendarPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -84,7 +85,9 @@ function AppContent() {
         <main className="flex-1 container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center py-20 animate-[slide-up_0.5s_ease-out]">
             <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center border border-gray-100">
-              <div className="text-6xl mb-6">💑</div>
+              <div className="flex justify-center mb-6">
+                <Heart className="w-16 h-16 text-[#4F46E5] fill-[#4F46E5]/20" />
+              </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">환영합니다!</h2>
               <p className="text-gray-600 mb-8 leading-relaxed">
                 커플을 위한 공동 공간을 만들어보세요.

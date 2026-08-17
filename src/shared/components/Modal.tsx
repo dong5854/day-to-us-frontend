@@ -1,4 +1,5 @@
-import type { FC, ReactNode } from 'react'
+import { useEffect, type FC, type ReactNode } from 'react'
+import { X } from 'lucide-react'
 
 interface Props {
   isOpen: boolean
@@ -7,6 +8,17 @@ interface Props {
 }
 
 export const Modal: FC<Props> = ({ isOpen, onClose, children }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   return (
@@ -24,9 +36,9 @@ export const Modal: FC<Props> = ({ isOpen, onClose, children }) => {
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-600 text-xl flex items-center justify-center hover:bg-gray-200 hover:text-gray-900 transition-all z-10"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 hover:text-gray-900 transition-all z-10"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
         {children}
       </div>

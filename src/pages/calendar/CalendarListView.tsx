@@ -1,5 +1,5 @@
 import { useState, type FC } from 'react'
-import { Calendar, Wallet } from 'lucide-react'
+import { Calendar, Wallet, ChevronLeft, ChevronRight } from 'lucide-react'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
 import { ScheduleList } from '@/features/schedule/components/ScheduleList'
@@ -15,9 +15,6 @@ interface Props {
   month: number  // 0-indexed
   entries: BudgetEntryResponse[]
   budgetLoading: boolean
-  totalIncome: number
-  totalExpense: number
-  balance: number
   fixedExpenses: FixedExpenseResponse[]
   fixedExpenseLoading: boolean
   schedules: ScheduleResponse[]
@@ -34,6 +31,8 @@ interface Props {
   onPrevMonth: () => void
   onNextMonth: () => void
   onToday: () => void
+  categories?: { id: string; name: string }[]
+  paymentMethods?: { id: string; name: string }[]
 }
 
 export const CalendarListView: FC<Props> = ({
@@ -41,9 +40,6 @@ export const CalendarListView: FC<Props> = ({
   month,
   entries,
   budgetLoading,
-  totalIncome,
-  totalExpense,
-  balance,
   fixedExpenses,
   fixedExpenseLoading,
   schedules,
@@ -60,6 +56,8 @@ export const CalendarListView: FC<Props> = ({
   onPrevMonth,
   onNextMonth,
   onToday,
+  categories,
+  paymentMethods,
 }) => {
   const [budgetSubTab, setBudgetSubTab] = useState<BudgetSubTab>('entries')
 
@@ -94,9 +92,9 @@ export const CalendarListView: FC<Props> = ({
         <div className="flex items-center justify-between md:justify-end gap-4">
           <h2 className="text-xl font-bold text-gray-900">{year}년 {month + 1}월</h2>
           <div className="flex gap-2">
-            <button onClick={onPrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">←</button>
+            <button onClick={onPrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft className="w-5 h-5" /></button>
             <button onClick={onToday} className="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">오늘</button>
-            <button onClick={onNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">→</button>
+            <button onClick={onNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronRight className="w-5 h-5" /></button>
           </div>
         </div>
       </div>
@@ -128,13 +126,19 @@ export const CalendarListView: FC<Props> = ({
               entries={entries}
               onEdit={onEditEntry}
               onDelete={onDeleteEntry}
-              totalIncome={totalIncome}
-              totalExpense={totalExpense}
-              balance={balance}
               loading={budgetLoading}
+              categories={categories}
+              paymentMethods={paymentMethods}
             />
           ) : (
-            <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} onEdit={onEditFixedExpense} onDelete={onDeleteFixedExpense} />
+            <FixedExpenseList 
+              expenses={fixedExpenses} 
+              loading={fixedExpenseLoading} 
+              categories={categories}
+              paymentMethods={paymentMethods}
+              onEdit={onEditFixedExpense} 
+              onDelete={onDeleteFixedExpense} 
+            />
           )}
         </>
       )}

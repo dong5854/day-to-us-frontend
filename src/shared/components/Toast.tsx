@@ -1,4 +1,5 @@
 import { useEffect, type FC } from 'react'
+import { CheckCircle, AlertTriangle, Info } from 'lucide-react'
 
 export type ToastType = 'success' | 'error' | 'info'
 
@@ -35,14 +36,14 @@ export const Toast: FC<Props> = ({
   }
 
   const icons = {
-    success: '✅',
-    error: '⚠️',
-    info: 'ℹ️'
+    success: <CheckCircle className="w-5 h-5 text-white" />,
+    error: <AlertTriangle className="w-5 h-5 text-white" />,
+    info: <Info className="w-5 h-5 text-white" />
   }
 
   return (
     <div className={`fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[1200] flex items-center gap-3 px-6 py-3 rounded-full shadow-lg text-white ${bgColors[type]} animate-[fade-in_0.3s_ease-out]`}>
-      <span className="text-lg">{icons[type]}</span>
+      <span className="flex-shrink-0">{icons[type]}</span>
       <span className="font-medium">{message}</span>
     </div>
   )

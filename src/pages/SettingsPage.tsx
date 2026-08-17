@@ -1,4 +1,5 @@
 import { type FC } from 'react'
+import { Users } from 'lucide-react'
 import { Toast } from '@/shared/components/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { SyncSettingCard } from '@/features/syncSetting/components/SyncSettingCard'
@@ -55,7 +56,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
 
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span>👫</span> 함께하는 멤버
+          <Users className="w-5 h-5 text-[#4F46E5]" /> 함께하는 멤버
         </h3>
         
         <div className="space-y-3">

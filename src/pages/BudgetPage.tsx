@@ -16,9 +16,6 @@ interface Props {
   spaceId: string
   entries: BudgetEntryResponse[]
   loading: boolean
-  totalIncome: number
-  totalExpense: number
-  balance: number
   onCreateEntry: (data: BudgetEntryRequest) => Promise<void>
   onUpdateEntry: (id: string, data: BudgetEntryRequest) => Promise<void>
   onDeleteEntry: (id: string) => Promise<void>
@@ -33,9 +30,6 @@ export const BudgetPage: FC<Props> = ({
   spaceId,
   entries,
   loading,
-  totalIncome,
-  totalExpense,
-  balance,
   onCreateEntry,
   onUpdateEntry,
   onDeleteEntry,
@@ -166,13 +160,17 @@ export const BudgetPage: FC<Props> = ({
             entries={entries}
             onEdit={handleEditEntry}
             onDelete={handleDeleteEntry}
-            totalIncome={totalIncome}
-            totalExpense={totalExpense}
-            balance={balance}
             loading={loading}
           />
         ) : (
-          <FixedExpenseList expenses={fixedExpenses} loading={fixedExpenseLoading} onEdit={handleEditFixedExpense} onDelete={handleDeleteFixedExpense} />
+          <FixedExpenseList 
+            expenses={fixedExpenses} 
+            loading={fixedExpenseLoading} 
+            categories={categories}
+            paymentMethods={paymentMethods}
+            onEdit={handleEditFixedExpense} 
+            onDelete={handleDeleteFixedExpense} 
+          />
         )}
       </div>
 
@@ -204,6 +202,12 @@ export const BudgetPage: FC<Props> = ({
       <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           expense={editingFixedExpense}
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onCreateCategory={createCategory}
+          onCreatePaymentMethod={createPaymentMethod}
+          onDeleteCategory={deleteCategory}
+          onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitFixedExpense}
           onCancel={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}
         />

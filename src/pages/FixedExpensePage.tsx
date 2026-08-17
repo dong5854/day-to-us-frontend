@@ -4,16 +4,36 @@ import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpens
 import { Modal } from '@/shared/components/Modal'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
+import type { ExpenseCategoryResponse } from '@/features/budget/types/expenseCategory.types'
+import type { PaymentMethodResponse } from '@/features/budget/types/paymentMethod.types'
 
 interface Props {
   expenses: FixedExpenseResponse[]
   loading: boolean
+  categories?: ExpenseCategoryResponse[]
+  paymentMethods?: PaymentMethodResponse[]
+  onCreateCategory?: (name: string) => Promise<ExpenseCategoryResponse | undefined>
+  onCreatePaymentMethod?: (name: string) => Promise<PaymentMethodResponse | undefined>
+  onDeleteCategory?: (id: string) => Promise<void>
+  onDeletePaymentMethod?: (id: string) => Promise<void>
   onCreateExpense: (data: FixedExpenseRequest) => Promise<void>
   onUpdateExpense: (id: string, data: FixedExpenseRequest) => Promise<void>
   onDeleteExpense: (id: string) => Promise<void>
 }
 
-export const FixedExpensePage: FC<Props> = ({ expenses, loading, onCreateExpense, onUpdateExpense, onDeleteExpense }) => {
+export const FixedExpensePage: FC<Props> = ({ 
+  expenses, 
+  loading, 
+  categories,
+  paymentMethods,
+  onCreateCategory,
+  onCreatePaymentMethod,
+  onDeleteCategory,
+  onDeletePaymentMethod,
+  onCreateExpense, 
+  onUpdateExpense, 
+  onDeleteExpense 
+}) => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<FixedExpenseResponse | null>(null)
   const [confirmState, setConfirmState] = useState<{
@@ -56,7 +76,14 @@ export const FixedExpensePage: FC<Props> = ({ expenses, loading, onCreateExpense
   return (
     <>
       <div className="animate-[slide-up_0.3s_ease-out] pb-28">
-        <FixedExpenseList expenses={expenses} loading={loading} onEdit={handleEditExpense} onDelete={handleDeleteExpense} />
+        <FixedExpenseList 
+          expenses={expenses} 
+          loading={loading} 
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onEdit={handleEditExpense} 
+          onDelete={handleDeleteExpense} 
+        />
       </div>
 
       <button
@@ -68,7 +95,17 @@ export const FixedExpensePage: FC<Props> = ({ expenses, loading, onCreateExpense
       </button>
 
       <Modal isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingExpense(null) }}>
-        <FixedExpenseForm expense={editingExpense} onSubmit={handleSubmitExpense} onCancel={() => { setIsFormOpen(false); setEditingExpense(null) }} />
+        <FixedExpenseForm 
+          expense={editingExpense} 
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onCreateCategory={onCreateCategory}
+          onCreatePaymentMethod={onCreatePaymentMethod}
+          onDeleteCategory={onDeleteCategory}
+          onDeletePaymentMethod={onDeletePaymentMethod}
+          onSubmit={handleSubmitExpense} 
+          onCancel={() => { setIsFormOpen(false); setEditingExpense(null) }} 
+        />
       </Modal>
 
       <ConfirmModal
