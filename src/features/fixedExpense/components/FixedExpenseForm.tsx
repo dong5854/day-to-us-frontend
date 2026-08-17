@@ -1,6 +1,7 @@
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import type { FixedExpenseRequest, FixedExpenseResponse, Frequency } from '../types/fixedExpense.types'
 import { Select } from '@/shared/components/Select'
+import { DatePicker } from '@/shared/components/DatePicker'
 
 interface Props {
   expense?: FixedExpenseResponse | null
@@ -120,13 +121,11 @@ export const FixedExpenseForm: FC<Props> = ({ expense, onSubmit, onCancel }) => 
           <label htmlFor="startDate" className="block text-sm font-semibold text-gray-900 mb-2">
             결제 시작일 (첫 결제일)
           </label>
-          <input
+          <DatePicker
             id="startDate"
-            type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={setStartDate}
             required
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           />
         </div>
       </div>
