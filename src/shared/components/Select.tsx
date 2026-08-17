@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, type FC, type ReactNode } from 'react'
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown, Check, Trash2 } from 'lucide-react'
 
 export interface SelectOption {
   value: string
   label: string
   /** 구분선 위에 표시되는 특수 옵션 (e.g. "+ 새로 추가") */
   isSpecial?: boolean
+  /** 항목 삭제 콜백 — 지정 시 드롭다운에 × 버튼 표시 */
+  onDelete?: () => void
 }
 
 interface Props {
@@ -126,7 +128,7 @@ export const Select: FC<Props> = ({
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
                   className={[
-                    'flex items-center justify-between gap-2 cursor-pointer select-none',
+                    'group flex items-center justify-between gap-2 cursor-pointer select-none',
                     'transition-colors duration-100',
                     size === 'sm' ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-sm',
                     isSelected
@@ -134,8 +136,18 @@ export const Select: FC<Props> = ({
                       : 'text-gray-700 hover:bg-gray-50',
                   ].join(' ')}
                 >
-                  <span className="truncate">{option.label}</span>
-                  {isSelected && <Check className="w-4 h-4 shrink-0 text-[#4F46E5]" />}
+                  <span className="truncate flex-1">{option.label}</span>
+                  {isSelected && !option.onDelete && <Check className="w-4 h-4 shrink-0 text-[#4F46E5]" />}
+                  {option.onDelete && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); option.onDelete?.() }}
+                      className="shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150"
+                      aria-label="삭제"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </li>
               )
             })}

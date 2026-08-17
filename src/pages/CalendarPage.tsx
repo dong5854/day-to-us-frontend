@@ -49,8 +49,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     balance,
   } = useBudget(spaceId, currentYear, currentMonth)
 
-  const { categories, createCategory } = useExpenseCategories(spaceId)
-  const { paymentMethods, createPaymentMethod } = usePaymentMethods(spaceId)
+  const { categories, createCategory, deleteCategory } = useExpenseCategories(spaceId)
+  const { paymentMethods, createPaymentMethod, deletePaymentMethod } = usePaymentMethods(spaceId)
 
   const {
     expenses: fixedExpenses,
@@ -320,7 +320,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
 
       {/* Content */}
       <div
-        {...swipeHandlers}
+        {...(viewType === 'calendar' ? swipeHandlers : {})}
         className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col touch-pan-y"
       >
         {viewType === 'calendar' ? (
@@ -404,6 +404,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
           paymentMethods={paymentMethods}
           onCreateCategory={createCategory}
           onCreatePaymentMethod={createPaymentMethod}
+          onDeleteCategory={deleteCategory}
+          onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
         />
