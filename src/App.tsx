@@ -61,9 +61,9 @@ function AppContent() {
       <div className="fixed inset-0 h-[100dvh] w-screen flex flex-col items-center justify-center bg-[#4F46E5] z-50">
         <div className="flex flex-col items-center animate-fade-in">
           <img 
-            src="/pwa-512x512.svg" 
-            alt="Day To Us Logo" 
-            className="w-24 h-24 sm:w-32 sm:h-32 animate-pulse drop-shadow-2xl" 
+            src="/splash-logo.svg" 
+            alt="Day To Us" 
+            className="w-48 sm:w-64 animate-pulse drop-shadow-2xl" 
           />
         </div>
       </div>
