@@ -142,10 +142,10 @@ export const Select: FC<Props> = ({
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); option.onDelete?.() }}
-                      className="shrink-0 p-1 rounded-md opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150"
+                      className="shrink-0 p-2 -mr-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-150"
                       aria-label="삭제"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   )}
                 </li>
