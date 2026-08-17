@@ -4,6 +4,7 @@ import type { BudgetEntryRequest, BudgetEntryResponse } from '../types/budget.ty
 import type { ExpenseCategoryResponse } from '../types/expenseCategory.types'
 import type { PaymentMethodResponse } from '../types/paymentMethod.types'
 import { Select } from '@/shared/components/Select'
+import { DatePicker } from '@/shared/components/DatePicker'
 
 interface Props {
   entry?: BudgetEntryResponse | null
@@ -12,6 +13,8 @@ interface Props {
   paymentMethods?: PaymentMethodResponse[]
   onCreateCategory?: (name: string) => Promise<ExpenseCategoryResponse | undefined>
   onCreatePaymentMethod?: (name: string) => Promise<PaymentMethodResponse | undefined>
+  onDeleteCategory?: (id: string) => Promise<void>
+  onDeletePaymentMethod?: (id: string) => Promise<void>
   onSubmit: (data: BudgetEntryRequest) => Promise<void>
   onCancel: () => void
 }
@@ -23,6 +26,8 @@ export const BudgetForm: FC<Props> = ({
   paymentMethods = [],
   onCreateCategory,
   onCreatePaymentMethod,
+  onDeleteCategory,
+  onDeletePaymentMethod,
   onSubmit,
   onCancel,
 }) => {
@@ -194,7 +199,16 @@ export const BudgetForm: FC<Props> = ({
               onChange={handleCategorySelectChange}
               options={[
                 { value: '', label: '카테고리 없음' },
-                ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+                ...categories.map((cat) => ({
+                  value: cat.id,
+                  label: cat.name,
+                  onDelete: onDeleteCategory
+                    ? async () => {
+                        await onDeleteCategory(cat.id)
+                        if (selectedCategoryId === cat.id) setSelectedCategoryId('')
+                      }
+                    : undefined,
+                })),
                 ...(onCreateCategory ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
               ]}
             />
@@ -238,7 +252,16 @@ export const BudgetForm: FC<Props> = ({
               onChange={handlePaymentMethodSelectChange}
               options={[
                 { value: '', label: '결제 수단 없음' },
-                ...paymentMethods.map((pm) => ({ value: pm.id, label: pm.name })),
+                ...paymentMethods.map((pm) => ({
+                  value: pm.id,
+                  label: pm.name,
+                  onDelete: onDeletePaymentMethod
+                    ? async () => {
+                        await onDeletePaymentMethod(pm.id)
+                        if (selectedPaymentMethodId === pm.id) setSelectedPaymentMethodId('')
+                      }
+                    : undefined,
+                })),
                 ...(onCreatePaymentMethod ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
               ]}
             />
@@ -267,13 +290,11 @@ export const BudgetForm: FC<Props> = ({
         <label htmlFor="date" className="block text-sm font-semibold text-gray-900 mb-2">
           날짜
         </label>
-        <input
+        <DatePicker
           id="date"
-          type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={setDate}
           required
-          className="w-full min-w-0 px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
       </div>
 

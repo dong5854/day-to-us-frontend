@@ -60,8 +60,8 @@ export const BudgetPage: FC<Props> = ({
     onConfirm: () => {},
   })
 
-  const { categories, createCategory } = useExpenseCategories(spaceId)
-  const { paymentMethods, createPaymentMethod } = usePaymentMethods(spaceId)
+  const { categories, createCategory, deleteCategory } = useExpenseCategories(spaceId)
+  const { paymentMethods, createPaymentMethod, deletePaymentMethod } = usePaymentMethods(spaceId)
 
   const handleAddEntry = () => {
     setEditingEntry(null)
@@ -193,6 +193,8 @@ export const BudgetPage: FC<Props> = ({
           paymentMethods={paymentMethods}
           onCreateCategory={createCategory}
           onCreatePaymentMethod={createPaymentMethod}
+          onDeleteCategory={deleteCategory}
+          onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
         />
