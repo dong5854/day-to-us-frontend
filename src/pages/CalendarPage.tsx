@@ -321,7 +321,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       {/* Content */}
       <div
         {...(viewType === 'calendar' ? swipeHandlers : {})}
-        className="animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col touch-pan-y"
+        className={`animate-[slide-up_0.3s_ease-out] flex-1 flex flex-col touch-pan-y ${viewType === 'list' ? 'pb-28' : ''}`}
       >
         {viewType === 'calendar' ? (
           <CalendarGridView
