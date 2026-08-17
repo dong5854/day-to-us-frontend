@@ -55,7 +55,7 @@ export const FixedExpensePage: FC<Props> = ({ expenses, loading, onCreateExpense
 
   return (
     <>
-      <div className="animate-[slide-up_0.3s_ease-out]">
+      <div className="animate-[slide-up_0.3s_ease-out] pb-28">
         <FixedExpenseList expenses={expenses} loading={loading} onEdit={handleEditExpense} onDelete={handleDeleteExpense} />
       </div>
 

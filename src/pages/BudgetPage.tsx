@@ -160,7 +160,7 @@ export const BudgetPage: FC<Props> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="animate-[slide-up_0.3s_ease-out]">
+      <div className="animate-[slide-up_0.3s_ease-out] pb-28">
         {activeTab === 'entries' ? (
           <BudgetList
             entries={entries}
