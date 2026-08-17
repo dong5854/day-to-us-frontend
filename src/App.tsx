@@ -58,7 +58,7 @@ function AppContent() {
 
   if (spaceLoading) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] z-50">
+      <div className="fixed inset-0 h-[100dvh] w-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#4F46E5] to-[#6D28D9] z-50">
         <div className="flex flex-col items-center gap-6 animate-fade-in">
           <div className="text-white animate-pulse drop-shadow-lg opacity-90">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-24 h-24">
