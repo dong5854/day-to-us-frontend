@@ -82,14 +82,14 @@ src/
 ```
 
 ### Design System (Tailwind CSS)
-**Colors (Blue-Purple Gradient)**:
+**Colors (Indigo Primary)**:
 ```css
 /* Custom theme variables */
---color-primary-start: #667eea;
---color-primary-end: #764ba2;
+--color-primary-start: #4F46E5;
+--color-primary-end: #4F46E5;
 
 /* Utility classes */
-.gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.gradient-bg { background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%); }
 ```
 
 **Animations**:
