@@ -1,5 +1,5 @@
 import { type FC } from 'react'
-import { Calendar, Wallet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Wallet } from 'lucide-react'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { ScheduleResponse } from '@/features/schedule/types/schedule.types'
 import type { EventBar } from '@/features/schedule/hooks/useEventBars'
@@ -65,9 +65,9 @@ export const CalendarGridView: FC<Props> = ({
           {year}년 {month + 1}월
         </h2>
         <div className="flex gap-2">
-          <button onClick={onPrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">←</button>
+          <button onClick={onPrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft className="w-5 h-5" /></button>
           <button onClick={onToday} className="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">오늘</button>
-          <button onClick={onNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">→</button>
+          <button onClick={onNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronRight className="w-5 h-5" /></button>
         </div>
       </div>
 

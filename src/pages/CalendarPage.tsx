@@ -44,9 +44,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     createEntry,
     updateEntry,
     deleteEntry,
-    totalIncome,
-    totalExpense,
-    balance,
   } = useBudget(spaceId, currentYear, currentMonth)
 
   const { categories, createCategory, deleteCategory } = useExpenseCategories(spaceId)
@@ -347,9 +344,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             month={month}
             entries={entries}
             budgetLoading={budgetLoading}
-            totalIncome={totalIncome}
-            totalExpense={totalExpense}
-            balance={balance}
             fixedExpenses={fixedExpenses}
             fixedExpenseLoading={fixedExpenseLoading}
             schedules={schedules}
@@ -366,6 +360,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             onPrevMonth={prevMonth}
             onNextMonth={nextMonth}
             onToday={goToday}
+            categories={categories}
+            paymentMethods={paymentMethods}
           />
         )}
       </div>
@@ -415,6 +411,12 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           expense={editingFixedExpense}
+          categories={categories}
+          paymentMethods={paymentMethods}
+          onCreateCategory={createCategory}
+          onCreatePaymentMethod={createPaymentMethod}
+          onDeleteCategory={deleteCategory}
+          onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitFixedExpense}
           onCancel={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}
         />

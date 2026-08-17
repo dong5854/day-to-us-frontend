@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
 interface Props {
   children: ReactNode
@@ -31,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex flex-col items-center justify-center h-full min-h-[200px] gap-4 p-8 text-center">
-          <p className="text-2xl">⚠️</p>
+          <AlertTriangle className="w-8 h-8 text-red-500" />
           <p className="text-gray-700 font-medium">문제가 발생했습니다</p>
           <p className="text-gray-400 text-xs max-w-xs">
             {this.state.error?.message ?? '알 수 없는 오류'}
