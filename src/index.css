@@ -33,6 +33,7 @@ body {
   /* Custom Animations */
   --animate-fade-in: fade-in 0.2s ease-in-out;
   --animate-slide-up: slide-up 0.2s ease-in-out;
+  --animate-floating: floating 3s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -74,5 +75,14 @@ body {
   
   .gradient-text {
     color: #4F46E5;
+  }
+}
+
+@keyframes floating {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
   }
 }

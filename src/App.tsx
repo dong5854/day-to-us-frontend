@@ -63,7 +63,7 @@ function AppContent() {
           <img 
             src="/splash-logo.svg" 
             alt="Day To Us" 
-            className="w-48 sm:w-64 animate-pulse drop-shadow-2xl" 
+            className="w-64 sm:w-80 animate-floating drop-shadow-2xl" 
           />
         </div>
       </div>
