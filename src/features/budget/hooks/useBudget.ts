@@ -35,14 +35,14 @@ export const useBudget = (spaceId: string | null, year?: number, month?: number)
     try {
       setError(null)
       const newEntry = await budgetApi.create(spaceId, data)
-      setEntries((prev) => [...prev, newEntry])
+      await fetchEntries()
       return newEntry
     } catch (err) {
       setError('항목 추가에 실패했습니다.')
       console.error(err)
       throw err
     }
-  }, [spaceId])
+  }, [spaceId, fetchEntries])
 
   const updateEntry = useCallback(async (entryId: string, data: BudgetEntryRequest) => {
     if (!spaceId) return
@@ -50,14 +50,14 @@ export const useBudget = (spaceId: string | null, year?: number, month?: number)
     try {
       setError(null)
       const updatedEntry = await budgetApi.update(spaceId, entryId, data)
-      setEntries((prev) => prev.map((e) => (e.id === entryId ? updatedEntry : e)))
+      await fetchEntries()
       return updatedEntry
     } catch (err) {
       setError('항목 수정에 실패했습니다.')
       console.error(err)
       throw err
     }
-  }, [spaceId])
+  }, [spaceId, fetchEntries])
 
   const deleteEntry = useCallback(async (entryId: string) => {
     if (!spaceId) return
@@ -65,13 +65,13 @@ export const useBudget = (spaceId: string | null, year?: number, month?: number)
     try {
       setError(null)
       await budgetApi.delete(spaceId, entryId)
-      setEntries((prev) => prev.filter((e) => e.id !== entryId))
+      await fetchEntries()
     } catch (err) {
       setError('항목 삭제에 실패했습니다.')
       console.error(err)
       throw err
     }
-  }, [spaceId])
+  }, [spaceId, fetchEntries])
 
   useEffect(() => {
     fetchEntries()
