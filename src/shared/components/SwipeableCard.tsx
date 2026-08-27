@@ -1,4 +1,4 @@
-import { useState, useRef, type FC, type ReactNode } from 'react';
+import { useRef, type FC, type ReactNode } from 'react';
 import { Trash2 } from 'lucide-react';
 
 interface Props {
@@ -7,129 +7,134 @@ interface Props {
   onDelete?: () => void;
 }
 
-// 탭으로 인정할 최대 이동 거리 (px)
-const TAP_THRESHOLD = 8;
-// 탭으로 인정할 최대 지속 시간 (ms)
-const TAP_DURATION = 250;
+const SNAP_OPEN = -80;       // 완전히 열렸을 때 X offset (px)
+const SNAP_THRESHOLD = -40;  // 이 이상 열리면 스냅 오픈, 미만이면 스냅 닫힘
+const TAP_THRESHOLD = 8;     // 탭으로 인정할 최대 이동 거리 (px)
+const TAP_DURATION = 250;    // 탭으로 인정할 최대 지속 시간 (ms)
+const DIRECTION_THRESHOLD = 8; // 방향 결정에 필요한 최소 이동 거리 (px)
 
 export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
-  const [offsetX, setOffsetX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
+  const cardRef = useRef<HTMLDivElement>(null);
+  const currentOffsetRef = useRef(0);  // 현재 열림 위치 (스냅된 값)
   const startXRef = useRef<number | null>(null);
   const startYRef = useRef<number | null>(null);
-  const currentOffsetRef = useRef(0); // offsetX의 ref 버전 (핸들러 내부에서 최신 값 참조용)
   const dragStartTimeRef = useRef<number>(0);
-  const isHorizontalSwipeRef = useRef<boolean | null>(null);
-  const movedRef = useRef(false); // 실제로 의미있게 움직였는지 여부
+  const isHorizontalRef = useRef<boolean | null>(null);
+  const movedRef = useRef(false);
 
-  const setOffset = (val: number) => {
-    currentOffsetRef.current = val;
-    setOffsetX(val);
+  // React state 없이 DOM을 직접 조작해 리렌더링 없이 부드럽게 이동
+  const applyTransform = (offset: number, animated: boolean) => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.transition = animated ? 'transform 0.2s ease-out' : 'none';
+    el.style.transform = `translateX(${offset}px)`;
   };
 
-  const handleDragStart = (x: number, y: number) => {
+  const snapTo = (offset: number) => {
+    currentOffsetRef.current = offset;
+    applyTransform(offset, true);
+  };
+
+  // ── 공통 드래그 로직 ──
+  const onDragStart = (x: number, y: number) => {
     startXRef.current = x;
     startYRef.current = y;
-    isHorizontalSwipeRef.current = null;
+    isHorizontalRef.current = null;
     movedRef.current = false;
     dragStartTimeRef.current = Date.now();
-    setIsDragging(true);
+    // 드래그 시작 시 transition 제거 (즉각 반응)
+    applyTransform(currentOffsetRef.current, false);
   };
 
-  const handleDragMove = (x: number, y: number) => {
+  const onDragMove = (x: number, y: number) => {
     if (startXRef.current === null || startYRef.current === null) return;
 
     const diffX = x - startXRef.current;
     const diffY = y - startYRef.current;
 
-    // 방향이 아직 결정되지 않은 경우: 더 많이 움직인 방향으로 결정
-    if (isHorizontalSwipeRef.current === null) {
-      const absDiffX = Math.abs(diffX);
-      const absDiffY = Math.abs(diffY);
-      if (absDiffX > 8 || absDiffY > 8) {
-        isHorizontalSwipeRef.current = absDiffX > absDiffY;
-      }
-      return; // 방향 결정 전엔 이동 안 함
+    // 방향 미결정 구간: 임계값 이상 움직여야 방향 확정
+    if (isHorizontalRef.current === null) {
+      const absX = Math.abs(diffX);
+      const absY = Math.abs(diffY);
+      if (absX < DIRECTION_THRESHOLD && absY < DIRECTION_THRESHOLD) return;
+      isHorizontalRef.current = absX > absY;
     }
 
-    if (!isHorizontalSwipeRef.current) return; // 수직 스크롤이면 아무것도 안 함
+    if (!isHorizontalRef.current) return; // 수직 스크롤이면 무시
 
     movedRef.current = true;
 
-    if (diffX < 0) {
-      // 왼쪽 스와이프: 삭제 버튼 노출
-      setOffset(Math.max(diffX, -80));
-    } else if (diffX > 0 && currentOffsetRef.current < 0) {
-      // 이미 열린 상태에서 오른쪽으로 닫기
-      setOffset(Math.min(0, currentOffsetRef.current + diffX));
-    }
+    // 현재 스냅 위치에서 delta를 더해 새 offset 계산
+    const newOffset = Math.max(SNAP_OPEN, Math.min(0, currentOffsetRef.current + diffX));
+    applyTransform(newOffset, false);
   };
 
-  const handleDragEnd = (x: number, y: number) => {
-    setIsDragging(false);
+  const onDragEnd = (x: number, y: number) => {
     if (startXRef.current === null || startYRef.current === null) return;
 
     const diffX = x - startXRef.current;
     const diffY = y - startYRef.current;
-    const dragDuration = Date.now() - dragStartTimeRef.current;
+    const duration = Date.now() - dragStartTimeRef.current;
 
     startXRef.current = null;
     startYRef.current = null;
 
-    // 탭 판정: 시간 짧고, X/Y 이동 모두 작고, 실제 드래그가 없었을 때
+    // 탭 판정: 시간·이동거리 모두 작고 실제 드래그 없었을 때
     const isTap =
-      dragDuration < TAP_DURATION &&
+      duration < TAP_DURATION &&
       Math.abs(diffX) < TAP_THRESHOLD &&
       Math.abs(diffY) < TAP_THRESHOLD &&
       !movedRef.current;
 
     if (isTap) {
       if (currentOffsetRef.current < 0) {
-        // 이미 열린 상태이면 닫기만 (edit 호출 안 함)
-        setOffset(0);
+        snapTo(0); // 열린 상태면 닫기만
       } else {
-        // 닫힌 상태일 때만 edit 호출
-        if (onEdit) onEdit();
+        if (onEdit) onEdit(); // 닫힌 상태일 때만 수정
       }
       return;
     }
 
-    // 스냅 로직: 절반 이상 열렸으면 완전히 열기, 아니면 닫기
-    if (currentOffsetRef.current < -40) {
-      setOffset(-80);
+    if (!isHorizontalRef.current) return; // 수직 스크롤이었으면 스냅 안 함
+
+    // 현재 offset 기준으로 스냅 결정
+    const el = cardRef.current;
+    if (!el) return;
+    const currentTransformX = new DOMMatrix(getComputedStyle(el).transform).m41;
+
+    if (currentTransformX < SNAP_THRESHOLD) {
+      snapTo(SNAP_OPEN);
     } else {
-      setOffset(0);
+      snapTo(0);
     }
   };
 
-  // ── Touch handlers ──
+  // ── Touch 이벤트 ──
   const handleTouchStart = (e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
+    onDragStart(e.touches[0].clientX, e.touches[0].clientY);
   };
   const handleTouchMove = (e: React.TouchEvent) => {
-    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    onDragMove(e.touches[0].clientX, e.touches[0].clientY);
   };
   const handleTouchEnd = (e: React.TouchEvent) => {
-    const touch = e.changedTouches[0];
-    handleDragEnd(touch.clientX, touch.clientY);
+    onDragEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   };
 
-  // ── Mouse handlers (데스크톱 지원) ──
+  // ── Mouse 이벤트 (데스크톱) ──
   const handleMouseDown = (e: React.MouseEvent) => {
-    handleDragStart(e.clientX, e.clientY);
+    onDragStart(e.clientX, e.clientY);
   };
   const handleMouseMove = (e: React.MouseEvent) => {
     if (startXRef.current === null) return;
-    handleDragMove(e.clientX, e.clientY);
+    onDragMove(e.clientX, e.clientY);
   };
   const handleMouseUp = (e: React.MouseEvent) => {
     if (startXRef.current === null) return;
-    handleDragEnd(e.clientX, e.clientY);
+    onDragEnd(e.clientX, e.clientY);
   };
   const handleMouseLeave = (e: React.MouseEvent) => {
     if (startXRef.current !== null) {
-      handleDragEnd(e.clientX, e.clientY);
+      onDragEnd(e.clientX, e.clientY);
     }
   };
 
@@ -141,7 +146,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
           onClick={(e) => {
             e.stopPropagation();
             if (onDelete) onDelete();
-            setOffset(0);
+            snapTo(0);
           }}
           className="w-full h-full flex flex-col items-center justify-center text-white bg-red-500 transition-colors hover:bg-red-600 active:bg-red-700"
         >
@@ -150,12 +155,11 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
         </button>
       </div>
 
-      {/* 앞면 카드 콘텐츠 */}
+      {/* 앞면 카드 — ref로 DOM 직접 조작, React 리렌더링 없이 부드러운 애니메이션 */}
       <div
-        className={`relative z-10 w-full bg-white h-full ${
-          isDragging ? '' : 'transition-transform duration-200 ease-out'
-        }`}
-        style={{ transform: `translateX(${offsetX}px)` }}
+        ref={cardRef}
+        className="relative z-10 w-full bg-white h-full"
+        style={{ transform: 'translateX(0px)', willChange: 'transform' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
