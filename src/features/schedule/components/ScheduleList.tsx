@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Calendar } from 'lucide-react'
 import type { ScheduleResponse } from '../types/schedule.types'
-
+import { SwipeableCard } from '@/shared/components/SwipeableCard'
 interface Props {
   schedules: ScheduleResponse[]
   loading: boolean
@@ -69,50 +69,38 @@ export const ScheduleList: FC<Props> = ({ schedules, loading, onEdit, onDelete }
 
           <div className="flex flex-col gap-3">
             {groupedSchedules[date].map((schedule) => (
-              <div
+              <SwipeableCard
                 key={schedule.id}
-                className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                onEdit={() => onEdit(schedule)}
+                onDelete={() => onDelete(schedule.id)}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {schedule.isAllDay && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
-                          종일
-                        </span>
+                <div className="bg-white p-4 rounded-lg border border-gray-100 transition-colors hover:bg-gray-50">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {schedule.isAllDay && (
+                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+                            종일
+                          </span>
+                        )}
+                        <h4 className="text-lg font-bold text-gray-900">{schedule.title}</h4>
+                      </div>
+                      
+                      <div className="text-sm text-gray-600 mb-2">
+                        {(() => {
+                          const startStr = formatDateTime(schedule.startDateTime, schedule.isAllDay)
+                          const endStr = formatDateTime(schedule.endDateTime, schedule.isAllDay)
+                          return startStr === endStr ? startStr : `${startStr} ~ ${endStr}`
+                        })()}
+                      </div>
+
+                      {schedule.description && (
+                        <p className="text-sm text-gray-500 mt-2">{schedule.description}</p>
                       )}
-                      <h4 className="text-lg font-bold text-gray-900">{schedule.title}</h4>
                     </div>
-                    
-                    <div className="text-sm text-gray-600 mb-2">
-                      {(() => {
-                        const startStr = formatDateTime(schedule.startDateTime, schedule.isAllDay)
-                        const endStr = formatDateTime(schedule.endDateTime, schedule.isAllDay)
-                        return startStr === endStr ? startStr : `${startStr} ~ ${endStr}`
-                      })()}
-                    </div>
-
-                    {schedule.description && (
-                      <p className="text-sm text-gray-500 mt-2">{schedule.description}</p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => onEdit(schedule)}
-                      className="px-3 py-1.5 text-sm font-medium text-[#4F46E5] hover:bg-gray-50 rounded transition-colors"
-                    >
-                      수정
-                    </button>
-                    <button
-                      onClick={() => onDelete(schedule.id)}
-                      className="px-3 py-1.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded transition-colors"
-                    >
-                      삭제
-                    </button>
                   </div>
                 </div>
-              </div>
+              </SwipeableCard>
             ))}
           </div>
         </div>
