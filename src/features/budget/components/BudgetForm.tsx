@@ -5,6 +5,7 @@ import type { ExpenseCategoryResponse } from '../types/expenseCategory.types'
 import type { PaymentMethodResponse } from '../types/paymentMethod.types'
 import { Select } from '@/shared/components/Select'
 import { DatePicker } from '@/shared/components/DatePicker'
+import { toDateString } from '@/shared/utils/dateUtils'
 
 interface Props {
   entry?: BudgetEntryResponse | null
@@ -33,7 +34,7 @@ export const BudgetForm: FC<Props> = ({
 }) => {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]) // YYYY-MM-DD
+  const [date, setDate] = useState(toDateString(new Date())) // YYYY-MM-DD
   const [isIncome, setIsIncome] = useState(true)
   const [loading, setLoading] = useState(false)
 
@@ -143,7 +144,7 @@ export const BudgetForm: FC<Props> = ({
       })
       setDescription('')
       setAmount('')
-      setDate(new Date().toISOString().split('T')[0])
+      setDate(toDateString(new Date()))
       setIsIncome(true)
       setSelectedCategoryId('')
       setSelectedPaymentMethodId('')
