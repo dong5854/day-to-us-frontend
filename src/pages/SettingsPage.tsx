@@ -14,6 +14,11 @@ interface Props {
 export const SettingsPage: FC<Props> = ({ space, members }) => {
   const { toast, showToast, hideToast } = useToast()
 
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken')
+    window.location.replace('/')
+  }
+
   const handleCopyCode = async () => {
     if (!space?.inviteCode) return
     try {
@@ -82,7 +87,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         <h3 className="text-lg font-bold text-gray-900 mb-4">계정</h3>
         
         <div className="space-y-2">
-          <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+          <button type="button" onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
             로그아웃
           </button>
           <button className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
