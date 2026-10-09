@@ -91,6 +91,11 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
         </div>
       </div>
 
+      <footer className="pb-[env(safe-area-inset-bottom)] text-center text-xs text-gray-500">
+        <p>앱 버전 {import.meta.env.VITE_APP_VERSION || '개발 버전'}</p>
+        <p className="mt-1">현재 기기에 적용된 버전입니다.</p>
+      </footer>
+
       <Toast
         message={toast.message}
         type={toast.type}
