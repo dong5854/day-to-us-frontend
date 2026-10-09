@@ -1,11 +1,11 @@
 import { useState, type FC } from 'react'
-import { CreditCard, Pencil, Trash2 } from 'lucide-react'
+import { CreditCard } from 'lucide-react'
 import type { FixedExpenseResponse, Frequency } from '../types/fixedExpense.types'
 import type { ExpenseCategoryResponse } from '@/features/budget/types/expenseCategory.types'
 import type { PaymentMethodResponse } from '@/features/budget/types/paymentMethod.types'
 import { formatCurrency } from '@/shared/utils/format'
 import { Select } from '@/shared/components/Select'
-
+import { SwipeableCard } from '@/shared/components/SwipeableCard'
 interface Props {
   expenses: FixedExpenseResponse[]
   loading: boolean
@@ -129,75 +129,56 @@ export const FixedExpenseList: FC<Props> = ({
             const paymentMethodName = paymentMethods.find(p => p.id === expense.paymentMethodId)?.name
 
             return (
-              <div
+              <SwipeableCard
                 key={expense.id}
-                className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md transition-shadow"
+                onEdit={onEdit ? () => onEdit(expense) : undefined}
+                onDelete={onDelete ? () => onDelete(expense.id) : undefined}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">{expense.description}</h3>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full font-medium ${frequencyColors[expense.frequency]}`}
-                      >
-                        {frequencyLabels[expense.frequency]}
-                      </span>
-                    </div>
-                    {(categoryName || paymentMethodName) && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
-                        {categoryName && (
-                          <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">
-                            {categoryName}
-                          </span>
-                        )}
-                        {paymentMethodName && (
-                          <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">
-                            {paymentMethodName}
-                          </span>
-                        )}
+                <div className="bg-white rounded-xl p-4 border border-gray-100 transition-colors hover:bg-gray-50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900">{expense.description}</h3>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full font-medium ${frequencyColors[expense.frequency]}`}
+                        >
+                          {frequencyLabels[expense.frequency]}
+                        </span>
                       </div>
-                    )}
-                    <div className="text-sm text-gray-500 mt-1">
-                      다음 결제: {calculateNextPaymentDate(expense.startDate, expense.frequency)}
+                      {(categoryName || paymentMethodName) && (
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
+                          {categoryName && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">
+                              {categoryName}
+                            </span>
+                          )}
+                          {paymentMethodName && (
+                            <span className="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600">
+                              {paymentMethodName}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500 mt-1">
+                        다음 결제: {calculateNextPaymentDate(expense.startDate, expense.frequency)}
+                      </div>
                     </div>
-                  </div>
-                <div className="text-right">
-                  <div className="text-xl font-bold text-gray-900">{formatCurrency(expense.amount)}</div>
-                  {expense.frequency !== 'MONTHLY' && (
-                    <div className="text-xs text-gray-400 mt-1">
-                      월{' '}
-                      {formatCurrency(
-                        expense.frequency === 'WEEKLY'
-                          ? (expense.amount * 52) / 12
-                          : expense.amount / 12
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-gray-900">{formatCurrency(expense.amount)}</div>
+                      {expense.frequency !== 'MONTHLY' && (
+                        <div className="text-xs text-gray-400 mt-1">
+                          월{' '}
+                          {formatCurrency(
+                            expense.frequency === 'WEEKLY'
+                              ? (expense.amount * 52) / 12
+                              : expense.amount / 12
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-              {(onEdit || onDelete) && (
-                <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
-                  {onEdit && (
-                    <button
-                      onClick={() => onEdit(expense)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-[#4F46E5] hover:bg-[#4F46E5]/5 rounded-lg transition-colors"
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                      수정
-                    </button>
-                  )}
-                  {onDelete && (
-                    <button
-                      onClick={() => onDelete(expense.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      삭제
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+              </SwipeableCard>
             )
           })}
         </div>
