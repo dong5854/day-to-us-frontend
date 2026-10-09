@@ -17,6 +17,7 @@ const mockEntry2 = { id: '2', amount: -5000, date: '2024-01-16', description: '�
 
 describe('useBudget', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.mocked(budgetApi.getAll).mockResolvedValue([])
     vi.mocked(budgetApi.create).mockResolvedValue(mockEntry as never)
     vi.mocked(budgetApi.update).mockResolvedValue(mockEntry as never)
@@ -63,6 +64,7 @@ describe('useBudget', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
+      vi.mocked(budgetApi.getAll).mockResolvedValue([newEntry])
       await result.current.createEntry({ amount: 20000, date: '2024-01-17', description: '마트' })
     })
 
@@ -76,11 +78,30 @@ describe('useBudget', () => {
     await waitFor(() => expect(result.current.entries).toHaveLength(2))
 
     await act(async () => {
+      vi.mocked(budgetApi.getAll).mockResolvedValue([mockEntry2] as never)
       await result.current.deleteEntry('1')
     })
 
     expect(result.current.entries).not.toContainEqual(mockEntry)
     expect(result.current.entries).toHaveLength(1)
+  })
+
+  it('updateEntry는 기존 ID로 수정하고 새 항목을 생성하지 않는다', async () => {
+    vi.mocked(budgetApi.getAll).mockResolvedValue([mockEntry] as never)
+    const { result } = renderHook(() => useBudget('space-1'))
+    await waitFor(() => expect(result.current.entries).toHaveLength(1))
+    const data = { description: '수정한 식비', amount: -12000, date: '2024-01-15' }
+    const updated = { id: mockEntry.id, ...data }
+    vi.mocked(budgetApi.update).mockResolvedValue(updated)
+    vi.mocked(budgetApi.getAll).mockResolvedValue([updated])
+
+    await act(async () => {
+      await result.current.updateEntry(mockEntry.id, data)
+    })
+
+    expect(budgetApi.update).toHaveBeenCalledExactlyOnceWith('space-1', mockEntry.id, data)
+    expect(budgetApi.create).not.toHaveBeenCalled()
+    expect(result.current.entries).toEqual([updated])
   })
 
   it('totalIncome/totalExpense/balance를 올바르게 계산한다', async () => {

@@ -4,6 +4,7 @@ import type { ExpenseCategoryResponse } from '@/features/budget/types/expenseCat
 import type { PaymentMethodResponse } from '@/features/budget/types/paymentMethod.types'
 import { Select } from '@/shared/components/Select'
 import { DatePicker } from '@/shared/components/DatePicker'
+import { toDateString } from '@/shared/utils/dateUtils'
 
 interface Props {
   expense?: FixedExpenseResponse | null
@@ -31,7 +32,7 @@ export const FixedExpenseForm: FC<Props> = ({
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [frequency, setFrequency] = useState<Frequency>('MONTHLY')
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [startDate, setStartDate] = useState(toDateString(new Date()))
   const [loading, setLoading] = useState(false)
 
   // Category state
@@ -64,7 +65,7 @@ export const FixedExpenseForm: FC<Props> = ({
       setDescription('')
       setAmount('')
       setFrequency('MONTHLY')
-      setStartDate(new Date().toISOString().split('T')[0])
+      setStartDate(toDateString(new Date()))
       setSelectedCategoryId('')
       setSelectedPaymentMethodId('')
     }
@@ -148,7 +149,7 @@ export const FixedExpenseForm: FC<Props> = ({
         setDescription('')
         setAmount('')
         setFrequency('MONTHLY')
-        setStartDate(new Date().toISOString().split('T')[0])
+        setStartDate(toDateString(new Date()))
         setSelectedCategoryId('')
         setSelectedPaymentMethodId('')
       }

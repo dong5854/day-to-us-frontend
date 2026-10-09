@@ -83,7 +83,7 @@ export const NotificationSettingCard: FC = () => {
           {subscribed && (
             <div className="bg-[#4F46E5]/5 rounded-lg p-3">
               <p className="text-xs text-[#4F46E5] font-medium">
-                매일 오전 8시에 당일/다음날 고정지출 결제일과 일정을 알려드립니다.
+                매일 한국 시간 오전 8시에 당일 고정지출 결제일과 일정을 알려드립니다.
               </p>
             </div>
           )}
