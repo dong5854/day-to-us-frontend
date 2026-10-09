@@ -11,6 +11,7 @@ import { Layout } from './shared/components/Layout'
 import { Modal } from './shared/components/Modal'
 import { Toast } from './shared/components/Toast'
 import { ErrorBoundary } from './shared/components/ErrorBoundary'
+import { PwaUpdatePrompt } from './shared/components/PwaUpdatePrompt'
 import { useToast } from './shared/hooks/useToast'
 
 function AppContent() {
@@ -150,6 +151,7 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
+      <PwaUpdatePrompt />
       <BrowserRouter>
         <Routes>
           <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
