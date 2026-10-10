@@ -1,3 +1,16 @@
+export const formatKoreanWon = (amount: number): string => {
+  if (!Number.isSafeInteger(amount) || amount < 0) return ''
+  if (amount === 0) return '0원'
+  let remaining = amount
+  const parts: string[] = []
+  for (const [value, unit] of [[1e12, '조'], [1e8, '억'], [1e4, '만'], [1, '']] as const) {
+    const count = Math.floor(remaining / value)
+    if (count) parts.push(`${count.toLocaleString('ko-KR')}${unit}`)
+    remaining %= value
+  }
+  return `${parts.join(' ')}원`
+}
+
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('ko-KR', {
     style: 'currency',
