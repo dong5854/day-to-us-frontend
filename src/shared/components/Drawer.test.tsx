@@ -39,11 +39,12 @@ it('짧은 드래그와 취소는 원위치로 돌아가고 목록에서 시작�
   expect(onClose).not.toHaveBeenCalled()
 })
 
-it('닫기 버튼이 동작하고 배경 스크롤 설정을 복원한다', () => {
+it('상단 바에서 키보드로 닫을 수 있고 배경 스크롤 설정을 복원한다', () => {
   document.body.style.overflow = 'auto'
   const { onClose, unmount } = setup()
   expect(document.body.style.overflow).toBe('hidden')
-  fireEvent.click(screen.getByRole('button', { name: '닫기' }))
+  expect(screen.queryByRole('button', { name: '닫기' })).toBeNull()
+  fireEvent.keyDown(screen.getByRole('button', { name: '아래로 끌어 닫기' }), { key: 'Enter' })
   expect(onClose).toHaveBeenCalledOnce()
   unmount()
   expect(document.body.style.overflow).toBe('auto')

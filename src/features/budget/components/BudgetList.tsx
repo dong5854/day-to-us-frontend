@@ -22,6 +22,7 @@ export const BudgetList: FC<Props> = ({
   categories = [],
   paymentMethods = [],
 }) => {
+  const [selectedType, setSelectedType] = useState('all')
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all')
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>('all')
 
@@ -30,9 +31,10 @@ export const BudgetList: FC<Props> = ({
   }
 
   const filteredEntries = entries.filter((entry) => {
+    const matchType = selectedType === 'all' || (selectedType === 'income' ? entry.amount > 0 : entry.amount < 0)
     const matchCategory = selectedCategoryId === 'all' || entry.category?.id === selectedCategoryId
     const matchPaymentMethod = selectedPaymentMethodId === 'all' || entry.paymentMethod?.id === selectedPaymentMethodId
-    return matchCategory && matchPaymentMethod
+    return matchType && matchCategory && matchPaymentMethod
   })
 
   if (entries.length === 0) {
@@ -103,7 +105,18 @@ export const BudgetList: FC<Props> = ({
         </div>
       </dl>
 
-      <div className="flex gap-2 mb-6">
+      <div className="grid grid-cols-3 gap-2 mb-6">
+        <Select
+          value={selectedType}
+          onChange={setSelectedType}
+          options={[
+            { value: 'all', label: '전체 유형' },
+            { value: 'income', label: '수입' },
+            { value: 'expense', label: '지출' },
+          ]}
+          size="sm"
+          className="min-w-0"
+        />
         <Select
           value={selectedCategoryId}
           onChange={setSelectedCategoryId}
@@ -111,7 +124,8 @@ export const BudgetList: FC<Props> = ({
             { value: 'all', label: '전체 카테고리' },
             ...categories.map((c) => ({ value: c.id, label: c.name }))
           ]}
-          className="flex-1 min-w-0"
+          size="sm"
+          className="min-w-0"
         />
         <Select
           value={selectedPaymentMethodId}
@@ -120,7 +134,8 @@ export const BudgetList: FC<Props> = ({
             { value: 'all', label: '전체 결제수단' },
             ...paymentMethods.map((p) => ({ value: p.id, label: p.name }))
           ]}
-          className="flex-1 min-w-0"
+          size="sm"
+          className="min-w-0"
         />
       </div>
 
