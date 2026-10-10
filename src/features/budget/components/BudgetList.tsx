@@ -85,6 +85,8 @@ export const BudgetList: FC<Props> = ({
   const filteredIncome = filteredEntries.filter((e) => e.amount > 0).reduce((sum, e) => sum + e.amount, 0)
   const filteredExpense = filteredEntries.filter((e) => e.amount < 0).reduce((sum, e) => sum + Math.abs(e.amount), 0)
   const filteredBalance = filteredIncome - filteredExpense
+  const fixedIncome = filteredEntries.filter(entry => entry.fixedExpenseId && entry.amount > 0).reduce((sum, entry) => sum + entry.amount, 0)
+  const fixedExpense = filteredEntries.filter(entry => entry.fixedExpenseId && entry.amount < 0).reduce((sum, entry) => sum + Math.abs(entry.amount), 0)
 
   return (
     <div>
@@ -100,10 +102,12 @@ export const BudgetList: FC<Props> = ({
           <div className="min-w-0 pr-3">
             <dt className="text-xs font-medium text-gray-500">수입</dt>
             <dd className="mt-1 break-all text-lg font-semibold tracking-tight tabular-nums text-green-700">{formatCurrency(filteredIncome)}</dd>
+            <dd className="mt-1 break-all text-xs text-gray-500">고정 {formatCurrency(fixedIncome)} 포함</dd>
           </div>
           <div className="min-w-0 pl-3">
             <dt className="text-xs font-medium text-gray-500">지출</dt>
             <dd className="mt-1 break-all text-lg font-semibold tracking-tight tabular-nums text-red-600">{formatCurrency(filteredExpense)}</dd>
+            <dd className="mt-1 break-all text-xs text-gray-500">고정 {formatCurrency(fixedExpense)} 포함</dd>
           </div>
         </div>
       </dl>
