@@ -34,6 +34,7 @@ export const FixedExpenseForm: FC<Props> = ({
   const [amount, setAmount] = useState('')
   const [frequency, setFrequency] = useState<Frequency>('MONTHLY')
   const [startDate, setStartDate] = useState(toDateString(new Date()))
+  const [autoPostFrom, setAutoPostFrom] = useState(toDateString(new Date()))
   const [loading, setLoading] = useState(false)
 
   // Category state
@@ -61,6 +62,7 @@ export const FixedExpenseForm: FC<Props> = ({
       setAmount(String(expense.amount))
       setFrequency(expense.frequency)
       setStartDate(expense.startDate)
+      setAutoPostFrom(expense.autoPostFrom ?? '2026-06-01')
       setSelectedCategoryId(expense.categoryId ?? '')
       setSelectedPaymentMethodId(expense.paymentMethodId ?? '')
     } else {
@@ -69,6 +71,7 @@ export const FixedExpenseForm: FC<Props> = ({
       setAmount('')
       setFrequency('MONTHLY')
       setStartDate(toDateString(new Date()))
+      setAutoPostFrom(toDateString(new Date()))
       setSelectedCategoryId('')
       setSelectedPaymentMethodId('')
     }
@@ -146,6 +149,7 @@ export const FixedExpenseForm: FC<Props> = ({
         amount: parseFloat(amount),
         frequency,
         startDate,
+        autoPostFrom,
         categoryId: selectedCategoryId || undefined,
         paymentMethodId: selectedPaymentMethodId || undefined,
       })
@@ -154,6 +158,7 @@ export const FixedExpenseForm: FC<Props> = ({
         setAmount('')
         setFrequency('MONTHLY')
         setStartDate(toDateString(new Date()))
+        setAutoPostFrom(toDateString(new Date()))
         setSelectedCategoryId('')
         setSelectedPaymentMethodId('')
       }
@@ -378,6 +383,15 @@ export const FixedExpenseForm: FC<Props> = ({
             required
           />
         </div>
+        {!isEditing && <div>
+          <label htmlFor="autoPostFrom" className="block text-sm font-semibold text-gray-900 mb-2">
+            자동 반영 시작일
+          </label>
+          <DatePicker id="autoPostFrom" value={autoPostFrom} onChange={setAutoPostFrom} required />
+          <p className="mt-2 text-xs text-gray-500">
+            이 날짜 이후의 예정 회차부터 내역에 반영합니다.
+          </p>
+        </div>}
       </div>
 
       <div className="flex justify-end gap-3">
