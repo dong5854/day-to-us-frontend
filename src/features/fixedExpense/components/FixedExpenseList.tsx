@@ -97,10 +97,7 @@ export const FixedExpenseList: FC<Props> = ({
         </div>
       </div>
 
-      <p className="text-xs leading-relaxed text-gray-500">
-        예정일에 수입·지출 내역으로 자동 반영됩니다. 반영된 금액과 날짜는 내역에서 수정할 수 있습니다.
-        자동 반영은 등록 시작일과 2026년 6월 1일 중 늦은 날부터 적용됩니다.
-      </p>
+      <p className="text-xs text-gray-500">예정일에 자동 반영 · 내역에서 수정 가능</p>
 
       <div className="grid grid-cols-3 gap-2 mb-2">
         <Select value={selectedType} onChange={setSelectedType} size="sm" className="min-w-0"
