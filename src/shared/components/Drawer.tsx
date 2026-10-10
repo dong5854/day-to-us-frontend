@@ -1,5 +1,4 @@
 import { type FC, type ReactNode, useEffect, useRef } from 'react'
-import { X } from 'lucide-react'
 
 interface Props {
   isOpen: boolean
@@ -62,6 +61,16 @@ export const Drawer: FC<Props> = ({ isOpen, onClose, children }) => {
         {/* Handle bar */}
         <div className="relative shrink-0">
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="아래로 끌어 닫기"
+            onKeyDown={(e) => {
+              if (e.nativeEvent.isComposing) return
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClose()
+              }
+            }}
             className="flex h-11 items-center justify-center touch-none select-none cursor-grab active:cursor-grabbing"
             onPointerDown={(e) => {
               if (!e.isPrimary || e.button !== 0 || drag.current) return
@@ -85,9 +94,6 @@ export const Drawer: FC<Props> = ({ isOpen, onClose, children }) => {
           >
             <div className="w-12 h-1 bg-gray-300 rounded-full" />
           </div>
-          <button type="button" aria-label="닫기" onClick={onClose} className="absolute right-1 top-0 flex h-11 w-11 items-center justify-center text-gray-500">
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Content */}
