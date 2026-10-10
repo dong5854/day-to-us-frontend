@@ -20,6 +20,7 @@ const CLOSE_EASING = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
 export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const deleteActionRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
 
   const drag = useRef({
@@ -39,6 +40,8 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     if (!el) return;
     el.style.transition = `transform ${duration}ms ${easing}`;
     el.style.transform = `translateX(${x}px)`;
+    // Hide the underlay when closed so Safari compositing cannot expose a red seam.
+    if (deleteActionRef.current) deleteActionRef.current.style.visibility = x < 0 ? 'visible' : 'hidden';
   };
 
   const snapTo = (x: number) => {
@@ -94,7 +97,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
       if (recentTouches.current.length > 6) recentTouches.current.shift();
 
       const newX = Math.max(SNAP_OPEN, Math.min(0, offsetRef.current + diffX));
-      el.style.transform = `translateX(${newX}px)`;
+      setTransform(newX, 'linear', 0);
     };
 
     const onTouchEnd = (e: TouchEvent) => {
@@ -171,8 +174,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     const diffX = e.clientX - mouse.current.startX;
     if (Math.abs(diffX) > 4) mouse.current.moved = true;
     const newX = Math.max(SNAP_OPEN, Math.min(0, offsetRef.current + diffX));
-    const el = cardRef.current;
-    if (el) el.style.transform = `translateX(${newX}px)`;
+    setTransform(newX, 'linear', 0);
   };
   const handleMouseUpOrLeave = () => {
     if (!mouse.current.down) return;
@@ -194,7 +196,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
       style={{ isolation: 'isolate' }}
     >
       {/* 삭제 버튼 */}
-      <div className="absolute inset-y-0 right-0 flex items-center justify-center w-[80px] bg-red-500">
+      <div ref={deleteActionRef} style={{ visibility: 'hidden' }} className="absolute inset-y-0 right-0 flex items-center justify-center w-[80px] bg-red-500">
         <button
           onClick={(e) => {
             e.stopPropagation();
