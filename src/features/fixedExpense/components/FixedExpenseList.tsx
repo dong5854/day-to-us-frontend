@@ -90,12 +90,17 @@ export const FixedExpenseList: FC<Props> = ({
     <div className="space-y-4">
       {/* 월간 총액 카드 */}
       <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <p className="mb-3 text-xs text-gray-500">월 평균 예정 금액 · 실제 입출금 내역과 별도</p>
+        <p className="mb-3 text-xs text-gray-500">월 평균 예정 금액</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="min-w-0"><p className="text-sm text-gray-600">고정수입</p><p className="break-all text-lg font-semibold text-green-700">{formatCurrency(monthlyTotal('INCOME'))}</p></div>
           <div className="min-w-0"><p className="text-sm text-gray-600">고정지출</p><p className="break-all text-lg font-semibold text-red-600">{formatCurrency(monthlyTotal('EXPENSE'))}</p></div>
         </div>
       </div>
+
+      <p className="text-xs leading-relaxed text-gray-500">
+        예정일에 수입·지출 내역으로 자동 반영됩니다. 반영된 금액과 날짜는 내역에서 수정할 수 있습니다.
+        자동 반영은 등록 시작일과 2026년 6월 1일 중 늦은 날부터 적용됩니다.
+      </p>
 
       <div className="grid grid-cols-3 gap-2 mb-2">
         <Select value={selectedType} onChange={setSelectedType} size="sm" className="min-w-0"

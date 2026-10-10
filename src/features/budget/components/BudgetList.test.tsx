@@ -11,7 +11,7 @@ it('맨 왼쪽 유형 필터가 다른 필터와 함께 목록과 요약 금액�
   render(<BudgetList
     entries={[
       { id: '1', description: '급여', amount: 10000, date: '2026-10-10', category: food, paymentMethod: card },
-      { id: '2', description: '점심', amount: -3000, date: '2026-10-10', category: food, paymentMethod: card },
+      { id: '2', description: '점심', amount: -3000, fixedExpenseId: 'recurring-1', date: '2026-10-10', category: food, paymentMethod: card },
       { id: '3', description: '현금 식사', amount: -1000, date: '2026-10-10', category: food },
       { id: '4', description: '교통', amount: -2000, date: '2026-10-10' },
     ]}
@@ -30,6 +30,7 @@ it('맨 왼쪽 유형 필터가 다른 필터와 함께 목록과 요약 금액�
   select(2, '카드')
   expect(screen.queryByText('현금 식사')).toBeNull()
   expect(screen.getByText('점심')).toBeDefined()
+  expect(screen.getByText(`고정 ${formatCurrency(3000)} 포함`)).toBeDefined()
   expect(within(screen.getByLabelText('가계부 요약')).getByText(formatCurrency(-3000))).toBeDefined()
   select(0, '수입')
   expect(screen.getByText('급여')).toBeDefined()
