@@ -13,10 +13,8 @@ const VELOCITY_THRESHOLD = 0.3; // px/ms — 이 이상 빠른 플릭은 즉시 
 const TAP_MAX_DISTANCE = 8;
 const TAP_MAX_DURATION = 250;
 
-// 스프링 이징: 목표를 살짝 지나쳤다 돌아오는 쫀쫀한 느낌
-const SPRING_EASING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
-// 닫힐 때: 부드럽게 슥 닫히는 느낌
-const CLOSE_EASING = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+// Settle quickly without overshooting the delete action's width.
+const SNAP_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -40,17 +38,22 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     if (!el) return;
     el.style.transition = `transform ${duration}ms ${easing}`;
     el.style.transform = `translateX(${x}px)`;
-    // Hide the underlay when closed so Safari compositing cannot expose a red seam.
-    if (deleteActionRef.current) deleteActionRef.current.style.visibility = x < 0 ? 'visible' : 'hidden';
+    const action = deleteActionRef.current;
+    if (action) {
+      action.style.transition = `opacity ${duration}ms ${easing}, visibility ${duration}ms`;
+      action.style.opacity = String(Math.min(1, Math.abs(x) / Math.abs(SNAP_THRESHOLD)));
+      // Visibility switches off after the closing fade, preventing a seam at rest.
+      action.style.visibility = x < 0 ? 'visible' : 'hidden';
+    }
   };
 
   const snapTo = (x: number) => {
     offsetRef.current = x;
     const isOpening = x < 0;
     if (isOpening) {
-      setTransform(x, SPRING_EASING, 380); // 열릴 때: 스프링감
+      setTransform(x, SNAP_EASING, 280);
     } else {
-      setTransform(x, CLOSE_EASING, 250);  // 닫힐 때: 부드럽게
+      setTransform(x, SNAP_EASING, 220);
     }
   };
 
@@ -152,11 +155,17 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
+    const onTouchCancel = () => {
+      drag.current.active = false;
+      snapTo(offsetRef.current);
+    };
+    el.addEventListener('touchcancel', onTouchCancel, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', onTouchStart);
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchCancel);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onEdit, onDelete]);
@@ -196,7 +205,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
       style={{ isolation: 'isolate' }}
     >
       {/* 삭제 버튼 */}
-      <div ref={deleteActionRef} style={{ visibility: 'hidden' }} className="absolute inset-y-0 right-0 flex items-center justify-center w-[80px] bg-red-500">
+      <div ref={deleteActionRef} style={{ visibility: 'hidden', opacity: 0 }} className="absolute inset-y-0 right-0 flex items-center justify-center w-[80px] bg-red-500">
         <button
           onClick={(e) => {
             e.stopPropagation();
