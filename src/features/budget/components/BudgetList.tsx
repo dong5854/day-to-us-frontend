@@ -86,20 +86,22 @@ export const BudgetList: FC<Props> = ({
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 flex flex-col gap-2">
-          <span className="text-sm text-gray-500 font-medium">수입</span>
-          <span className="text-2xl font-bold text-gray-900">{formatCurrency(filteredIncome)}</span>
+      <dl aria-label="가계부 요약" className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-gray-100 pb-3">
+          <dt className="text-sm font-medium text-gray-600">잔액</dt>
+          <dd className="min-w-0 break-all text-right text-2xl font-bold tracking-tight tabular-nums text-indigo-700">{formatCurrency(filteredBalance)}</dd>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500 flex flex-col gap-2">
-          <span className="text-sm text-gray-500 font-medium">지출</span>
-          <span className="text-2xl font-bold text-gray-900">{formatCurrency(filteredExpense)}</span>
+        <div className="grid grid-cols-2 divide-x divide-gray-100 pt-3">
+          <div className="min-w-0 pr-3">
+            <dt className="text-xs font-medium text-gray-500">수입</dt>
+            <dd className="mt-1 break-all text-lg font-semibold tracking-tight tabular-nums text-green-700">{formatCurrency(filteredIncome)}</dd>
+          </div>
+          <div className="min-w-0 pl-3">
+            <dt className="text-xs font-medium text-gray-500">지출</dt>
+            <dd className="mt-1 break-all text-lg font-semibold tracking-tight tabular-nums text-red-600">{formatCurrency(filteredExpense)}</dd>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#4F46E5] flex flex-col gap-2">
-          <span className="text-sm text-gray-500 font-medium">잔액</span>
-          <span className="text-2xl font-bold text-gray-900">{formatCurrency(filteredBalance)}</span>
-        </div>
-      </div>
+      </dl>
 
       <div className="flex gap-2 mb-6">
         <Select
