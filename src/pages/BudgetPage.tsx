@@ -111,7 +111,7 @@ export const BudgetPage: FC<Props> = ({
   const handleDeleteFixedExpense = (expenseId: string) => {
     setConfirmState({
       isOpen: true,
-      message: '정말 이 고정지출을 삭제하시겠습니까?',
+      message: '정말 이 고정 수입·지출을 삭제하시겠습니까?',
       onConfirm: async () => {
         await onDeleteFixedExpense(expenseId)
         setConfirmState((prev) => ({ ...prev, isOpen: false }))
@@ -149,7 +149,7 @@ export const BudgetPage: FC<Props> = ({
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
-          고정지출
+          고정 수입·지출
         </button>
       </div>
 
@@ -178,7 +178,7 @@ export const BudgetPage: FC<Props> = ({
       <button
         onClick={handleAddClick}
         className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
-        title={activeTab === 'entries' ? '항목 추가' : '고정지출 추가'}
+        title={activeTab === 'entries' ? '항목 추가' : '고정 수입·지출 추가'}
       >
         +
       </button>

@@ -60,7 +60,7 @@ export const NotificationSettingCard: FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm font-medium text-gray-700">푸시 알림 받기</label>
-              <p className="text-xs text-gray-400 mt-0.5">고정지출 결제일, 일정 알림을 받습니다</p>
+              <p className="text-xs text-gray-400 mt-0.5">고정 수입·지출 예정일, 일정 알림을 받습니다</p>
             </div>
             <button
               type="button"
@@ -83,7 +83,7 @@ export const NotificationSettingCard: FC = () => {
           {subscribed && (
             <div className="bg-[#4F46E5]/5 rounded-lg p-3">
               <p className="text-xs text-[#4F46E5] font-medium">
-                매일 한국 시간 오전 8시에 당일 고정지출 결제일과 일정을 알려드립니다.
+                매일 한국 시간 오전 8시에 당일 고정 수입·지출 예정일과 일정을 알려드립니다.
               </p>
             </div>
           )}
