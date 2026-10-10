@@ -19,11 +19,11 @@ export const useFixedExpense = (spaceId: string | null) => {
       setError(null)
       const data = await fixedExpenseApi.getAll(spaceId)
       if (!Array.isArray(data)) {
-        throw new Error('고정지출 데이터가 올바른 배열 형식이 아닙니다.')
+        throw new Error('고정 수입·지출 데이터가 올바른 배열 형식이 아닙니다.')
       }
       setExpenses(data)
     } catch (err) {
-      setError('고정지출 목록을 불러오는데 실패했습니다.')
+      setError('고정 수입·지출 목록을 불러오는데 실패했습니다.')
       console.error(err)
     } finally {
       setLoading(false)
@@ -40,7 +40,7 @@ export const useFixedExpense = (spaceId: string | null) => {
         setExpenses(data)
       }
     } catch (err) {
-      console.error('고정지출 폴링 실패:', err)
+      console.error('고정 수입·지출 폴링 실패:', err)
     }
   }, [spaceId])
 
@@ -53,7 +53,7 @@ export const useFixedExpense = (spaceId: string | null) => {
       setExpenses((prev) => [...prev, newExpense])
       return newExpense
     } catch (err) {
-      setError('고정지출 추가에 실패했습니다.')
+      setError('고정 수입·지출 추가에 실패했습니다.')
       console.error(err)
       throw err
     }
@@ -68,7 +68,7 @@ export const useFixedExpense = (spaceId: string | null) => {
       setExpenses((prev) => prev.map((e) => (e.id === expenseId ? updated : e)))
       return updated
     } catch (err) {
-      setError('고정지출 수정에 실패했습니다.')
+      setError('고정 수입·지출 수정에 실패했습니다.')
       console.error(err)
       throw err
     }
@@ -82,7 +82,7 @@ export const useFixedExpense = (spaceId: string | null) => {
       await fixedExpenseApi.delete(spaceId, expenseId)
       setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
     } catch (err) {
-      setError('고정지출 삭제에 실패했습니다.')
+      setError('고정 수입·지출 삭제에 실패했습니다.')
       console.error(err)
       throw err
     }

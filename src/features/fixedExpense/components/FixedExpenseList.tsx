@@ -35,6 +35,7 @@ export const FixedExpenseList: FC<Props> = ({
   onEdit, 
   onDelete 
 }) => {
+  const [selectedType, setSelectedType] = useState('all')
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all')
   const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>('all')
 
@@ -63,10 +64,10 @@ export const FixedExpenseList: FC<Props> = ({
   const filteredExpenses = expenses.filter((expense) => {
     const matchCategory = selectedCategoryId === 'all' || expense.categoryId === selectedCategoryId
     const matchPaymentMethod = selectedPaymentMethodId === 'all' || expense.paymentMethodId === selectedPaymentMethodId
-    return matchCategory && matchPaymentMethod
+    return (selectedType === 'all' || (expense.type ?? 'EXPENSE') === selectedType) && matchCategory && matchPaymentMethod
   })
 
-  const totalMonthlyExpense = filteredExpenses.reduce((sum, expense) => {
+  const monthlyTotal = (type: string) => filteredExpenses.filter(expense => (expense.type ?? 'EXPENSE') === type).reduce((sum, expense) => {
     if (expense.frequency === 'WEEKLY') {
       return sum + (expense.amount * 52) / 12 // 주간 → 월간 환산
     } else if (expense.frequency === 'MONTHLY') {
@@ -88,12 +89,17 @@ export const FixedExpenseList: FC<Props> = ({
   return (
     <div className="space-y-4">
       {/* 월간 총액 카드 */}
-      <div className="bg-[#4F46E5] rounded-xl p-6 text-white shadow-lg">
-        <div className="text-sm opacity-90 mb-1">월 예상 고정지출</div>
-        <div className="text-3xl font-bold">{formatCurrency(totalMonthlyExpense)}</div>
+      <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+        <p className="mb-3 text-xs text-gray-500">월 평균 예정 금액 · 실제 입출금 내역과 별도</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="min-w-0"><p className="text-sm text-gray-600">고정수입</p><p className="break-all text-lg font-semibold text-green-700">{formatCurrency(monthlyTotal('INCOME'))}</p></div>
+          <div className="min-w-0"><p className="text-sm text-gray-600">고정지출</p><p className="break-all text-lg font-semibold text-red-600">{formatCurrency(monthlyTotal('EXPENSE'))}</p></div>
+        </div>
       </div>
 
-      <div className="flex gap-2 mb-2">
+      <div className="grid grid-cols-3 gap-2 mb-2">
+        <Select value={selectedType} onChange={setSelectedType} size="sm" className="min-w-0"
+          options={[{ value: 'all', label: '전체 유형' }, { value: 'INCOME', label: '고정수입' }, { value: 'EXPENSE', label: '고정지출' }]} />
         <Select
           value={selectedCategoryId}
           onChange={setSelectedCategoryId}
@@ -101,7 +107,7 @@ export const FixedExpenseList: FC<Props> = ({
             { value: 'all', label: '전체 카테고리' },
             ...categories.map((c) => ({ value: c.id, label: c.name }))
           ]}
-          className="flex-1 min-w-0"
+          size="sm" className="min-w-0"
         />
         <Select
           value={selectedPaymentMethodId}
@@ -110,7 +116,7 @@ export const FixedExpenseList: FC<Props> = ({
             { value: 'all', label: '전체 결제수단' },
             ...paymentMethods.map((p) => ({ value: p.id, label: p.name }))
           ]}
-          className="flex-1 min-w-0"
+          size="sm" className="min-w-0"
         />
       </div>
 
@@ -119,7 +125,7 @@ export const FixedExpenseList: FC<Props> = ({
         <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
           <CreditCard className="w-12 h-12 mb-4 mx-auto text-gray-400" />
           <p className="text-gray-500">
-            {expenses.length === 0 ? '등록된 고정지출이 없습니다' : '조건에 맞는 고정지출이 없습니다'}
+            {expenses.length === 0 ? '등록된 고정 수입·지출이 없습니다' : '조건에 맞는 고정 수입·지출이 없습니다'}
           </p>
         </div>
       ) : (
@@ -142,7 +148,7 @@ export const FixedExpenseList: FC<Props> = ({
                         <span
                           className={`text-xs px-2 py-1 rounded-full font-medium ${frequencyColors[expense.frequency]}`}
                         >
-                          {frequencyLabels[expense.frequency]}
+                          {expense.type === 'INCOME' ? '수입' : '지출'} · {frequencyLabels[expense.frequency]}
                         </span>
                       </div>
                       {(categoryName || paymentMethodName) && (
@@ -160,11 +166,11 @@ export const FixedExpenseList: FC<Props> = ({
                         </div>
                       )}
                       <div className="text-sm text-gray-500 mt-1">
-                        다음 결제: {calculateNextPaymentDate(expense.startDate, expense.frequency)}
+                        {expense.type === 'INCOME' ? '다음 입금 예정: ' : '다음 결제: '}{calculateNextPaymentDate(expense.startDate, expense.frequency)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-gray-900">{formatCurrency(expense.amount)}</div>
+                      <div className={`text-xl font-bold ${expense.type === 'INCOME' ? 'text-green-700' : 'text-red-600'}`}>{formatCurrency(expense.amount)}</div>
                       {expense.frequency !== 'MONTHLY' && (
                         <div className="text-xs text-gray-400 mt-1">
                           월{' '}

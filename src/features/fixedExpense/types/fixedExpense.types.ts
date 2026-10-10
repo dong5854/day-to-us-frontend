@@ -1,6 +1,7 @@
 export type Frequency = 'WEEKLY' | 'MONTHLY' | 'YEARLY'
 
 export interface FixedExpenseRequest {
+  type?: 'INCOME' | 'EXPENSE'
   description: string
   amount: number
   frequency: Frequency
@@ -11,6 +12,7 @@ export interface FixedExpenseRequest {
 
 export interface FixedExpenseResponse {
   id: string
+  type?: 'INCOME' | 'EXPENSE'
   description: string
   amount: number
   frequency: Frequency

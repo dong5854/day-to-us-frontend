@@ -29,6 +29,7 @@ export const FixedExpenseForm: FC<Props> = ({
   onSubmit,
   onCancel
 }) => {
+  const [type, setType] = useState<'INCOME' | 'EXPENSE'>('EXPENSE')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [frequency, setFrequency] = useState<Frequency>('MONTHLY')
@@ -55,6 +56,7 @@ export const FixedExpenseForm: FC<Props> = ({
 
   useEffect(() => {
     if (expense) {
+      setType(expense.type ?? 'EXPENSE')
       setDescription(expense.description)
       setAmount(String(expense.amount))
       setFrequency(expense.frequency)
@@ -62,6 +64,7 @@ export const FixedExpenseForm: FC<Props> = ({
       setSelectedCategoryId(expense.categoryId ?? '')
       setSelectedPaymentMethodId(expense.paymentMethodId ?? '')
     } else {
+      setType('EXPENSE')
       setDescription('')
       setAmount('')
       setFrequency('MONTHLY')
@@ -138,6 +141,7 @@ export const FixedExpenseForm: FC<Props> = ({
     setLoading(true)
     try {
       await onSubmit({
+        type,
         description: description.trim(),
         amount: parseFloat(amount),
         frequency,
@@ -163,10 +167,15 @@ export const FixedExpenseForm: FC<Props> = ({
   return (
     <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg">
       <h3 className="text-xl font-bold text-gray-900 mb-6">
-        {isEditing ? '고정지출 수정' : '고정지출 등록'}
+        {`고정${type === 'INCOME' ? '수입' : '지출'} ${isEditing ? '수정' : '등록'}`}
       </h3>
 
       <div className="space-y-4 mb-6">
+        <div>
+          <label htmlFor="fixed-type" className="block text-sm font-semibold text-gray-900 mb-2">유형</label>
+          <Select id="fixed-type" value={type} onChange={value => setType(value as 'INCOME' | 'EXPENSE')}
+            options={[{ value: 'INCOME', label: '고정수입' }, { value: 'EXPENSE', label: '고정지출' }]} />
+        </div>
         {/* Category selector */}
         {(categories.length > 0 || onCreateCategory) && (
           <div>
@@ -360,7 +369,7 @@ export const FixedExpenseForm: FC<Props> = ({
         {/* 시작일 */}
         <div>
           <label htmlFor="startDate" className="block text-sm font-semibold text-gray-900 mb-2">
-            결제 시작일 (첫 결제일)
+            {type === 'INCOME' ? '첫 입금 예정일' : '결제 시작일 (첫 결제일)'}
           </label>
           <DatePicker
             id="startDate"

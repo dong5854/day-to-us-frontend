@@ -186,10 +186,10 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     try {
       if (editingFixedExpense) {
         await updateFixedExpense(editingFixedExpense.id, data)
-        showToast('고정지출이 수정되었습니다', 'success')
+        showToast('고정 수입·지출이 수정되었습니다', 'success')
       } else {
         await createFixedExpense(data)
-        showToast('고정지출이 추가되었습니다', 'success')
+        showToast('고정 수입·지출이 추가되었습니다', 'success')
       }
       setIsFixedExpenseFormOpen(false)
       setEditingFixedExpense(null)
@@ -202,11 +202,11 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   const handleDeleteFixedExpense = (expenseId: string) => {
     setConfirmState({
       isOpen: true,
-      message: '정말 이 고정지출을 삭제하시겠습니까?',
+      message: '정말 이 고정 수입·지출을 삭제하시겠습니까?',
       onConfirm: async () => {
         try {
           await deleteFixedExpense(expenseId)
-          showToast('고정지출이 삭제되었습니다', 'info')
+          showToast('고정 수입·지출이 삭제되었습니다', 'info')
         } catch {
           showToast('삭제에 실패했습니다', 'error')
         }
