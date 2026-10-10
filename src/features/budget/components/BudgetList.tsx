@@ -90,7 +90,10 @@ export const BudgetList: FC<Props> = ({
     <div>
       <dl aria-label="가계부 요약" className="mb-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-gray-100 pb-3">
-          <dt className="text-sm font-medium text-gray-600">잔액</dt>
+          <dt className="text-sm font-medium text-gray-600">
+            월 차액
+            <span className="mt-1 block text-xs font-normal text-gray-500">수입 − 지출</span>
+          </dt>
           <dd className="min-w-0 break-all text-right text-2xl font-bold tracking-tight tabular-nums text-indigo-700">{formatCurrency(filteredBalance)}</dd>
         </div>
         <div className="grid grid-cols-2 divide-x divide-gray-100 pt-3">
