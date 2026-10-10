@@ -1,5 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { formatCurrency, formatDate, formatRelativeTime } from './format'
+import { formatCurrency, formatDate, formatRelativeTime, formatKoreanWon } from './format'
+
+describe('formatKoreanWon', () => {
+  it.each([
+    [0, '0원'], [1000, '1,000원'], [10000, '1만원'],
+    [12345, '1만 2,345원'], [100000000, '1억원'],
+    [1000100010000, '1조 1억 1만원'],
+    [-1, ''], [NaN, ''], [Infinity, ''], [1.5, ''],
+  ])('%s원을 %s으로 표시한다', (amount, expected) => {
+    expect(formatKoreanWon(amount)).toBe(expected)
+  })
+})
 
 describe('formatCurrency', () => {
   it('양수 금액을 원화로 포맷한다', () => {

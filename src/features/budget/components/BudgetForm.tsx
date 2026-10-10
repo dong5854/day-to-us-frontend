@@ -6,6 +6,7 @@ import type { PaymentMethodResponse } from '../types/paymentMethod.types'
 import { Select } from '@/shared/components/Select'
 import { DatePicker } from '@/shared/components/DatePicker'
 import { toDateString } from '@/shared/utils/dateUtils'
+import { formatKoreanWon } from '@/shared/utils/format'
 import { readBudgetPreferences, rememberBudgetPreferences } from '../utils/budgetPreferences'
 
 interface Props {
@@ -379,9 +380,35 @@ export const BudgetForm: FC<Props> = ({
           onChange={(e) => setAmount(e.target.value)}
           min="0"
           step="1"
+          aria-describedby="amount-readable"
           required
           className="w-full px-4 py-3 border border-gray-200 rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
         />
+        <p id="amount-readable" aria-live="polite" className="mt-2 min-h-5 text-right text-sm text-gray-500">
+          {formatKoreanWon(Number(amount))}
+        </p>
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {[
+            { value: 1000, label: '+1천' },
+            { value: 10000, label: '+1만' },
+            { value: 50000, label: '+5만' },
+            { value: 100000, label: '+10만' },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              aria-label={`${value.toLocaleString('ko-KR')}원 더하기`}
+              disabled={loading}
+              onClick={() => setAmount(current => {
+                const next = Math.max(0, Number(current) || 0) + value
+                return Number.isSafeInteger(next) ? String(next) : current
+              })}
+              className="min-h-11 rounded-full bg-gray-100 px-1 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 disabled:opacity-60"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -18,6 +18,24 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
+it('금액 버튼은 현재 입력값에 누적하고 읽기 쉬운 금액을 갱신하며 폼을 제출하지 않는다', () => {
+  render(<BudgetForm {...props} />)
+  fireEvent.click(screen.getByRole('button', { name: '1,000원 더하기' }))
+  fireEvent.click(screen.getByRole('button', { name: '10,000원 더하기' }))
+  fireEvent.click(screen.getByRole('button', { name: '50,000원 더하기' }))
+  fireEvent.click(screen.getByRole('button', { name: '100,000원 더하기' }))
+  expect((screen.getByLabelText('금액') as HTMLInputElement).value).toBe('161000')
+  expect(screen.getByText('16만 1,000원')).toBeDefined()
+  expect(props.onSubmit).not.toHaveBeenCalled()
+
+  fireEvent.change(screen.getByLabelText('금액'), { target: { value: '12345' } })
+  expect(screen.getByText('1만 2,345원')).toBeDefined()
+  fireEvent.click(screen.getByRole('button', { name: '1,000원 더하기' }))
+  expect((screen.getByLabelText('금액') as HTMLInputElement).value).toBe('13345')
+  fireEvent.change(screen.getByLabelText('금액'), { target: { value: '' } })
+  expect(screen.getByText('0원')).toBeDefined()
+})
+
 it('선택 후 저장하지 않고 닫아도 새 창에서 유형, 카테고리, 결제 수단을 복원한다', () => {
   const form = render(<BudgetForm {...props} />)
   fireEvent.click(screen.getByRole('button', { name: '지출' }))
