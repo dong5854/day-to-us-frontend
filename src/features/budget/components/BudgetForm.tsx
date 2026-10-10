@@ -6,8 +6,10 @@ import type { PaymentMethodResponse } from '../types/paymentMethod.types'
 import { Select } from '@/shared/components/Select'
 import { DatePicker } from '@/shared/components/DatePicker'
 import { toDateString } from '@/shared/utils/dateUtils'
+import { readBudgetPreferences, rememberBudgetPreferences } from '../utils/budgetPreferences'
 
 interface Props {
+  spaceId?: string
   entry?: BudgetEntryResponse | null
   initialDate?: string | null
   categories?: ExpenseCategoryResponse[]
@@ -21,6 +23,7 @@ interface Props {
 }
 
 export const BudgetForm: FC<Props> = ({
+  spaceId,
   entry,
   initialDate,
   categories = [],
@@ -35,17 +38,20 @@ export const BudgetForm: FC<Props> = ({
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(toDateString(new Date())) // YYYY-MM-DD
-  const [isIncome, setIsIncome] = useState(true)
+  const [preferences] = useState(() => readBudgetPreferences(spaceId))
+  const [isIncome, setIsIncome] = useState(preferences.isIncome)
   const [loading, setLoading] = useState(false)
 
   // Category state
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
+  const [categoryId, setSelectedCategoryId] = useState(preferences.categoryId)
+  const selectedCategoryId = entry || categories.some(category => category.id === categoryId) ? categoryId : ''
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [categoryError, setCategoryError] = useState('')
 
   // Payment method state
-  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>('')
+  const [paymentMethodId, setSelectedPaymentMethodId] = useState(preferences.paymentMethodId)
+  const selectedPaymentMethodId = entry || paymentMethods.some(method => method.id === paymentMethodId) ? paymentMethodId : ''
   const [isAddingPaymentMethod, setIsAddingPaymentMethod] = useState(false)
   const [newPaymentMethodName, setNewPaymentMethodName] = useState('')
   const [paymentMethodError, setPaymentMethodError] = useState('')
@@ -74,6 +80,7 @@ export const BudgetForm: FC<Props> = ({
       setCategoryError('')
     } else {
       setSelectedCategoryId(value)
+      rememberBudgetPreferences(spaceId, { categoryId: value })
       setIsAddingCategory(false)
       setCategoryError('')
     }
@@ -87,6 +94,7 @@ export const BudgetForm: FC<Props> = ({
       const created = await onCreateCategory(newCategoryName.trim())
       if (created) {
         setSelectedCategoryId(created.id)
+        rememberBudgetPreferences(spaceId, { categoryId: created.id })
       }
       setNewCategoryName('')
       setIsAddingCategory(false)
@@ -104,6 +112,7 @@ export const BudgetForm: FC<Props> = ({
       setPaymentMethodError('')
     } else {
       setSelectedPaymentMethodId(value)
+      rememberBudgetPreferences(spaceId, { paymentMethodId: value })
       setIsAddingPaymentMethod(false)
       setPaymentMethodError('')
     }
@@ -117,6 +126,7 @@ export const BudgetForm: FC<Props> = ({
       const created = await onCreatePaymentMethod(newPaymentMethodName.trim())
       if (created) {
         setSelectedPaymentMethodId(created.id)
+        rememberBudgetPreferences(spaceId, { paymentMethodId: created.id })
       }
       setNewPaymentMethodName('')
       setIsAddingPaymentMethod(false)
@@ -145,9 +155,6 @@ export const BudgetForm: FC<Props> = ({
       setDescription('')
       setAmount('')
       setDate(toDateString(new Date()))
-      setIsIncome(true)
-      setSelectedCategoryId('')
-      setSelectedPaymentMethodId('')
     } catch (error) {
       console.error(error)
     } finally {
@@ -167,7 +174,8 @@ export const BudgetForm: FC<Props> = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => setIsIncome(true)}
+            aria-pressed={isIncome}
+            onClick={() => { setIsIncome(true); rememberBudgetPreferences(spaceId, { isIncome: true }) }}
             className={`px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
               isIncome
                 ? 'border-[#4F46E5] gradient-bg text-white'
@@ -178,7 +186,8 @@ export const BudgetForm: FC<Props> = ({
           </button>
           <button
             type="button"
-            onClick={() => setIsIncome(false)}
+            aria-pressed={!isIncome}
+            onClick={() => { setIsIncome(false); rememberBudgetPreferences(spaceId, { isIncome: false }) }}
             className={`px-4 py-3 rounded-lg font-semibold transition-all border-2 ${
               !isIncome
                 ? 'border-[#4F46E5] gradient-bg text-white'

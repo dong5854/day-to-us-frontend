@@ -394,6 +394,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       {/* Budget Entry Form */}
       <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
+          spaceId={spaceId}
           entry={editingEntry}
           initialDate={selectedDate}
           categories={categories}

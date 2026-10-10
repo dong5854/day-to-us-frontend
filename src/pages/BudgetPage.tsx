@@ -186,6 +186,7 @@ export const BudgetPage: FC<Props> = ({
       {/* Budget Entry Form Modal */}
       <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
+          spaceId={spaceId}
           entry={editingEntry}
           categories={categories}
           paymentMethods={paymentMethods}
