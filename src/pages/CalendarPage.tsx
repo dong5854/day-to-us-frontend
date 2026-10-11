@@ -187,6 +187,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     try {
       if (editingFixedExpense) {
         await updateFixedExpense(editingFixedExpense.id, data)
+        await refetchBudget()
         showToast('고정 수입/지출이 수정되었습니다', 'success')
       } else {
         await createFixedExpense(data)
@@ -413,6 +414,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       {/* Fixed Expense Form */}
       <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
+          spaceId={spaceId}
           expense={editingFixedExpense}
           categories={categories}
           paymentMethods={paymentMethods}

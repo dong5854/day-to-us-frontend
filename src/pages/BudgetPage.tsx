@@ -202,6 +202,7 @@ export const BudgetPage: FC<Props> = ({
       {/* Fixed Expense Form Modal */}
       <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
+          spaceId={spaceId}
           expense={editingFixedExpense}
           categories={categories}
           paymentMethods={paymentMethods}
