@@ -127,7 +127,7 @@ export const FixedExpenseList: FC<Props> = ({
         <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
           <CreditCard className="w-12 h-12 mb-4 mx-auto text-gray-400" />
           <p className="text-gray-500">
-            {expenses.length === 0 ? '등록된 고정 수입·지출이 없습니다' : '조건에 맞는 고정 수입·지출이 없습니다'}
+            {expenses.length === 0 ? '등록된 고정 수입/지출이 없습니다' : '조건에 맞는 고정 수입/지출이 없습니다'}
           </p>
         </div>
       ) : (
