@@ -2,8 +2,33 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { FixedExpenseForm } from './FixedExpenseForm'
 import { FixedExpenseList } from './FixedExpenseList'
+import { Modal } from '@/shared/components/Modal'
 
 afterEach(cleanup)
+
+it.each(['INCOME', 'EXPENSE'] as const)('%s 수정 시 금액 버튼과 첫 예정일 변경을 저장한다', async type => {
+  const onSubmit = vi.fn().mockResolvedValue(undefined)
+  const onClose = vi.fn()
+  const { container } = render(<Modal isOpen onClose={onClose}>
+    <FixedExpenseForm expense={{ id: 'fixed', description: '고정 항목', amount: 3260000,
+      type, frequency: 'MONTHLY', startDate: '2026-09-25', autoPostFrom: '2026-09-25',
+    }} onSubmit={onSubmit} onCancel={onClose} />
+  </Modal>)
+  expect(screen.getByText('326만원')).toBeDefined()
+  for (const amount of ['1,000', '10,000', '50,000', '100,000']) {
+    fireEvent.click(screen.getByRole('button', { name: `${amount}원 더하기` }))
+  }
+  expect(screen.getByText('342만 1,000원')).toBeDefined()
+  expect(onSubmit).not.toHaveBeenCalled()
+  fireEvent.click(container.querySelector('#startDate')!)
+  fireEvent.click(screen.getByRole('button', { name: /^26$/ }))
+  expect(onClose).not.toHaveBeenCalled()
+  expect(container.querySelector('#startDate')?.textContent).toContain('2026년 9월 26일')
+  fireEvent.click(screen.getByRole('button', { name: '수정하기' }))
+  await waitFor(() => expect(onSubmit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+    type, amount: 3421000, startDate: '2026-09-26', autoPostFrom: '2026-09-25',
+  })))
+})
 
 it('고정수입을 등록하고 수정 창에서 유형을 유지한다', async () => {
   const onSubmit = vi.fn().mockResolvedValue(undefined)

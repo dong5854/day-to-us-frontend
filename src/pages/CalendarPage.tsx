@@ -44,6 +44,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     createEntry,
     updateEntry,
     deleteEntry,
+    refetch: refetchBudget,
   } = useBudget(spaceId, currentYear, currentMonth)
 
   const { categories, createCategory, deleteCategory } = useExpenseCategories(spaceId)
@@ -189,6 +190,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
         showToast('고정 수입/지출이 수정되었습니다', 'success')
       } else {
         await createFixedExpense(data)
+        await refetchBudget()
         showToast('고정 수입/지출이 추가되었습니다', 'success')
       }
       setIsFixedExpenseFormOpen(false)

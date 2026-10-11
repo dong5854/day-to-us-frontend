@@ -5,6 +5,7 @@ import type { PaymentMethodResponse } from '@/features/budget/types/paymentMetho
 import { Select } from '@/shared/components/Select'
 import { DatePicker } from '@/shared/components/DatePicker'
 import { toDateString } from '@/shared/utils/dateUtils'
+import { formatKoreanWon } from '@/shared/utils/format'
 
 interface Props {
   expense?: FixedExpenseResponse | null
@@ -350,8 +351,34 @@ export const FixedExpenseForm: FC<Props> = ({
             required
             min="0"
             step="1"
+            aria-describedby="fixed-amount-readable"
             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10"
           />
+          <p id="fixed-amount-readable" aria-live="polite" className="mt-2 min-h-5 text-right text-sm text-gray-500">
+            {formatKoreanWon(Number(amount))}
+          </p>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[
+              { value: 1000, label: '+1천' },
+              { value: 10000, label: '+1만' },
+              { value: 50000, label: '+5만' },
+              { value: 100000, label: '+10만' },
+            ].map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-label={`${value.toLocaleString('ko-KR')}원 더하기`}
+                disabled={loading}
+                onClick={() => setAmount(current => {
+                  const next = Math.max(0, Number(current) || 0) + value
+                  return Number.isSafeInteger(next) ? String(next) : current
+                })}
+                className="min-h-11 rounded-full bg-gray-100 px-1 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 disabled:opacity-60"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* 주기 */}
