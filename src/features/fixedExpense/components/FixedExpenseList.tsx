@@ -90,7 +90,7 @@ export const FixedExpenseList: FC<Props> = ({
     <div className="space-y-4">
       {/* 월간 총액 카드 */}
       <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <p className="mb-3 text-xs text-gray-500">월 평균 예정 금액</p>
+        <p className="mb-3 text-xs text-gray-500">전체 등록 항목 기준 · 월 평균 예정 금액</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="min-w-0"><p className="text-sm text-gray-600">고정수입</p><p className="break-all text-lg font-semibold text-green-700">{formatCurrency(monthlyTotal('INCOME'))}</p></div>
           <div className="min-w-0"><p className="text-sm text-gray-600">고정지출</p><p className="break-all text-lg font-semibold text-red-600">{formatCurrency(monthlyTotal('EXPENSE'))}</p></div>
@@ -169,6 +169,11 @@ export const FixedExpenseList: FC<Props> = ({
                       )}
                       <div className="text-sm text-gray-500 mt-1">
                         {expense.type === 'INCOME' ? '다음 입금 예정: ' : '다음 결제: '}{calculateNextPaymentDate(expense.startDate, expense.frequency)}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        첫 예정일 {expense.startDate.replaceAll('-', '.')}
+                        <br />
+                        자동 반영 시작 {(expense.autoPostFrom ?? '2026-06-01').replaceAll('-', '.')}
                       </div>
                     </div>
                     <div className="text-right">

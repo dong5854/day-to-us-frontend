@@ -65,7 +65,7 @@ export const FixedExpensePage: FC<Props> = ({
   const handleDeleteExpense = (expenseId: string) => {
     setConfirmState({
       isOpen: true,
-      message: '정말 이 고정지출을 삭제하시겠습니까?',
+      message: '정말 이 고정 항목을 삭제하시겠습니까?',
       onConfirm: async () => {
         await onDeleteExpense(expenseId)
         setConfirmState((prev) => ({ ...prev, isOpen: false }))
@@ -89,7 +89,7 @@ export const FixedExpensePage: FC<Props> = ({
       <button
         onClick={handleAddExpense}
         className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
-        title="고정지출 추가"
+        title="고정 수입·지출 추가"
       >
         +
       </button>
