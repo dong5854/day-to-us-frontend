@@ -8,6 +8,7 @@ import type { ExpenseCategoryResponse } from '@/features/budget/types/expenseCat
 import type { PaymentMethodResponse } from '@/features/budget/types/paymentMethod.types'
 
 interface Props {
+  spaceId: string
   expenses: FixedExpenseResponse[]
   loading: boolean
   categories?: ExpenseCategoryResponse[]
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export const FixedExpensePage: FC<Props> = ({ 
+  spaceId,
   expenses, 
   loading, 
   categories,
@@ -96,6 +98,7 @@ export const FixedExpensePage: FC<Props> = ({
 
       <Modal isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingExpense(null) }}>
         <FixedExpenseForm 
+          spaceId={spaceId}
           expense={editingExpense} 
           categories={categories}
           paymentMethods={paymentMethods}

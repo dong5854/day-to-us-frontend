@@ -7,8 +7,16 @@ export interface FixedExpenseRequest {
   frequency: Frequency
   startDate: string // ISO 8601 format (YYYY-MM-DD)
   autoPostFrom: string
+  reconciliationToken?: string
   categoryId?: string
   paymentMethodId?: string
+}
+
+export interface RecurringPreview {
+  added: number
+  deleted: number
+  preserved: number
+  token: string
 }
 
 export interface FixedExpenseResponse {
