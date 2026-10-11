@@ -117,7 +117,7 @@ export const CalendarListView: FC<Props> = ({
                 budgetSubTab === 'fixed' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
               }`}
             >
-              고정지출
+              고정 수입·지출
             </button>
           </div>
 
@@ -156,7 +156,7 @@ export const CalendarListView: FC<Props> = ({
       <button
         onClick={() => onAdd(addTarget)}
         className="fixed bottom-8 right-8 w-16 h-16 md:w-14 md:h-14 rounded-full gradient-bg text-white text-4xl md:text-3xl font-light shadow-lg hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 z-50 flex items-center justify-center pb-1"
-        title={addTarget === 'fixed' ? '고정지출 추가' : addTarget === 'schedule' ? '일정 추가' : '항목 추가'}
+        title={addTarget === 'fixed' ? '고정 수입·지출 추가' : addTarget === 'schedule' ? '일정 추가' : '항목 추가'}
       >
         +
       </button>
