@@ -105,7 +105,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
       <ModalHeader onClose={onCancel}>
         {schedule ? '일정 수정' : '새 일정 추가'}
       </ModalHeader>
-      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
       <div className="mb-6">
         <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">

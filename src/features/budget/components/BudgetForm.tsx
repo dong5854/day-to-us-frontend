@@ -169,7 +169,7 @@ export const BudgetForm: FC<Props> = ({
       <ModalHeader onClose={onCancel}>
         {entry ? '항목 수정' : '새 항목 추가'}
       </ModalHeader>
-      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
       {/* 유형 (income/expense) */}
       <div className="mb-6">
