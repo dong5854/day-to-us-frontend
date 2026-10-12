@@ -13,8 +13,15 @@ const VELOCITY_THRESHOLD = 0.3; // px/ms — 이 이상 빠른 플릭은 즉시 
 const TAP_MAX_DISTANCE = 8;
 const TAP_MAX_DURATION = 250;
 
-// Settle quickly without overshooting the delete action's width.
+// Ease back to the resting position after the resisted extra drag.
 const SNAP_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+// Extra travel approaches 24px, with increasing resistance as the finger moves farther.
+const resistedOffset = (x: number) => {
+  if (x >= SNAP_OPEN) return Math.min(0, x);
+  const extra = SNAP_OPEN - x;
+  return SNAP_OPEN - (24 * extra) / (80 + extra);
+};
 
 export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -40,7 +47,8 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     el.style.transform = `translateX(${x}px)`;
     const action = deleteActionRef.current;
     if (action) {
-      action.style.transition = `opacity ${duration}ms ${easing}, visibility ${duration}ms`;
+      action.style.transition = `width ${duration}ms ${easing}, opacity ${duration}ms ${easing}, visibility ${duration}ms`;
+      action.style.width = `${Math.max(Math.abs(SNAP_OPEN), -x)}px`;
       action.style.opacity = String(Math.min(1, Math.abs(x) / Math.abs(SNAP_THRESHOLD)));
       // Visibility switches off after the closing fade, preventing a seam at rest.
       action.style.visibility = x < 0 ? 'visible' : 'hidden';
@@ -99,7 +107,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
       recentTouches.current.push({ x: t.clientX, t: now });
       if (recentTouches.current.length > 6) recentTouches.current.shift();
 
-      const newX = Math.max(SNAP_OPEN, Math.min(0, offsetRef.current + diffX));
+      const newX = resistedOffset(offsetRef.current + diffX);
       setTransform(newX, 'linear', 0);
     };
 
@@ -182,7 +190,7 @@ export const SwipeableCard: FC<Props> = ({ children, onEdit, onDelete }) => {
     if (!mouse.current.down) return;
     const diffX = e.clientX - mouse.current.startX;
     if (Math.abs(diffX) > 4) mouse.current.moved = true;
-    const newX = Math.max(SNAP_OPEN, Math.min(0, offsetRef.current + diffX));
+    const newX = resistedOffset(offsetRef.current + diffX);
     setTransform(newX, 'linear', 0);
   };
   const handleMouseUpOrLeave = () => {
