@@ -11,7 +11,7 @@ it.each(['INCOME', 'EXPENSE'] as const)('%s 수정 시 금액 버튼과 첫 예�
   const onSubmit = vi.fn().mockResolvedValue(undefined)
   const onClose = vi.fn()
   vi.spyOn(fixedExpenseApi, 'preview').mockResolvedValue({ added: 2, deleted: 1, preserved: 1, token: 'confirmed-preview' })
-  const { container } = render(<Modal isOpen onClose={onClose}>
+  const { container } = render(<Modal formLayout isOpen onClose={onClose}>
     <FixedExpenseForm spaceId="space" expense={{ id: 'fixed', description: '고정 항목', amount: 3260000,
       type, frequency: 'MONTHLY', startDate: '2026-09-25', autoPostFrom: '2026-09-25',
     }} onSubmit={onSubmit} onCancel={onClose} />
