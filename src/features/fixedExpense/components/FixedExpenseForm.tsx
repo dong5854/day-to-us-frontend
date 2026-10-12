@@ -1,3 +1,4 @@
+import { ModalHeader } from '@/shared/components/ModalHeader'
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import type { FixedExpenseRequest, FixedExpenseResponse, Frequency, RecurringPreview } from '../types/fixedExpense.types'
 import { useRecurringPreview } from '../hooks/useRecurringPreview'
@@ -186,8 +187,9 @@ export const FixedExpenseForm: FC<Props> = ({
   }
 
   if (pending) return (
-    <div role="alertdialog" aria-labelledby="recurring-preview-title" className="bg-white p-8 rounded-lg">
-      <h3 id="recurring-preview-title" className="text-xl font-bold text-gray-900 mb-6">예정일 변경 확인</h3>
+    <div role="alertdialog" aria-labelledby="recurring-preview-title" className="flex min-h-0 flex-col bg-white rounded-lg">
+      <ModalHeader onClose={onCancel} titleId="recurring-preview-title">예정일 변경 확인</ModalHeader>
+      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <p className="font-semibold text-gray-900 mb-3">
         {pending.preview.added}건 추가 / {pending.preview.deleted}건 삭제 / {pending.preview.preserved}건 보존
       </p>
@@ -200,14 +202,16 @@ export const FixedExpenseForm: FC<Props> = ({
         <button type="button" disabled={loading} onClick={() => save({ ...pending.data, reconciliationToken: pending.preview.token })}
           className="min-h-11 rounded-lg gradient-bg text-white disabled:opacity-50">{loading ? '반영 중...' : '확인 후 저장'}</button>
       </div>
+      </div>
     </div>
   )
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">
+    <form onSubmit={handleSubmit} className="flex min-h-0 flex-col bg-white rounded-lg">
+      <ModalHeader onClose={onCancel}>
         {`고정${type === 'INCOME' ? '수입' : '지출'} ${isEditing ? '수정' : '등록'}`}
-      </h3>
+      </ModalHeader>
+      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       {(submitError || preview.error) && <p role="alert" className="mb-4 text-sm text-red-600">{submitError || preview.error}</p>}
 
       <div className="space-y-4 mb-6">
@@ -470,6 +474,7 @@ export const FixedExpenseForm: FC<Props> = ({
         >
           {preview.loading ? '변경 내용 확인 중...' : loading ? (isEditing ? '수정 중...' : '등록 중...') : (isEditing ? '수정하기' : '등록하기')}
         </button>
+      </div>
       </div>
     </form>
   )

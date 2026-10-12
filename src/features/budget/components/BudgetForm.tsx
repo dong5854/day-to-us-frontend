@@ -1,3 +1,4 @@
+import { ModalHeader } from '@/shared/components/ModalHeader'
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import type { BudgetEntryRequest, BudgetEntryResponse } from '../types/budget.types'
@@ -164,10 +165,11 @@ export const BudgetForm: FC<Props> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg">
-      <h3 className="text-2xl font-bold text-gray-900 mb-8">
+    <form onSubmit={handleSubmit} className="flex min-h-0 flex-col bg-white rounded-lg">
+      <ModalHeader onClose={onCancel}>
         {entry ? '항목 수정' : '새 항목 추가'}
-      </h3>
+      </ModalHeader>
+      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
       {/* 유형 (income/expense) */}
       <div className="mb-6">
@@ -427,6 +429,7 @@ export const BudgetForm: FC<Props> = ({
         >
           {loading ? '처리 중...' : entry ? '수정' : '추가'}
         </button>
+      </div>
       </div>
     </form>
   )

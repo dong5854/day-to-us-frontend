@@ -184,7 +184,7 @@ export const BudgetPage: FC<Props> = ({
       </button>
 
       {/* Budget Entry Form Modal */}
-      <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
+      <Modal formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           spaceId={spaceId}
           entry={editingEntry}
@@ -200,7 +200,7 @@ export const BudgetPage: FC<Props> = ({
       </Modal>
 
       {/* Fixed Expense Form Modal */}
-      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
+      <Modal formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           spaceId={spaceId}
           expense={editingFixedExpense}

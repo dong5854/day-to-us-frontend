@@ -395,7 +395,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       </Modal>
 
       {/* Budget Entry Form */}
-      <Modal isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
+      <Modal formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           spaceId={spaceId}
           entry={editingEntry}
@@ -412,7 +412,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       </Modal>
 
       {/* Fixed Expense Form */}
-      <Modal isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
+      <Modal formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           spaceId={spaceId}
           expense={editingFixedExpense}
@@ -428,7 +428,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       </Modal>
 
       {/* Schedule Form */}
-      <Modal isOpen={isScheduleFormOpen} onClose={() => setIsScheduleFormOpen(false)}>
+      <Modal formLayout isOpen={isScheduleFormOpen} onClose={() => setIsScheduleFormOpen(false)}>
         <ScheduleForm
           schedule={editingSchedule}
           initialDate={selectedDate}

@@ -1,3 +1,4 @@
+import { ModalHeader } from '@/shared/components/ModalHeader'
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { Clock, AlertTriangle } from 'lucide-react'
 import { toDateString, toTimeString } from '@/shared/utils/dateUtils'
@@ -100,10 +101,11 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg">
-      <h3 className="text-2xl font-bold text-gray-900 mb-8">
+    <form onSubmit={handleSubmit} className="flex min-h-0 flex-col bg-white rounded-lg">
+      <ModalHeader onClose={onCancel}>
         {schedule ? '일정 수정' : '새 일정 추가'}
-      </h3>
+      </ModalHeader>
+      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
 
       <div className="mb-6">
         <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
@@ -239,6 +241,7 @@ export const ScheduleForm: FC<Props> = ({ schedule, initialDate, onSubmit, onCan
         >
           {loading ? '처리 중...' : schedule ? '수정' : '추가'}
         </button>
+      </div>
       </div>
     </form>
   )
