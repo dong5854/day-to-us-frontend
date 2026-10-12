@@ -189,7 +189,7 @@ export const FixedExpenseForm: FC<Props> = ({
   if (pending) return (
     <div role="alertdialog" aria-labelledby="recurring-preview-title" className="flex min-h-0 flex-col bg-white rounded-lg">
       <ModalHeader onClose={onCancel} titleId="recurring-preview-title">예정일 변경 확인</ModalHeader>
-      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <p className="font-semibold text-gray-900 mb-3">
         {pending.preview.added}건 추가 / {pending.preview.deleted}건 삭제 / {pending.preview.preserved}건 보존
       </p>
@@ -211,7 +211,7 @@ export const FixedExpenseForm: FC<Props> = ({
       <ModalHeader onClose={onCancel}>
         {`고정${type === 'INCOME' ? '수입' : '지출'} ${isEditing ? '수정' : '등록'}`}
       </ModalHeader>
-      <div className="min-h-0 overflow-y-auto overscroll-none px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-6 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       {(submitError || preview.error) && <p role="alert" className="mb-4 text-sm text-red-600">{submitError || preview.error}</p>}
 
       <div className="space-y-4 mb-6">
