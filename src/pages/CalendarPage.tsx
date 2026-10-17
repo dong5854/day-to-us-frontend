@@ -1,5 +1,9 @@
 import { useState, useMemo, type FC } from 'react'
-import { Calendar, List, Wallet } from 'lucide-react'
+import { Calendar, List, Wallet, PiggyBank } from 'lucide-react'
+import { useSavings } from '@/features/savings/hooks/useSavings'
+import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
+import { SavingsForm } from '@/features/savings/components/SavingsForm'
+import type { SavingsSelection, SavingsRecord } from '@/features/savings/types/savings.types'
 import { useBudget } from '@/features/budget/hooks/useBudget'
 import { useExpenseCategories } from '@/features/budget/hooks/useExpenseCategories'
 import { usePaymentMethods } from '@/features/budget/hooks/usePaymentMethods'
@@ -24,8 +28,7 @@ import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixed
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
 type ViewType = 'calendar' | 'list'
-type FilterType = 'all' | 'budget' | 'schedule'
-type ListFilterType = 'budget' | 'schedule'
+type FilterType = 'all' | 'budget' | 'schedule' | 'savings'
 
 interface Props {
   spaceId: string
@@ -36,6 +39,15 @@ interface Props {
 export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) => {
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
+
+  const savings = useSavings(spaceId, currentYear, currentMonth)
+  const [savingsSelection, setSavingsSelection] = useState<SavingsSelection | null>(null)
+  const openSavingsRecord = (record: SavingsRecord) => {
+    const plan = savings.data?.plans.find(p => p.id === record.planId)
+    if (!plan) return
+    setIsDrawerOpen(false)
+    setSavingsSelection(record.planned ? { type: 'plan', plan } : { type: 'record', plan, record })
+  }
 
   // ─── Data Hooks ───────────────────────────────────────────────────────────
   const {
@@ -82,7 +94,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
 
   // ─── Event Bars (memoized via hook) ───────────────────────────────────────
   const [filterType, setFilterType] = useState<FilterType>('all')
-  const [listFilterType, setListFilterType] = useState<ListFilterType>('budget')
+  const listFilterType = filterType === 'schedule' ? 'schedule' : 'budget'
 
   const eventBars = useEventBars({
     schedules,
@@ -90,7 +102,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     month,
     daysInMonth,
     startingDayOfWeek,
-    enabled: filterType !== 'budget',
+    enabled: filterType === 'all' || filterType === 'schedule',
   })
 
   // ─── Device Detection ─────────────────────────────────────────────────────
@@ -129,7 +141,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   // ─── Date Click ───────────────────────────────────────────────────────────
   const handleDateClick = (y: number, m: number, d: number) => {
     const dateStr = buildDateStr(y, m, d)
-    if (isMobile) {
+    if (isMobile || filterType === 'savings' || filterType === 'all') {
       setSelectedDateForDrawer(dateStr)
       setIsDrawerOpen(true)
     } else {
@@ -278,44 +290,18 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-full">
-      {/* View Toggle & Filters */}
-      <div className="mb-4">
-        <div className="flex gap-1.5 bg-gray-100 p-1 rounded-lg mb-3">
-          <button
-            onClick={() => setViewType('calendar')}
-            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewType === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Calendar className="w-4 h-4 inline-block" /> 달력
-          </button>
-          <button
-            onClick={() => { setViewType('list'); setListFilterType('budget') }}
-            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              viewType === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <List className="w-4 h-4 inline-block" /> 목록
-          </button>
+      <div className="mb-4 space-y-3">
+        <nav aria-label="생활 관리 메뉴" className="flex gap-1 border-b border-gray-100">
+          {([{ value: 'budget', label: '가계부', icon: Wallet }, { value: 'savings', label: '저축', icon: PiggyBank }, { value: 'schedule', label: '일정', icon: Calendar }] as const).map(({ value, label, icon: Icon }) =>
+            <button key={value} aria-pressed={filterType === value} onClick={() => { setFilterType(value); if (value === 'savings') setViewType('list') }}
+              className={`flex-1 min-h-12 flex justify-center items-center gap-2 font-semibold ${filterType === value ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500'}`}><Icon size={20}/>{label}</button>)}
+        </nav>
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+          <button onClick={() => setViewType('calendar')} aria-pressed={viewType === 'calendar' && filterType !== 'all'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'calendar' && filterType !== 'all' ? 'bg-white shadow-sm' : ''}`}><Calendar className="w-4 h-4 inline-block"/> 달력</button>
+          <button onClick={() => { setViewType('list'); if (filterType === 'all') setFilterType('budget') }} aria-pressed={viewType === 'list'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'list' ? 'bg-white shadow-sm' : ''}`}><List className="w-4 h-4 inline-block"/> 목록</button>
+          <button onClick={() => { setFilterType('all'); setViewType('calendar') }} aria-pressed={filterType === 'all'} className={`flex-1 min-h-11 rounded-md text-sm ${filterType === 'all' ? 'bg-white shadow-sm' : ''}`}>통합 달력</button>
         </div>
-
-        {viewType === 'calendar' && (
-          <div className="flex gap-1.5">
-            {(['all', 'budget', 'schedule'] as FilterType[]).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilterType(f)}
-                className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterType === f ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {f === 'all' && '전체'}
-                {f === 'budget' && <><Wallet className="w-4 h-4 inline-block" /> 가계부</>}
-                {f === 'schedule' && <><Calendar className="w-4 h-4 inline-block" /> 일정</>}
-              </button>
-            ))}
-          </div>
-        )}
+        {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
 
       {/* Content */}
@@ -332,6 +318,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             startingDayOfWeek={startingDayOfWeek}
             filterType={filterType}
             entries={entries}
+            savingsRecords={savings.data?.records || []}
             schedules={schedules}
             eventBars={eventBars}
             onDateClick={handleDateClick}
@@ -341,6 +328,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             onNextMonth={nextMonth}
             onToday={goToday}
           />
+        ) : filterType === 'savings' ? (
+          <SavingsList savings={savings} year={year} month={month + 1} onSelect={setSavingsSelection} onPrev={prevMonth} onNext={nextMonth} onToday={goToday}/>
         ) : (
           <CalendarListView
             year={year}
@@ -352,7 +341,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             schedules={schedules}
             scheduleLoading={scheduleLoading}
             filterType={listFilterType}
-            onFilterChange={setListFilterType}
+            onFilterChange={setFilterType}
             onEditEntry={handleEditEntry}
             onDeleteEntry={handleDeleteEntry}
             onEditFixedExpense={handleEditFixedExpense}
@@ -370,6 +359,10 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
       </div>
 
       {/* ─── Modals & Overlays ─────────────────────────────────────────────── */}
+
+      <Modal formLayout isOpen={savingsSelection !== null} onClose={() => setSavingsSelection(null)}>
+        {savingsSelection && <SavingsForm key={savingsSelection.type + (savingsSelection.type === 'record' ? savingsSelection.record?.id || savingsSelection.plan.id : savingsSelection.plan?.id || 'new')} selection={savingsSelection} savings={savings} onClose={() => setSavingsSelection(null)}/>}
+      </Modal>
 
       {/* Date Choice Modal */}
       <Modal isOpen={isDateChoiceModalOpen} onClose={() => setIsDateChoiceModalOpen(false)}>
@@ -454,9 +447,11 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
           {selectedDateForDrawer && (() => {
             const dateEntries = getEntriesForDateStr(selectedDateForDrawer)
             const dateSchedules = getSchedulesForDateStr(selectedDateForDrawer)
+            const dateSavings = (savings.data?.records || []).filter(r => r.date === selectedDateForDrawer)
+            const showSavings = filterType === 'all' || filterType === 'savings'
             const showBudget = filterType === 'all' || filterType === 'budget'
             const showSchedule = filterType === 'all' || filterType === 'schedule'
-            const hasItems = (showBudget && dateEntries.length > 0) || (showSchedule && dateSchedules.length > 0)
+            const hasItems = (showSavings && dateSavings.length > 0) || (showBudget && dateEntries.length > 0) || (showSchedule && dateSchedules.length > 0)
 
             return (
               <>
@@ -499,6 +494,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
                     </div>
                   ))}
 
+                  {showSavings && dateSavings.map(record => <SavingsRecordRow key={record.id} record={record} onClick={() => openSavingsRecord(record)}/>)}
+                  {showSavings && savings.loading && <p role="status">저축을 불러오는 중입니다</p>}
                   {!hasItems && (
                     <div className="text-center py-8 text-gray-400">
                       {filterType === 'budget' ? '등록된 가계부 내역이 없습니다'
@@ -512,11 +509,12 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
                   onClick={() => {
                     setSelectedDate(selectedDateForDrawer)
                     setIsDrawerOpen(false)
-                    setIsDateChoiceModalOpen(true)
+                    if (filterType === 'savings') { setViewType('list') }
+                    else setIsDateChoiceModalOpen(true)
                   }}
                   className="w-full py-3 bg-[#4F46E5] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-colors"
                 >
-                  + 항목 추가
+                  {filterType === 'savings' ? '저축 목록에서 기록 추가' : '+ 항목 추가'}
                 </button>
               </>
             )

@@ -1,3 +1,4 @@
+import type { SavingsRecord } from '@/features/savings/types/savings.types'
 import { type FC } from 'react'
 import { ChevronLeft, ChevronRight, Calendar, Wallet } from 'lucide-react'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
@@ -5,7 +6,7 @@ import type { ScheduleResponse } from '@/features/schedule/types/schedule.types'
 import type { EventBar } from '@/features/schedule/hooks/useEventBars'
 import { buildDateStr } from '@/shared/utils/dateUtils'
 
-type FilterType = 'all' | 'budget' | 'schedule'
+type FilterType = 'all' | 'budget' | 'schedule' | 'savings'
 
 interface Props {
   currentDate: Date
@@ -14,6 +15,7 @@ interface Props {
   daysInMonth: number
   startingDayOfWeek: number
   filterType: FilterType
+  savingsRecords?: SavingsRecord[]
   entries: BudgetEntryResponse[]
   schedules: ScheduleResponse[]
   eventBars: EventBar[]
@@ -32,6 +34,7 @@ export const CalendarGridView: FC<Props> = ({
   startingDayOfWeek,
   filterType,
   entries,
+  savingsRecords = [],
   schedules,
   eventBars,
   onDateClick,
@@ -71,6 +74,7 @@ export const CalendarGridView: FC<Props> = ({
         </div>
       </div>
 
+      {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-teal-600"/>저축 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0D9488]"/>저축 기록</span></div>}
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 flex-1">
         {/* Day Headers */}
@@ -98,6 +102,7 @@ export const CalendarGridView: FC<Props> = ({
             month === today.getMonth() &&
             year === today.getFullYear()
           const dayOfWeek = (startingDayOfWeek + index) % 7
+          const daySavings = (filterType === 'all' || filterType === 'savings') ? savingsRecords.filter(r => r.date === buildDateStr(year, month, day)) : []
           const dayEntries = getEntriesForDate(day)
           const daySchedules = getSchedulesForDate(day)
 
@@ -125,7 +130,7 @@ export const CalendarGridView: FC<Props> = ({
             <div
               key={day}
               onClick={() => onDateClick(year, month, day)}
-              className={`md:min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
+              className={`min-h-20 md:min-h-[140px] border border-gray-200 rounded-lg p-2 hover:bg-gray-50 transition-colors cursor-pointer relative ${
                 isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
               }`}
             >
@@ -173,6 +178,10 @@ export const CalendarGridView: FC<Props> = ({
                 </div>
               )}
 
+              {daySavings.length > 0 && <div className="flex gap-1 items-center flex-wrap mb-5 mt-2" aria-label={`저축 ${daySavings.length}건`}>
+                {daySavings.slice(0, 3).map(r => <span key={r.id} role="img" aria-label={`${r.planName} ${r.planned ? '납입 예정' : r.amount < 0 ? '인출 기록' : '납입 기록'}`} className={`w-2 h-2 rounded-full border border-[#0D9488] ${r.planned ? 'bg-transparent' : 'bg-[#0D9488]'}`}/>)}
+                {daySavings.length > 3 && <span className="text-[10px] text-teal-700">+{daySavings.length - 3}</span>}
+              </div>}
               {/* Mobile: Event dots */}
               <div className="md:hidden absolute bottom-2 left-0 right-0 flex justify-center gap-1">
                 {(filterType === 'all' || filterType === 'budget') && dayEntries.slice(0, 4).map((entry) => (
@@ -181,7 +190,7 @@ export const CalendarGridView: FC<Props> = ({
                 {(filterType === 'all' || filterType === 'schedule') && singleDaySchedules.slice(0, 4).map((s) => (
                   <div key={s.id} className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />
                 ))}
-                {(dayEntries.length + singleDaySchedules.length) > 4 && (
+                {((filterType === 'all' || filterType === 'budget' ? dayEntries.length : 0) + (filterType === 'all' || filterType === 'schedule' ? singleDaySchedules.length : 0)) > 4 && (
                   <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
                 )}
               </div>

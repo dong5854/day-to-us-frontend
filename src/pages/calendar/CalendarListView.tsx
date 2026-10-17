@@ -1,5 +1,5 @@
 import { useState, type FC } from 'react'
-import { Calendar, Wallet, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
 import { ScheduleList } from '@/features/schedule/components/ScheduleList'
@@ -45,7 +45,6 @@ export const CalendarListView: FC<Props> = ({
   schedules,
   scheduleLoading,
   filterType,
-  onFilterChange,
   onEditEntry,
   onDeleteEntry,
   onEditFixedExpense,
@@ -70,25 +69,6 @@ export const CalendarListView: FC<Props> = ({
     <>
       {/* Tabs & Date Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-gray-200 pb-4">
-        <div className="flex gap-2">
-          <button
-            onClick={() => { onFilterChange('budget'); setBudgetSubTab('entries') }}
-            className={`px-4 py-2 text-lg font-bold transition-colors ${
-              filterType === 'budget' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            <Wallet className="w-5 h-5 inline-block mr-1" /> 가계부
-          </button>
-          <button
-            onClick={() => onFilterChange('schedule')}
-            className={`px-4 py-2 text-lg font-bold transition-colors ${
-              filterType === 'schedule' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            <Calendar className="w-5 h-5 inline-block mr-1" /> 일정
-          </button>
-        </div>
-
         <div className="flex items-center justify-between md:justify-end gap-4">
           <h2 className="text-xl font-bold text-gray-900">{year}년 {month + 1}월</h2>
           <div className="flex gap-2">
