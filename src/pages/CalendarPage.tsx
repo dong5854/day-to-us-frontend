@@ -13,6 +13,7 @@ import { useEventBars } from '@/features/schedule/hooks/useEventBars'
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery'
 import { useSwipe } from '@/shared/hooks/useSwipe'
 import { CalendarGridView } from './calendar/CalendarGridView'
+import { CalendarAllListView } from './calendar/CalendarAllListView'
 import { CalendarListView } from './calendar/CalendarListView'
 import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
@@ -291,16 +292,16 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
   return (
     <div className="flex flex-col min-h-full">
       <div className="mb-4 space-y-3">
-        <nav aria-label="생활 관리 메뉴" className="flex gap-1 border-b border-gray-100">
-          {([{ value: 'budget', label: '가계부', icon: Wallet }, { value: 'savings', label: '저축', icon: PiggyBank }, { value: 'schedule', label: '일정', icon: Calendar }] as const).map(({ value, label, icon: Icon }) =>
-            <button key={value} aria-pressed={filterType === value} onClick={() => { setFilterType(value); if (value === 'savings') setViewType('list') }}
-              className={`flex-1 min-h-12 flex justify-center items-center gap-2 font-semibold ${filterType === value ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-gray-500'}`}><Icon size={20}/>{label}</button>)}
-        </nav>
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          <button onClick={() => setViewType('calendar')} aria-pressed={viewType === 'calendar' && filterType !== 'all'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'calendar' && filterType !== 'all' ? 'bg-white shadow-sm' : ''}`}><Calendar className="w-4 h-4 inline-block"/> 달력</button>
-          <button onClick={() => { setViewType('list'); if (filterType === 'all') setFilterType('budget') }} aria-pressed={viewType === 'list'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'list' ? 'bg-white shadow-sm' : ''}`}><List className="w-4 h-4 inline-block"/> 목록</button>
-          <button onClick={() => { setFilterType('all'); setViewType('calendar') }} aria-pressed={filterType === 'all'} className={`flex-1 min-h-11 rounded-md text-sm ${filterType === 'all' ? 'bg-white shadow-sm' : ''}`}>통합 달력</button>
+        <div aria-label="보기 방식" className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+          <button onClick={() => setViewType('calendar')} aria-pressed={viewType === 'calendar'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'calendar' ? 'bg-white shadow-sm' : ''}`}><Calendar className="w-4 h-4 inline-block"/> 달력</button>
+          <button onClick={() => setViewType('list')} aria-pressed={viewType === 'list'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'list' ? 'bg-white shadow-sm' : ''}`}><List className="w-4 h-4 inline-block"/> 목록</button>
         </div>
+        <nav aria-label="항목 필터" className="flex gap-1.5">
+          <button aria-pressed={filterType === 'all'} onClick={() => setFilterType('all')} className={`flex-1 min-h-11 rounded-full text-sm font-medium ${filterType === 'all' ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}>전체</button>
+          {([{ value: 'budget', label: '가계부', icon: Wallet }, { value: 'savings', label: '저축', icon: PiggyBank }, { value: 'schedule', label: '일정', icon: Calendar }] as const).map(({ value, label, icon: Icon }) =>
+            <button key={value} aria-pressed={filterType === value} onClick={() => setFilterType(value)}
+              className={`flex-1 min-h-11 flex justify-center items-center gap-1 rounded-full text-sm font-medium ${filterType === value ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}><Icon size={16}/>{label}</button>)}
+        </nav>
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
 
@@ -328,6 +329,13 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
             onNextMonth={nextMonth}
             onToday={goToday}
           />
+        ) : filterType === 'all' ? (
+          <CalendarAllListView year={year} month={month} entries={entries} schedules={schedules}
+            savingsRecords={savings.data?.records || []} loading={budgetLoading || scheduleLoading || savings.loading}
+            onEditEntry={handleEditEntry} onEditSchedule={handleEditSchedule} onEditSavings={openSavingsRecord}
+            onPrevMonth={prevMonth} onNextMonth={nextMonth} onToday={goToday}
+            onAddBudget={() => handleListAdd('entries')} onAddSchedule={() => handleListAdd('schedule')}
+            onAddSavings={() => setSavingsSelection({ type: 'plan' })}/>
         ) : filterType === 'savings' ? (
           <SavingsList savings={savings} year={year} month={month + 1} onSelect={setSavingsSelection} onPrev={prevMonth} onNext={nextMonth} onToday={goToday}/>
         ) : (
