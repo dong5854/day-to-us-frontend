@@ -78,7 +78,7 @@ export function SavingsForm({ selection, savings, onClose }: Props) {
         {isPlan ? <>
           <div><label htmlFor="savings-name" className="block font-medium mb-2">저축 이름</label><input id="savings-name" className={inputClass} maxLength={100} required value={name} onChange={e => setName(e.target.value)} placeholder="예: 청년 적금, 여행 자금"/></div>
           <div><label htmlFor="savings-mode" className="block font-medium mb-2">납입 방식</label><Select id="savings-mode" value={regular ? 'regular' : 'free'} onChange={v => setRegular(v === 'regular')} options={[{ value: 'free', label: '자유 납입' }, { value: 'regular', label: '매월 정기 납입' }]}/></div>
-        </> : <><p className="font-semibold text-teal-700">{plan?.name}</p><Select value={withdrawal ? 'withdraw' : 'deposit'} onChange={v => setWithdrawal(v === 'withdraw')} options={[{ value: 'deposit', label: '납입' }, { value: 'withdraw', label: '인출' }]}/></>}
+        </> : <><p className="font-semibold text-amber-700">{plan?.name}</p><Select value={withdrawal ? 'withdraw' : 'deposit'} onChange={v => setWithdrawal(v === 'withdraw')} options={[{ value: 'deposit', label: '납입' }, { value: 'withdraw', label: '인출' }]}/></>}
         {(!isPlan || regular) && <div><label htmlFor="savings-amount" className="block font-medium mb-2">{isPlan ? '매월 납입 금액' : '금액'}</label><AmountInput id="savings-amount" value={amount} onChange={setAmount}/></div>}
         {isPlan && regular && <>
           <div><label htmlFor="savings-first" className="block font-medium mb-2">첫 납입 예정일</label><DatePicker id="savings-first" value={firstDate} onChange={setFirstDate} required/></div>

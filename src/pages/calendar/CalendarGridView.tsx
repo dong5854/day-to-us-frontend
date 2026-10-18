@@ -74,7 +74,7 @@ export const CalendarGridView: FC<Props> = ({
         </div>
       </div>
 
-      {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-teal-600"/>저축 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0D9488]"/>저축 기록</span></div>}
+      {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-amber-600"/>저축 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D97706]"/>저축 기록</span></div>}
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 flex-1">
         {/* Day Headers */}
@@ -179,8 +179,8 @@ export const CalendarGridView: FC<Props> = ({
               )}
 
               {daySavings.length > 0 && <div className="flex gap-1 items-center flex-wrap mb-5 mt-2" aria-label={`저축 ${daySavings.length}건`}>
-                {daySavings.slice(0, 3).map(r => <span key={r.id} role="img" aria-label={`${r.planName} ${r.planned ? '납입 예정' : r.amount < 0 ? '인출 기록' : '납입 기록'}`} className={`w-2 h-2 rounded-full border border-[#0D9488] ${r.planned ? 'bg-transparent' : 'bg-[#0D9488]'}`}/>)}
-                {daySavings.length > 3 && <span className="text-[10px] text-teal-700">+{daySavings.length - 3}</span>}
+                {daySavings.slice(0, 3).map(r => <span key={r.id} role="img" aria-label={`${r.planName} ${r.planned ? '납입 예정' : r.amount < 0 ? '인출 기록' : '납입 기록'}`} className={`w-2 h-2 rounded-full border border-[#D97706] ${r.planned ? 'bg-transparent' : 'bg-[#D97706]'}`}/>)}
+                {daySavings.length > 3 && <span className="text-[10px] text-amber-700">+{daySavings.length - 3}</span>}
               </div>}
               {/* Mobile: Event dots */}
               <div className="md:hidden absolute bottom-2 left-0 right-0 flex justify-center gap-1">
