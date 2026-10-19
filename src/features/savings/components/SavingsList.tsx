@@ -1,15 +1,19 @@
+import { SwipeableCard } from '@/shared/components/SwipeableCard'
 import { ChevronLeft, ChevronRight, Plus, PiggyBank, Settings2 } from 'lucide-react'
 import { formatCurrency } from '@/shared/utils/format'
 import type { SavingsState } from '../hooks/useSavings'
 import type { SavingsRecord, SavingsSelection } from '../types/savings.types'
 
-export function SavingsRecordRow({ record, onClick }: { record: SavingsRecord; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="w-full flex items-center justify-between gap-3 rounded-xl bg-amber-50 p-3 text-left">
+export function SavingsRecordRow({ record, onClick, onDelete }: { record: SavingsRecord; onClick: () => void; onDelete?: () => void }) {
+  const content = <div className="w-full flex items-center justify-between gap-3 rounded-xl bg-amber-50 p-3 text-left">
     <div className="min-w-0"><div className="font-medium truncate">{record.planName}</div>
       <div className="text-xs text-gray-600 mt-1">{record.date} · {record.planned ? '납입 예정' : record.amount < 0 ? '인출 기록' : '납입 기록'} · {record.payerName}</div>
       {record.automatic && !record.planned && <div className="text-xs text-amber-700 mt-1">자동 반영</div>}
     </div><span className="text-amber-700 font-semibold shrink-0">{record.amount > 0 ? '+' : ''}{formatCurrency(record.amount)}</span>
-  </button>
+  </div>
+  return onDelete
+    ? <SwipeableCard onEdit={onClick} onDelete={onDelete}>{content}</SwipeableCard>
+    : <button type="button" onClick={onClick} className="w-full text-left">{content}</button>
 }
 
 interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void }
