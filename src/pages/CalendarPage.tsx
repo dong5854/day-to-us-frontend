@@ -19,6 +19,7 @@ import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
 import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
+import { SwipeableCard } from '@/shared/components/SwipeableCard'
 import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
 import { Toast } from '@/shared/components/Toast'
@@ -471,38 +472,48 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
 
                 <div className="space-y-2 mb-4">
                   {showBudget && dateEntries.map((entry) => (
-                    <div
-                      key={entry.id}
-                      onClick={() => { setIsDrawerOpen(false); handleEditEntry(entry) }}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{entry.description}</div>
-                        <div className="text-sm text-gray-500">가계부</div>
+                    <SwipeableCard key={entry.id}
+                      onEdit={() => { setIsDrawerOpen(false); handleEditEntry(entry) }}
+                      onDelete={() => handleDeleteEntry(entry.id)}>
+                      <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900">{entry.description}</div>
+                          <div className="text-sm text-gray-500">가계부</div>
+                        </div>
+                        <div className={`font-semibold ${entry.amount > 0 ? 'text-green-600' : 'text-rose-400'}`}>
+                          {entry.amount > 0 ? '+' : ''}{entry.amount.toLocaleString()}원
+                        </div>
                       </div>
-                      <div className={`font-semibold ${entry.amount > 0 ? 'text-green-600' : 'text-rose-400'}`}>
-                        {entry.amount > 0 ? '+' : ''}{entry.amount.toLocaleString()}원
-                      </div>
-                    </div>
+                    </SwipeableCard>
                   ))}
 
                   {showSchedule && dateSchedules.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      onClick={() => { setIsDrawerOpen(false); handleEditSchedule(schedule) }}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{schedule.title}</div>
-                        <div className="text-sm text-gray-500">일정 {schedule.isAllDay ? '(종일)' : ''}</div>
+                    <SwipeableCard key={schedule.id}
+                      onEdit={() => { setIsDrawerOpen(false); handleEditSchedule(schedule) }}
+                      onDelete={() => handleDeleteSchedule(schedule.id)}>
+                      <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900">{schedule.title}</div>
+                          <div className="text-sm text-gray-500">일정 {schedule.isAllDay ? '(종일)' : ''}</div>
+                        </div>
+                        <Calendar className="w-4 h-4 text-violet-500 shrink-0" />
                       </div>
-                      <div className="text-violet-500">
-                        <Calendar className="w-4 h-4" />
-                      </div>
-                    </div>
+                    </SwipeableCard>
                   ))}
 
-                  {showSavings && dateSavings.map(record => <SavingsRecordRow key={record.id} record={record} onClick={() => openSavingsRecord(record)}/>)}
+                  {showSavings && dateSavings.map(record => <SavingsRecordRow key={record.id} record={record}
+                    onClick={() => openSavingsRecord(record)}
+                    onDelete={record.planned ? undefined : () => setConfirmState({
+                      isOpen: true,
+                      message: '이 저축 기록을 삭제할까요? 자동 생성된 회차는 다시 만들지 않습니다.',
+                      onConfirm: async () => {
+                        try {
+                          await savings.deleteRecord(record.planId, record.id)
+                          showToast('저축 기록이 삭제되었습니다', 'success')
+                        } catch { showToast('삭제에 실패했습니다', 'error') }
+                        setConfirmState(prev => ({ ...prev, isOpen: false }))
+                      },
+                    })}/>)}
                   {showSavings && savings.loading && <p role="status">저축을 불러오는 중입니다</p>}
                   {!hasItems && (
                     <div className="text-center py-8 text-gray-400">
