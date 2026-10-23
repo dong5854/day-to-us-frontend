@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 import { useSpace } from './features/space/hooks/useSpace'
 import { CalendarPage } from './pages/CalendarPage'
+import { CategoryBudgetPage } from './pages/CategoryBudgetPage'
+import { categoryMonth } from './features/budget/utils/categoryBudget'
 import { SettingsPage } from './pages/SettingsPage'
 import { SpaceForm } from './features/space/components/SpaceForm'
 import { LoginPage } from './features/auth/components/LoginPage'
@@ -16,6 +18,8 @@ import { useToast } from './shared/hooks/useToast'
 
 function AppContent() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const openCategories = () => navigate(`/categories?month=${categoryMonth(currentDate)}`, { state: { categoryOrigin: location.pathname } })
 
   const [currentDate, setCurrentDate] = useState(new Date())
 
@@ -119,24 +123,19 @@ function AppContent() {
 
   return (
     <Layout space={space} hasSpace={hasSpace}>
+      <div hidden={location.pathname !== '/'}>
+        <ErrorBoundary>
+          <CalendarPage spaceId={space!.id} currentDate={currentDate} onDateChange={setCurrentDate} onOpenCategories={openCategories} />
+        </ErrorBoundary>
+      </div>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ErrorBoundary>
-              <CalendarPage
-                spaceId={space!.id}
-                currentDate={currentDate}
-                onDateChange={setCurrentDate}
-              />
-            </ErrorBoundary>
-          }
-        />
+        <Route path="/" element={null}/>
+        <Route path="/categories" element={<ErrorBoundary><CategoryBudgetPage spaceId={space!.id}/></ErrorBoundary>}/>
         <Route
           path="/settings"
           element={
             <ErrorBoundary>
-              <SettingsPage space={space} members={members} />
+              <SettingsPage space={space} members={members} onOpenCategories={openCategories} />
             </ErrorBoundary>
           }
         />

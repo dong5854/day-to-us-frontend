@@ -1,4 +1,4 @@
-import { type FC, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, type FC, type ReactNode } from 'react'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { SharedSpaceResponse } from '@/features/space/types/space.types'
@@ -13,6 +13,16 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   const navigate = useNavigate()
   const location = useLocation()
   
+  const mainRef = useRef<HTMLElement>(null)
+  const scrollPositions = useRef(new Map<string, number>())
+  useLayoutEffect(() => {
+    const main = mainRef.current
+    if (!main) return
+    const positions = scrollPositions.current
+    main.scrollTop = positions.get(location.pathname) ?? 0
+    return () => { positions.set(location.pathname, main.scrollTop) }
+  }, [location.pathname])
+
   const isSettingsPage = location.pathname === '/settings'
 
   return (
@@ -53,7 +63,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
         </div>
       </header>
 
-      <main 
+      <main ref={mainRef}
         className="flex-1 overflow-y-auto container mx-auto px-2 md:px-4 py-2 md:py-8"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >{children}</main>

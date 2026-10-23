@@ -4,7 +4,7 @@ import type { ExpenseCategoryRequest, ExpenseCategoryResponse } from '../types/e
 export const expenseCategoryApi = {
   getAll: async (spaceId: string): Promise<ExpenseCategoryResponse[]> => {
     const response = await apiClient.get<ExpenseCategoryResponse[]>(
-      `/shared-spaces/${spaceId}/expense-categories`
+      `/shared-spaces/${spaceId}/expense-categories?includeArchived=true`
     )
     return response.data
   },

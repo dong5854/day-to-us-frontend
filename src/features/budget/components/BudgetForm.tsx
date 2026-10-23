@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios'
 import { ModalHeader } from '@/shared/components/ModalHeader'
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
@@ -18,6 +19,7 @@ interface Props {
   paymentMethods?: PaymentMethodResponse[]
   onCreateCategory?: (name: string) => Promise<ExpenseCategoryResponse | undefined>
   onCreatePaymentMethod?: (name: string) => Promise<PaymentMethodResponse | undefined>
+  onManageCategories?: () => void
   onDeleteCategory?: (id: string) => Promise<void>
   onDeletePaymentMethod?: (id: string) => Promise<void>
   onSubmit: (data: BudgetEntryRequest) => Promise<void>
@@ -32,7 +34,7 @@ export const BudgetForm: FC<Props> = ({
   paymentMethods = [],
   onCreateCategory,
   onCreatePaymentMethod,
-  onDeleteCategory,
+  onManageCategories,
   onDeletePaymentMethod,
   onSubmit,
   onCancel,
@@ -46,7 +48,7 @@ export const BudgetForm: FC<Props> = ({
 
   // Category state
   const [categoryId, setSelectedCategoryId] = useState(preferences.categoryId)
-  const selectedCategoryId = entry || categories.some(category => category.id === categoryId) ? categoryId : ''
+  const selectedCategoryId = entry || categories.some(category => category.id === categoryId && !category.archived) ? categoryId : ''
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [categoryError, setCategoryError] = useState('')
@@ -100,8 +102,8 @@ export const BudgetForm: FC<Props> = ({
       }
       setNewCategoryName('')
       setIsAddingCategory(false)
-    } catch (err: any) {
-      setCategoryError(err.response?.data?.message || '이미 존재하는 카테고리이거나 추가에 실패했습니다.')
+    } catch (err) {
+      setCategoryError((isAxiosError(err) && typeof err.response?.data?.message === 'string' ? err.response.data.message : '이미 존재하는 카테고리이거나 추가에 실패했습니다.'))
     } finally {
       setIsSubmittingCategory(false)
     }
@@ -132,8 +134,8 @@ export const BudgetForm: FC<Props> = ({
       }
       setNewPaymentMethodName('')
       setIsAddingPaymentMethod(false)
-    } catch (err: any) {
-      setPaymentMethodError(err.response?.data?.message || '이미 존재하는 결제 수단이거나 추가에 실패했습니다.')
+    } catch (err) {
+      setPaymentMethodError((isAxiosError(err) && typeof err.response?.data?.message === 'string' ? err.response.data.message : '이미 존재하는 결제 수단이거나 추가에 실패했습니다.'))
     } finally {
       setIsSubmittingPaymentMethod(false)
     }
@@ -205,7 +207,7 @@ export const BudgetForm: FC<Props> = ({
       {/* Category selector (only shown when categories are provided) */}
       {(categories.length > 0 || onCreateCategory) && (
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">카테고리</label>
+          <div className="flex items-center justify-between mb-2"><label className="text-sm font-semibold text-gray-900">카테고리</label>{onManageCategories && <button type="button" onClick={onManageCategories} className="min-h-11 px-2 text-sm text-[#4F46E5]">관리</button>}</div>
           {isAddingCategory ? (
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
@@ -254,17 +256,8 @@ export const BudgetForm: FC<Props> = ({
               onChange={handleCategorySelectChange}
               options={[
                 { value: '', label: '카테고리 없음' },
-                ...categories.map((cat) => ({
-                  value: cat.id,
-                  label: cat.name,
-                  onDelete: onDeleteCategory
-                    ? async () => {
-                        await onDeleteCategory(cat.id)
-                        if (selectedCategoryId === cat.id) setSelectedCategoryId('')
-                      }
-                    : undefined,
-                })),
-                ...(onCreateCategory ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
+                                  ...categories.filter(cat => !cat.archived || cat.id === selectedCategoryId).map(cat => ({ value: cat.id, label: cat.name + (cat.archived ? ' (보관됨)' : '') })),
+...(onCreateCategory ? [{ value: '__add_new__', label: '+ 새로 추가', isSpecial: true }] : []),
               ]}
             />
           )}

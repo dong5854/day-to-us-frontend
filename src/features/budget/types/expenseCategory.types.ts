@@ -5,4 +5,6 @@ export interface ExpenseCategoryRequest {
 export interface ExpenseCategoryResponse {
   id: string
   name: string
+  sortOrder?: number
+  archived?: boolean
 }
