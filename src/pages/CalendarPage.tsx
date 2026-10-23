@@ -1,4 +1,4 @@
-import { useState, useMemo, type FC } from 'react'
+import { useState, useMemo, useEffect, type FC } from 'react'
 import { Calendar, List, Wallet, PiggyBank } from 'lucide-react'
 import { useSavings } from '@/features/savings/hooks/useSavings'
 import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
@@ -36,9 +36,10 @@ interface Props {
   spaceId: string
   currentDate: Date
   onDateChange: (date: Date) => void
+  onOpenCategories?: () => void
 }
 
-export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) => {
+export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories }) => {
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
 
@@ -61,7 +62,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     refetch: refetchBudget,
   } = useBudget(spaceId, currentYear, currentMonth)
 
-  const { categories, createCategory, deleteCategory } = useExpenseCategories(spaceId)
+  const { categories, createCategory } = useExpenseCategories(spaceId)
   const { paymentMethods, createPaymentMethod, deletePaymentMethod } = usePaymentMethods(spaceId)
 
   const {
@@ -79,6 +80,12 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
     updateSchedule,
     deleteSchedule,
   } = useSchedule(spaceId, currentYear, currentMonth)
+
+  useEffect(() => {
+    const refresh = () => { void refetchBudget() }
+    window.addEventListener('categories-changed', refresh)
+    return () => window.removeEventListener('categories-changed', refresh)
+  }, [refetchBudget])
 
   // ─── Calendar Derived State (memoized) ────────────────────────────────────
   const { daysInMonth, startingDayOfWeek, year, month } = useMemo(() => {
@@ -306,6 +313,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
 
+      {filterType === 'budget' && onOpenCategories && <div className="flex justify-end mb-2"><button type="button" onClick={onOpenCategories} className="min-h-11 px-3 rounded-lg text-sm font-medium text-[#4F46E5] hover:bg-indigo-50">카테고리별 지출</button></div>}
+
       {/* Content */}
       <div
         {...(viewType === 'calendar' ? swipeHandlers : {})}
@@ -406,7 +415,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
           paymentMethods={paymentMethods}
           onCreateCategory={createCategory}
           onCreatePaymentMethod={createPaymentMethod}
-          onDeleteCategory={deleteCategory}
+          onManageCategories={onOpenCategories}
           onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitEntry}
           onCancel={() => setIsBudgetFormOpen(false)}
@@ -422,7 +431,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
           paymentMethods={paymentMethods}
           onCreateCategory={createCategory}
           onCreatePaymentMethod={createPaymentMethod}
-          onDeleteCategory={deleteCategory}
+          onManageCategories={onOpenCategories}
           onDeletePaymentMethod={deletePaymentMethod}
           onSubmit={handleSubmitFixedExpense}
           onCancel={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}

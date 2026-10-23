@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { expenseCategoryApi } from '../api/expenseCategoryApi'
 import type { ExpenseCategoryResponse } from '../types/expenseCategory.types'
 
 export const useExpenseCategories = (spaceId: string | null) => {
   const [categories, setCategories] = useState<ExpenseCategoryResponse[]>([])
+  const sequence = useRef(0)
   const [loading, setLoading] = useState(false)
 
   const fetchCategories = useCallback(async () => {
@@ -11,14 +12,15 @@ export const useExpenseCategories = (spaceId: string | null) => {
       setCategories([])
       return
     }
+    const request = ++sequence.current
     try {
       setLoading(true)
       const data = await expenseCategoryApi.getAll(spaceId)
-      setCategories(data)
+      if (request === sequence.current) setCategories(data)
     } catch (err) {
       console.error('Failed to fetch categories', err)
     } finally {
-      setLoading(false)
+      if (request === sequence.current) setLoading(false)
     }
   }, [spaceId])
 
@@ -35,9 +37,15 @@ export const useExpenseCategories = (spaceId: string | null) => {
     setCategories((prev) => prev.filter((c) => c.id !== categoryId))
   }, [spaceId])
 
+  const invalidate = useCallback(() => { sequence.current++ }, [])
   useEffect(() => {
-    fetchCategories()
-  }, [fetchCategories])
+    void fetchCategories()
+    const refresh = () => { if (document.visibilityState === 'visible') void fetchCategories() }
+    window.addEventListener('categories-changed', refresh)
+    window.addEventListener('focus', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    return () => { invalidate(); window.removeEventListener('categories-changed', refresh); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh) }
+  }, [fetchCategories, invalidate])
 
   return { categories, loading, createCategory, deleteCategory, refetch: fetchCategories }
 }
