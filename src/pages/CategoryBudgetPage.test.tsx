@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { CategoryBudgetPage } from './CategoryBudgetPage'
+import type { CategoryOverview } from '@/features/budget/types/categoryBudget.types'
 import { categoryBudgetApi } from '@/features/budget/api/categoryBudgetApi'
 import { budgetApi } from '@/features/budget/api/budgetApi'
 import { budgetStatus, shiftCategoryMonth } from '@/features/budget/utils/categoryBudget'
@@ -10,7 +11,7 @@ vi.mock('@/features/budget/api/categoryBudgetApi', () => ({ categoryBudgetApi: {
 vi.mock('@/features/budget/api/budgetApi', () => ({ budgetApi: { getAll: vi.fn() } }))
 vi.mock('@/features/fixedExpense/hooks/useFixedExpense', () => ({ useFixedExpense: () => ({ expenses: [], loading: false }) }))
 vi.mock('@/features/budget/hooks/usePaymentMethods', () => ({ usePaymentMethods: () => ({ paymentMethods: [] }) }))
-const data = {
+const data: CategoryOverview = {
   month: '2026-10', totalSpent: 13000,
   rows: [
     { category: { id: 'food', name: '식비' }, used: true, fixedExpenseIds: [], history: [{ month: '2026-10', spent: 10000, budget: 20000 }] },
@@ -79,4 +80,61 @@ it('예산 없음과 0원 초과를 구분하고 연도 경계를 이동한다',
   expect(budgetStatus(0, null)).toBe('예산 미설정')
   expect(budgetStatus(1000, 0)).toBe('1,000원 초과')
   expect(shiftCategoryMonth('2026-01', -1)).toBe('2025-12')
+})
+
+const monthlyOverview = (month: string) => {
+  const result = structuredClone(data)
+  result.month = month
+  result.rows[0].history = Array.from({ length: 6 }, (_, index) => ({
+    month: shiftCategoryMonth(month, index - 5),
+    spent: (index + 1) * 1000,
+    budget: index === 0 ? null : index === 1 ? 0 : 20000,
+  }))
+  return result
+}
+
+it('정확한 월별 금액과 예산을 나열하고 이전 월을 선택해도 펼친 목록과 그래프 범위를 유지한다', async () => {
+  vi.mocked(categoryBudgetApi.overview).mockImplementation(async (_space, month) => monthlyOverview(month))
+  open()
+  await screen.findByText('13,000원')
+  fireEvent.click(screen.getByRole('button', { name: /식비 6,000원/ }))
+  const list = screen.getByRole('region', { name: '월별 사용 금액' })
+  expect(within(list).getAllByRole('listitem')).toHaveLength(6)
+  expect(within(list).getByRole('button', { name: '2026년 5월 지출 1,000원, 예산 미설정' })).toBeDefined()
+  expect(within(list).getByRole('button', { name: '2026년 6월 지출 2,000원, 예산 0원' })).toBeDefined()
+  fireEvent.click(within(list).getByRole('button', { name: /2026년 9월 지출/ }))
+  await waitFor(() => expect(budgetApi.getAll).toHaveBeenCalledWith('space', 2026, 9))
+  await waitFor(() => expect(within(list).getByRole('button', { name: /2026년 9월 지출/ }).getAttribute('aria-pressed')).toBe('true'))
+  expect(within(list).getAllByRole('listitem')).toHaveLength(6)
+  expect(within(screen.getByRole('region', { name: '월별 지출 그래프' })).getByText('2026.05 ~ 2026.10')).toBeDefined()
+  fireEvent.click(screen.getByRole('button', { name: '이전 월 더 보기' }))
+  await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(12))
+  expect(categoryBudgetApi.overview).toHaveBeenCalledWith('space', '2026-04')
+  fireEvent.click(within(list).getByRole('button', { name: /2026년 3월 지출/ }))
+  await waitFor(() => expect(budgetApi.getAll).toHaveBeenCalledWith('space', 2026, 3))
+  await waitFor(() => expect(within(list).getByRole('button', { name: /2026년 3월 지출/ }).getAttribute('aria-pressed')).toBe('true'))
+  expect(within(list).getAllByRole('listitem')).toHaveLength(12)
+  expect(within(screen.getByRole('region', { name: '월별 지출 그래프' })).getByText('2025.11 ~ 2026.04')).toBeDefined()
+  const entries = screen.getByText(/2026년 03월 지출 내역/).closest('details')!
+  expect(entries.open).toBe(false)
+})
+
+it('이전 월 조회가 실패해도 기존 목록과 선택 월을 유지하고 같은 구간을 재시도한다', async () => {
+  let fail = true
+  vi.mocked(categoryBudgetApi.overview).mockImplementation(async (_space, month) => {
+    if (month === '2026-04' && fail) throw new Error('offline')
+    return monthlyOverview(month)
+  })
+  open()
+  await screen.findByText('13,000원')
+  fireEvent.click(screen.getByRole('button', { name: /식비 6,000원/ }))
+  const list = screen.getByRole('region', { name: '월별 사용 금액' })
+  fireEvent.click(screen.getByRole('button', { name: '이전 월 더 보기' }))
+  expect(await within(list).findByRole('alert')).toBeDefined()
+  expect(within(list).getAllByRole('listitem')).toHaveLength(6)
+  expect(within(list).getByRole('button', { name: /2026년 10월 지출/ }).getAttribute('aria-pressed')).toBe('true')
+  fail = false
+  fireEvent.click(screen.getByRole('button', { name: '이전 월 다시 시도' }))
+  await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(12))
+  expect(within(list).queryByRole('alert')).toBeNull()
 })

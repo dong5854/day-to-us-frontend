@@ -6,6 +6,7 @@ import { useFixedExpense } from '@/features/fixedExpense/hooks/useFixedExpense'
 import { usePaymentMethods } from '@/features/budget/hooks/usePaymentMethods'
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
 import { Modal } from '@/shared/components/Modal'
+import { CategoryMonthlyHistory } from '@/features/budget/components/CategoryMonthlyHistory'
 import { CategoryDialog } from '@/features/budget/components/CategoryDialog'
 import type { CategoryOverviewRow } from '@/features/budget/types/categoryBudget.types'
 import type { FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
@@ -29,7 +30,8 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
   const payments = usePaymentMethods(spaceId)
   const [managing, setManaging] = useState(false)
   const [order, setOrder] = useState<string[] | null>(null)
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selectedRow, setSelectedRow] = useState<CategoryOverviewRow | null>(null)
+  const selected = selectedRow ? selectedRow.category?.id ?? 'uncategorized' : null
   const [editor, setEditor] = useState<Editor | null>(null)
   const [value, setValue] = useState('')
   const [repeat, setRepeat] = useState(false)
@@ -57,7 +59,7 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
     if (ok) { setEditor(null); setNotice('저장했어요.') }
   }
   const back = () => {
-    if (selected !== null) { setSelected(null); return }
+    if (selected !== null) { setSelectedRow(null); return }
     if (managing) { setManaging(false); setOrder(null); return }
     if (location.state?.categoryOrigin) navigate(-1)
     else navigate('/')
@@ -65,7 +67,7 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
   return <div className="max-w-2xl mx-auto space-y-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
     <div className="flex items-center justify-between gap-2">
       <button onClick={back} className={`${button} flex items-center gap-1`}><ArrowLeft size={18}/>{selected !== null || managing ? '목록으로' : '돌아가기'}</button>
-      <h1 className="text-lg font-bold">{detail ? detail.category?.name ?? '카테고리 없음' : '카테고리·예산'}</h1>
+      <h1 className="text-lg font-bold">{selectedRow ? (detail ?? selectedRow).category?.name ?? '카테고리 없음' : '카테고리·예산'}</h1>
       {selected === null && !managing ? <button onClick={() => { setManaging(true); setNotice('') }} className={`${button} flex items-center gap-1`}><Settings2 size={17}/>관리</button> : <span className="w-12"/>}
     </div>
     {!managing && <div className="flex items-center justify-between rounded-xl bg-white border border-gray-100 p-2">
@@ -75,7 +77,7 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
     </div>}
     {notice && <p role="status" className="text-sm text-[#4F46E5]">{notice}</p>}
     {overview.error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm">{overview.error}<button onClick={() => void overview.refresh()} className={`${button} underline`}>다시 시도</button></div>}
-    {overview.loading && !overview.data && <p role="status" className="py-12 text-center text-gray-500">불러오는 중...</p>}
+    {overview.loading && !overview.data && <p role="status" className="min-h-48 py-12 text-center text-gray-500">불러오는 중...</p>}
     {overview.data && !overview.error && (managing ? <>
       <p className="text-sm text-gray-500">이 공간의 멤버가 함께 사용하는 카테고리예요.</p>
       <div className="flex justify-between gap-2">
@@ -100,21 +102,11 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
         <p className={total.budget !== null && total.spent > total.budget ? 'text-sm text-red-600' : 'text-sm text-gray-600'}>{budgetStatus(total.spent, total.budget)}</p>
         {detail.category && !detail.category.archived && <button className={`${button} text-[#4F46E5] bg-indigo-50`} onClick={() => open({ kind: 'budget', id: detail.category!.id }, total.budget?.toString() ?? '')}>{total.budget === null ? '월 예산 설정' : `월 예산 ${money(total.budget)} · 변경`}</button>}
       </section>
-      <section className="rounded-xl border border-gray-100 bg-white p-5"><h2 className="font-semibold mb-4">최근 6개월 지출</h2><div className="flex items-end gap-2 h-44" role="group" aria-label="월별 지출과 예산">
-        {detail.history.map(item => {
-          const max = Math.max(1, ...detail.history.flatMap(h => [h.spent, h.budget ?? 0]))
-          return <button key={item.month} className="flex-1 h-full flex flex-col justify-end items-center min-w-0 gap-1 text-xs" onClick={() => setMonth(item.month)} aria-label={`${item.month} 지출 ${money(item.spent)}, ${item.budget === null ? '예산 미설정' : `예산 ${money(item.budget)}`}`}>
-            <span className="text-[10px] tabular-nums">{item.spent >= 10000 ? `${+(item.spent / 10000).toFixed(1)}만` : item.spent.toLocaleString()}</span>
-            <div className="relative w-full h-28 flex items-end justify-center"><div className="w-3/5 rounded-t bg-indigo-400" style={{ height: `${Math.max(item.spent > 0 ? 2 : 0, item.spent / max * 100)}%` }}/>{item.budget !== null && <span className="absolute inset-x-0 border-t-2 border-dashed border-gray-500" style={{ bottom: `${item.budget / max * 100}%` }}/>}</div><span className={item.month === month ? 'font-bold text-[#4F46E5]' : 'text-gray-500'}>{+item.month.slice(5)}월</span>
-          </button>
-        })}
-      </div><p className="text-xs text-gray-500 mt-3">막대: 지출 · 점선: 월 예산 · 월을 누르면 내역을 볼 수 있어요.</p></section>
-      <section className="rounded-xl border border-gray-100 bg-white p-4"><h2 className="font-semibold mb-3">지출 내역</h2>{overview.entries.filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected).sort((a, b) => b.date.localeCompare(a.date)).map(entry => <div key={entry.id} className="flex justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div className="min-w-0"><p className="text-sm break-words">{entry.description}</p><p className="text-xs text-gray-500 mt-1">{entry.date}</p></div><p className="shrink-0 text-sm font-medium tabular-nums">{money(-entry.amount)}</p></div>)}{total.spent === 0 && <p className="py-6 text-center text-sm text-gray-500">이 달의 지출 내역이 없어요.</p>}</section>
     </> : <>
       <div className="px-2 py-3"><p className="text-sm text-gray-500">{month.slice(5)}월 전체 지출</p><p className="text-3xl font-bold mt-1 tabular-nums">{money(overview.data.totalSpent)}</p></div>
       <div className="rounded-xl border border-gray-100 bg-white divide-y divide-gray-100">{rows.filter(row => !row.category?.archived || row.history.at(-1)!.spent > 0).filter(row => row.category || row.history.at(-1)!.spent > 0).map(row => {
         const current = row.history.at(-1)!
-        return <button key={row.category?.id ?? 'uncategorized'} onClick={() => setSelected(row.category?.id ?? 'uncategorized')} className="w-full p-4 text-left hover:bg-gray-50">
+        return <button key={row.category?.id ?? 'uncategorized'} onClick={() => setSelectedRow(row)} className="w-full p-4 text-left hover:bg-gray-50">
           <div className="flex justify-between gap-3 text-sm"><span className="font-semibold break-words">{row.category?.name ?? '카테고리 없음'}{row.category?.archived && <span className="ml-2 text-xs text-gray-400">보관됨</span>}</span><span className="font-semibold shrink-0 tabular-nums">{money(current.spent)}</span></div>
           <p className={`mt-2 text-xs ${current.budget !== null && current.spent > current.budget ? 'text-red-600' : 'text-gray-500'}`}>{current.budget !== null ? `월 예산 ${money(current.budget)} · ${budgetStatus(current.spent, current.budget)}` : '예산 미설정'}</p>
           {current.budget !== null && <div className="h-1.5 rounded-full bg-gray-100 mt-3 overflow-hidden" role="progressbar" aria-label={`${row.category?.name} 예산 사용률`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={current.budget > 0 ? Math.min(100, Math.round(current.spent / current.budget * 100)) : current.spent > 0 ? 100 : 0}><div className={`h-full rounded-full ${current.spent > current.budget ? 'bg-red-400' : 'bg-indigo-400'}`} style={{ width: `${current.budget > 0 ? Math.min(100, current.spent / current.budget * 100) : current.spent > 0 ? 100 : 0}%` }}/></div>}
@@ -122,6 +114,17 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
       })}</div>
       {!categories.some(c => !c.archived) && <div className="py-5 text-center text-sm text-gray-500"><p>카테고리를 만들면 지출과 예산을 함께 볼 수 있어요.</p><button className={`${button} mt-2 text-[#4F46E5]`} onClick={() => open({ kind: 'name' })}>카테고리 추가</button></div>}
     </>)}
+    {selectedRow && selected !== null && <CategoryMonthlyHistory
+      key={`${spaceId}:${selected}`} initialHistory={selectedRow.history}
+      history={overview.history[selected] ?? selectedRow.history} month={month}
+      onSelectMonth={setMonth} onLoadEarlier={overview.loadEarlier}
+      loading={overview.historyLoading} error={overview.historyError}
+    />}
+    {detail && total && overview.data && !overview.error && <details key={month} className="rounded-xl border border-gray-100 bg-white p-4">
+      <summary className="cursor-pointer min-h-11 py-3 font-semibold">{month.replace('-', '년 ')}월 지출 내역 <span className="text-sm font-normal text-gray-500">({overview.entries.filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected).length}건)</span></summary>
+      {overview.entries.filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected).sort((a, b) => b.date.localeCompare(a.date)).map(entry => <div key={entry.id} className="flex justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div className="min-w-0"><p className="text-sm break-words">{entry.description}</p><p className="text-xs text-gray-500 mt-1">{entry.date}</p></div><p className="shrink-0 text-sm font-medium tabular-nums">{money(-entry.amount)}</p></div>)}
+      {total.spent === 0 && <p className="py-6 text-center text-sm text-gray-500">이 달의 지출 내역이 없어요.</p>}
+    </details>}
     {editor && <CategoryDialog title={editor.kind === 'name' ? editor.id ? '카테고리 이름 수정' : '카테고리 추가' : editor.kind === 'budget' ? '월 예산 설정' : '카테고리 정리'} busy={overview.saving} onClose={closeEditor}>
       {editor.kind !== 'archive' ? <form onSubmit={e => { e.preventDefault(); void submit() }}>
         <label htmlFor="category-input" className="text-sm font-medium">{editor.kind === 'name' ? '카테고리 이름' : `${month.replace('-', '년 ')}월 예산 (원)`}</label>
