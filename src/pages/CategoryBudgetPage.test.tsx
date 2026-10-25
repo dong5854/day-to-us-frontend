@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { Layout } from '@/shared/components/Layout'
 import { CategoryBudgetPage } from './CategoryBudgetPage'
 import type { CategoryOverview } from '@/features/budget/types/categoryBudget.types'
 import { categoryBudgetApi } from '@/features/budget/api/categoryBudgetApi'
@@ -160,4 +161,42 @@ it('이전 월 조회 중 버튼과 기존 내역을 유지하고 중복 조회�
   expect(more.disabled).toBe(false)
   expect(more.getAttribute('aria-busy')).toBe('false')
   expect(within(list).getByRole('status').textContent).toBe('')
+})
+
+it('상단 헤더 하나에서 상세와 관리를 오가며 목록 스크롤과 진입 경로를 복원한다', async () => {
+  render(<MemoryRouter initialEntries={['/settings', { pathname: '/categories', search: '?month=2026-10', state: { categoryOrigin: '/settings' } }]}>
+    <Layout space={null} hasSpace><Routes>
+      <Route path="/categories" element={<CategoryBudgetPage spaceId="space"/>}/>
+      <Route path="/settings" element={<p>설정 화면</p>}/>
+    </Routes></Layout>
+  </MemoryRouter>)
+  await screen.findByText('13,000원')
+  const header = screen.getByRole('banner')
+  const content = screen.getByRole('main')
+  expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+  expect(within(header).getByRole('heading', { name: '카테고리·예산' })).toBeDefined()
+  expect(screen.queryByText('돌아가기')).toBeNull()
+  expect(screen.queryByText('목록으로')).toBeNull()
+  content.scrollTop = 120
+  fireEvent.click(screen.getByRole('button', { name: /식비 10,000원/ }))
+  expect(content.scrollTop).toBe(0)
+  expect(within(header).getByRole('heading', { name: '식비' })).toBeDefined()
+  fireEvent.click(within(header).getByRole('button', { name: '카테고리 목록으로 돌아가기' }))
+  expect(content.scrollTop).toBe(120)
+  fireEvent.click(within(header).getByRole('button', { name: '관리' }))
+  expect(within(header).getByRole('heading', { name: '카테고리 관리' })).toBeDefined()
+  expect(content.scrollTop).toBe(0)
+  fireEvent.click(within(header).getByRole('button', { name: '카테고리 목록으로 돌아가기' }))
+  expect(content.scrollTop).toBe(120)
+  fireEvent.click(within(header).getByRole('button', { name: '이전 화면으로 돌아가기' }))
+  expect(await screen.findByText('설정 화면')).toBeDefined()
+  expect(within(header).getByRole('heading', { name: '설정' })).toBeDefined()
+})
+
+it('최초 조회 중에는 금액 대신 접근 가능한 스켈레톤을 표시한다', () => {
+  vi.mocked(categoryBudgetApi.overview).mockReturnValue(new Promise(() => {}))
+  open()
+  expect(screen.getByRole('status', { name: '지출 현황을 불러오고 있어요' })).toBeDefined()
+  expect(screen.queryByText('불러오는 중...')).toBeNull()
+  expect(screen.queryByText('0원')).toBeNull()
 })
