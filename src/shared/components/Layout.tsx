@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef, type FC, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type FC, type ReactNode } from 'react'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { SharedSpaceResponse } from '@/features/space/types/space.types'
+import { LayoutSlotsContext } from './LayoutSlotsContext'
 
 interface Props {
   children: ReactNode
@@ -14,6 +15,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   const location = useLocation()
   
   const mainRef = useRef<HTMLElement>(null)
+  const [headerTarget, setHeaderTarget] = useState<HTMLDivElement | null>(null)
   const scrollPositions = useRef(new Map<string, number>())
   useLayoutEffect(() => {
     const main = mainRef.current
@@ -24,14 +26,15 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   }, [location.pathname])
 
   const isSettingsPage = location.pathname === '/settings'
+  const isCategoryPage = location.pathname === '/categories'
 
   return (
     <div className="h-dvh flex flex-col bg-gray-50 overflow-hidden">
       <header 
-        className="bg-[#4F46E5] text-white py-6 shadow-md transition-all duration-300 sticky top-0 z-50"
-        style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}
+        className={`bg-[#4F46E5] text-white shadow-md sticky top-0 z-50 shrink-0 ${isCategoryPage ? 'py-2' : 'py-6'}`}
+        style={{ paddingTop: `max(${isCategoryPage ? '0.5rem' : '1.5rem'}, env(safe-area-inset-top))` }}
       >
-        <div className="container mx-auto px-4">
+        {isCategoryPage ? <div ref={setHeaderTarget} className="container mx-auto px-2 md:px-4 min-h-11" /> : <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isSettingsPage && hasSpace && (
@@ -60,13 +63,13 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
               </button>
             )}
           </div>
-        </div>
+        </div>}
       </header>
 
       <main ref={mainRef}
         className="flex-1 overflow-y-auto container mx-auto px-2 md:px-4 py-2 md:py-8"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >{children}</main>
+      ><LayoutSlotsContext.Provider value={{ headerTarget, contentRef: mainRef }}>{children}</LayoutSlotsContext.Provider></main>
     </div>
   )
 }

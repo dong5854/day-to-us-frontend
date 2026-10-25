@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
+import { useContext, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowDown, ArrowLeft, ArrowUp, Archive, ChevronLeft, ChevronRight, GripVertical, Pencil, Plus, RotateCcw, Settings2, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Archive, ChevronLeft, ChevronRight, GripVertical, Pencil, Plus, RotateCcw, Settings2, Trash2 } from 'lucide-react'
 import { useCategoryOverview } from '@/features/budget/hooks/useCategoryOverview'
 import { useFixedExpense } from '@/features/fixedExpense/hooks/useFixedExpense'
 import { usePaymentMethods } from '@/features/budget/hooks/usePaymentMethods'
@@ -8,6 +9,7 @@ import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpens
 import { Modal } from '@/shared/components/Modal'
 import { CategoryMonthlyHistory } from '@/features/budget/components/CategoryMonthlyHistory'
 import { CategoryDialog } from '@/features/budget/components/CategoryDialog'
+import { LayoutSlotsContext } from '@/shared/components/LayoutSlotsContext'
 import type { CategoryOverviewRow } from '@/features/budget/types/categoryBudget.types'
 import type { FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
 import { categoryMonth, shiftCategoryMonth, budgetStatus } from '@/features/budget/utils/categoryBudget'
@@ -19,6 +21,8 @@ interface Props { spaceId: string }
 type Editor = { kind: 'name'; id?: string } | { kind: 'budget'; id: string } | { kind: 'archive'; row: CategoryOverviewRow }
 
 export const CategoryBudgetPage = ({ spaceId }: Props) => {
+  const { headerTarget, contentRef } = useContext(LayoutSlotsContext)
+  const listScrollTop = useRef(0)
   const navigate = useNavigate()
   const location = useLocation()
   const [search, setSearch] = useSearchParams()
@@ -32,6 +36,9 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
   const [order, setOrder] = useState<string[] | null>(null)
   const [selectedRow, setSelectedRow] = useState<CategoryOverviewRow | null>(null)
   const selected = selectedRow ? selectedRow.category?.id ?? 'uncategorized' : null
+  useLayoutEffect(() => {
+    if (contentRef?.current) contentRef.current.scrollTop = selected !== null || managing ? 0 : listScrollTop.current
+  }, [selected, managing, contentRef])
   const [editor, setEditor] = useState<Editor | null>(null)
   const [value, setValue] = useState('')
   const [repeat, setRepeat] = useState(false)
@@ -64,12 +71,16 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
     if (location.state?.categoryOrigin) navigate(-1)
     else navigate('/')
   }
-  return <div className="max-w-2xl mx-auto space-y-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
-    <div className="flex items-center justify-between gap-2">
-      <button onClick={back} className={`${button} flex items-center gap-1`}><ArrowLeft size={18}/>{selected !== null || managing ? '목록으로' : '돌아가기'}</button>
-      <h1 className="text-lg font-bold">{selectedRow ? (detail ?? selectedRow).category?.name ?? '카테고리 없음' : '카테고리·예산'}</h1>
-      {selected === null && !managing ? <button onClick={() => { setManaging(true); setNotice('') }} className={`${button} flex items-center gap-1`}><Settings2 size={17}/>관리</button> : <span className="w-12"/>}
-    </div>
+  const header = <div className="max-w-2xl mx-auto grid grid-cols-[4.5rem_minmax(0,1fr)_4.5rem] items-center gap-1">
+    <button type="button" onClick={back} aria-label={selected !== null || managing ? '카테고리 목록으로 돌아가기' : '이전 화면으로 돌아가기'} className="flex size-11 items-center justify-center rounded-full hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current">
+      <ChevronLeft size={24} aria-hidden="true"/>
+    </button>
+    <h1 className="text-center text-lg font-semibold truncate" title={selectedRow ? (detail ?? selectedRow).category?.name ?? '카테고리 없음' : undefined}>{selectedRow ? (detail ?? selectedRow).category?.name ?? '카테고리 없음' : managing ? '카테고리 관리' : '카테고리·예산'}</h1>
+    {selected === null && !managing ? <button type="button" onClick={() => { listScrollTop.current = contentRef?.current?.scrollTop ?? 0; setManaging(true); setNotice('') }} className="flex min-h-11 items-center justify-center gap-1 rounded-lg text-sm font-medium hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"><Settings2 size={17} aria-hidden="true"/>관리</button> : <span/>}
+  </div>
+  return <>
+    {headerTarget ? createPortal(header, headerTarget) : header}
+    <div className="max-w-2xl mx-auto space-y-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
     {!managing && <div className="flex items-center justify-between rounded-xl bg-white border border-gray-100 p-2">
       <button disabled={month === '1900-01'} onClick={() => setMonth(shiftCategoryMonth(month, -1))} aria-label="이전 달" className={button}><ChevronLeft size={20}/></button>
       <div className="text-center"><p className="font-semibold">{month.replace('-', '년 ')}월</p><button onClick={() => setMonth(todayMonth)} className="text-xs text-gray-500 min-h-8">{month === todayMonth ? '이번 달 · 집계 중' : '이번 달로'}</button></div>
@@ -77,7 +88,13 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
     </div>}
     {notice && <p role="status" className="text-sm text-[#4F46E5]">{notice}</p>}
     {overview.error && <div role="alert" className="rounded-xl bg-red-50 p-4 text-sm">{overview.error}<button onClick={() => void overview.refresh()} className={`${button} underline`}>다시 시도</button></div>}
-    {overview.loading && !overview.data && <p role="status" className="min-h-48 py-12 text-center text-gray-500">불러오는 중...</p>}
+    {overview.loading && !overview.data && <div role="status" aria-label="지출 현황을 불러오고 있어요" className="space-y-4">
+      <span className="sr-only">지출 현황을 불러오고 있어요.</span>
+      <div aria-hidden="true" className="rounded-xl border border-gray-100 bg-white p-5 space-y-3 motion-safe:animate-pulse">
+        <div className="h-4 w-24 rounded bg-gray-100"/><div className="h-9 w-44 rounded bg-gray-100"/><div className="h-3 w-32 rounded bg-gray-100"/>
+      </div>
+      {selected === null && <div aria-hidden="true" className="rounded-xl border border-gray-100 bg-white divide-y divide-gray-100 motion-safe:animate-pulse">{[0, 1, 2, 3].map(index => <div key={index} className="p-4 space-y-3"><div className="flex justify-between gap-4"><div className="h-4 w-20 rounded bg-gray-100"/><div className="h-4 w-24 rounded bg-gray-100"/></div><div className="h-3 w-28 rounded bg-gray-100"/></div>)}</div>}
+    </div>}
     {overview.data && !overview.error && (managing ? <>
       <p className="text-sm text-gray-500">이 공간의 멤버가 함께 사용하는 카테고리예요.</p>
       <div className="flex justify-between gap-2">
@@ -106,7 +123,7 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
       <div className="px-2 py-3"><p className="text-sm text-gray-500">{month.slice(5)}월 전체 지출</p><p className="text-3xl font-bold mt-1 tabular-nums">{money(overview.data.totalSpent)}</p></div>
       <div className="rounded-xl border border-gray-100 bg-white divide-y divide-gray-100">{rows.filter(row => !row.category?.archived || row.history.at(-1)!.spent > 0).filter(row => row.category || row.history.at(-1)!.spent > 0).map(row => {
         const current = row.history.at(-1)!
-        return <button key={row.category?.id ?? 'uncategorized'} onClick={() => setSelectedRow(row)} className="w-full p-4 text-left hover:bg-gray-50">
+        return <button key={row.category?.id ?? 'uncategorized'} onClick={() => { listScrollTop.current = contentRef?.current?.scrollTop ?? 0; setSelectedRow(row) }} className="w-full p-4 text-left hover:bg-gray-50">
           <div className="flex justify-between gap-3 text-sm"><span className="font-semibold break-words">{row.category?.name ?? '카테고리 없음'}{row.category?.archived && <span className="ml-2 text-xs text-gray-400">보관됨</span>}</span><span className="font-semibold shrink-0 tabular-nums">{money(current.spent)}</span></div>
           <p className={`mt-2 text-xs ${current.budget !== null && current.spent > current.budget ? 'text-red-600' : 'text-gray-500'}`}>{current.budget !== null ? `월 예산 ${money(current.budget)} · ${budgetStatus(current.spent, current.budget)}` : '예산 미설정'}</p>
           {current.budget !== null && <div className="h-1.5 rounded-full bg-gray-100 mt-3 overflow-hidden" role="progressbar" aria-label={`${row.category?.name} 예산 사용률`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={current.budget > 0 ? Math.min(100, Math.round(current.spent / current.budget * 100)) : current.spent > 0 ? 100 : 0}><div className={`h-full rounded-full ${current.spent > current.budget ? 'bg-red-400' : 'bg-indigo-400'}`} style={{ width: `${current.budget > 0 ? Math.min(100, current.spent / current.budget * 100) : current.spent > 0 ? 100 : 0}%` }}/></div>}
@@ -141,5 +158,5 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
       </>}
     </CategoryDialog>}
     <Modal formLayout isOpen={editingFixed !== null} onClose={() => setEditingFixed(null)}>{editingFixed && <FixedExpenseForm spaceId={spaceId} expense={editingFixed} categories={categories} paymentMethods={payments.paymentMethods} onSubmit={async data => { await fixed.updateExpense(editingFixed.id, data); setEditingFixed(null); await overview.refresh(); window.dispatchEvent(new Event('categories-changed')) }} onCancel={() => setEditingFixed(null)}/>}</Modal>
-  </div>
+  </div></>
 }
