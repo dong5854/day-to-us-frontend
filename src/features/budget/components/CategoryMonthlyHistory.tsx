@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, LoaderCircle, RotateCcw } from 'lucide-react'
 import type { CategoryMonthTotal } from '../types/categoryBudget.types'
 import { categoryMonth } from '../utils/categoryBudget'
 
@@ -62,12 +62,18 @@ export const CategoryMonthlyHistory = ({ initialHistory, history, month, onSelec
         </li>)}
       </ul>
       {error && <p role="alert" className="px-4 pt-3 text-sm text-red-600">{error}</p>}
-      {firstMonth > '1900-01' && <button type="button" disabled={loading} onClick={async () => {
-        const earlier = await onLoadEarlier(firstMonth)
-        if (earlier) setStart(earlier)
-      }} className="flex items-center justify-center gap-1 min-h-12 w-full px-4 py-3 text-sm text-indigo-600 border-t border-gray-100 hover:bg-indigo-50 disabled:opacity-50">
-        {loading ? '불러오는 중...' : error ? '이전 월 다시 시도' : '이전 월 더 보기'}<ChevronDown size={16}/>
-      </button>}
+      {firstMonth > '1900-01' && <div className="border-t border-gray-100 p-3">
+        <button type="button" disabled={loading} aria-busy={loading} onClick={async () => {
+          const earlier = await onLoadEarlier(firstMonth)
+          if (earlier) setStart(earlier)
+        }} className="flex items-center justify-center gap-2 min-h-11 w-full rounded-lg bg-gray-50 px-4 text-sm font-medium text-gray-600 transition-colors enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 enabled:active:bg-indigo-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-wait">
+          <span>{error && !loading ? '이전 월 다시 시도' : '이전 월 더 보기'}</span>
+          {loading ? <LoaderCircle size={16} className="shrink-0 text-indigo-500 motion-safe:animate-spin" aria-hidden="true"/>
+            : error ? <RotateCcw size={16} className="shrink-0" aria-hidden="true"/>
+            : <ChevronDown size={16} className="shrink-0 text-gray-400" aria-hidden="true"/>}
+        </button>
+      </div>}
+      <p role="status" className="sr-only">{loading ? '이전 월 내역을 불러오고 있어요.' : ''}</p>
     </section>
   </>
 }

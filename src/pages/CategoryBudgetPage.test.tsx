@@ -138,3 +138,26 @@ it('이전 월 조회가 실패해도 기존 목록과 선택 월을 유지하�
   await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(12))
   expect(within(list).queryByRole('alert')).toBeNull()
 })
+
+it('이전 월 조회 중 버튼과 기존 내역을 유지하고 중복 조회를 막는다', async () => {
+  let resolveEarlier!: (value: CategoryOverview) => void
+  const pending = new Promise<CategoryOverview>(resolve => { resolveEarlier = resolve })
+  vi.mocked(categoryBudgetApi.overview).mockImplementation(async (_space, month) => month === '2026-04' ? pending : monthlyOverview(month))
+  open()
+  await screen.findByText('13,000원')
+  fireEvent.click(screen.getByRole('button', { name: /식비 6,000원/ }))
+  const list = screen.getByRole('region', { name: '월별 사용 금액' })
+  const more = within(list).getByRole('button', { name: '이전 월 더 보기' }) as HTMLButtonElement
+  fireEvent.click(more)
+  expect(more.disabled).toBe(true)
+  expect(more.getAttribute('aria-busy')).toBe('true')
+  expect(within(list).getByRole('status').textContent).toBe('이전 월 내역을 불러오고 있어요.')
+  expect(within(list).getAllByRole('listitem')).toHaveLength(6)
+  fireEvent.click(more)
+  expect(vi.mocked(categoryBudgetApi.overview).mock.calls.filter(([, month]) => month === '2026-04')).toHaveLength(1)
+  resolveEarlier(monthlyOverview('2026-04'))
+  await waitFor(() => expect(within(list).getAllByRole('listitem')).toHaveLength(12))
+  expect(more.disabled).toBe(false)
+  expect(more.getAttribute('aria-busy')).toBe('false')
+  expect(within(list).getByRole('status').textContent).toBe('')
+})
