@@ -313,8 +313,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
 
-      {filterType === 'budget' && onOpenCategories && <div className="flex justify-end mb-2"><button type="button" onClick={onOpenCategories} className="min-h-11 px-3 rounded-lg text-sm font-medium text-[#4F46E5] hover:bg-indigo-50">카테고리별 지출</button></div>}
-
       {/* Content */}
       <div
         {...(viewType === 'calendar' ? swipeHandlers : {})}
@@ -338,6 +336,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
             onPrevMonth={prevMonth}
             onNextMonth={nextMonth}
             onToday={goToday}
+            onOpenCategories={onOpenCategories}
           />
         ) : filterType === 'all' ? (
           <CalendarAllListView year={year} month={month} entries={entries} schedules={schedules}
@@ -370,6 +369,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
             onPrevMonth={prevMonth}
             onNextMonth={nextMonth}
             onToday={goToday}
+            onOpenCategories={onOpenCategories}
             categories={categories}
             paymentMethods={paymentMethods}
           />
