@@ -1,5 +1,5 @@
+import { CalendarMonthHeader } from './CalendarMonthHeader'
 import { useState, type FC } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
 import { ScheduleList } from '@/features/schedule/components/ScheduleList'
@@ -31,6 +31,7 @@ interface Props {
   onPrevMonth: () => void
   onNextMonth: () => void
   onToday: () => void
+  onOpenCategories?: () => void
   categories?: { id: string; name: string }[]
   paymentMethods?: { id: string; name: string }[]
 }
@@ -55,6 +56,7 @@ export const CalendarListView: FC<Props> = ({
   onPrevMonth,
   onNextMonth,
   onToday,
+  onOpenCategories,
   categories,
   paymentMethods,
 }) => {
@@ -67,17 +69,14 @@ export const CalendarListView: FC<Props> = ({
 
   return (
     <>
-      {/* Tabs & Date Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 border-b border-gray-200 pb-4">
-        <div className="flex items-center justify-between md:justify-end gap-4">
-          <h2 className="text-xl font-bold text-gray-900">{year}년 {month + 1}월</h2>
-          <div className="flex gap-2">
-            <button onClick={onPrevMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-            <button onClick={onToday} className="px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">오늘</button>
-            <button onClick={onNextMonth} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><ChevronRight className="w-5 h-5" /></button>
-          </div>
-        </div>
-      </div>
+      <CalendarMonthHeader
+        year={year}
+        month={month}
+        onPrevMonth={onPrevMonth}
+        onNextMonth={onNextMonth}
+        onToday={onToday}
+        onOpenCategories={filterType === 'budget' ? onOpenCategories : undefined}
+      />
 
       {/* Content */}
       {filterType === 'budget' && (
