@@ -1,3 +1,4 @@
+import { PensionTaxCard } from './PensionTaxCard'
 import { SwipeableCard } from '@/shared/components/SwipeableCard'
 import { ChevronLeft, ChevronRight, Plus, PiggyBank, Settings2 } from 'lucide-react'
 import { formatCurrency } from '@/shared/utils/format'
@@ -23,6 +24,7 @@ export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, on
     <div className="flex items-center justify-between"><h2 className="text-xl font-bold">{year}년 {month}월</h2>
       <div className="flex items-center"><button aria-label="이전 달" onClick={onPrev} className="p-3"><ChevronLeft size={20}/></button><button onClick={onToday} className="p-3 text-sm">오늘</button><button aria-label="다음 달" onClick={onNext} className="p-3"><ChevronRight size={20}/></button></div>
     </div>
+    <PensionTaxCard/>
     {error && <div role="alert" className="text-red-600">{error} <button onClick={() => void savings.refetch()} className="underline">다시 시도</button></div>}
     {loading && <p role="status">저축을 불러오는 중입니다</p>}
     {data && <>
