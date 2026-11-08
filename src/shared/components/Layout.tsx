@@ -26,15 +26,15 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   }, [location.pathname])
 
   const isSettingsPage = location.pathname === '/settings'
-  const isCategoryPage = location.pathname === '/categories'
+  const isDetailPage = location.pathname === '/categories' || location.pathname === '/pensions'
 
   return (
     <div className="h-dvh flex flex-col bg-gray-50 overflow-hidden">
       <header 
-        className={`bg-[#4F46E5] text-white shadow-md sticky top-0 z-50 shrink-0 ${isCategoryPage ? 'py-2' : 'py-6'}`}
-        style={{ paddingTop: `max(${isCategoryPage ? '0.5rem' : '1.5rem'}, env(safe-area-inset-top))` }}
+        className={`bg-[#4F46E5] text-white shadow-md sticky top-0 z-50 shrink-0 ${isDetailPage ? 'py-2' : 'py-6'}`}
+        style={{ paddingTop: `max(${isDetailPage ? '0.5rem' : '1.5rem'}, env(safe-area-inset-top))` }}
       >
-        {isCategoryPage ? <div ref={setHeaderTarget} className="container mx-auto px-2 md:px-4 min-h-11" /> : <div className="container mx-auto px-4">
+        {isDetailPage ? <div ref={setHeaderTarget} className="container mx-auto px-2 md:px-4 min-h-11" /> : <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isSettingsPage && hasSpace && (
