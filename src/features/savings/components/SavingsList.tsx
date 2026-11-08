@@ -1,4 +1,3 @@
-import { PensionTaxCard } from './PensionTaxCard'
 import { SwipeableCard } from '@/shared/components/SwipeableCard'
 import { ChevronLeft, ChevronRight, Plus, PiggyBank, Settings2 } from 'lucide-react'
 import { formatCurrency } from '@/shared/utils/format'
@@ -9,6 +8,7 @@ export function SavingsRecordRow({ record, onClick, onDelete }: { record: Saving
   const content = <div className="w-full flex items-center justify-between gap-3 rounded-xl bg-amber-50 p-3 text-left">
     <div className="min-w-0"><div className="font-medium truncate">{record.planName}</div>
       <div className="text-xs text-gray-600 mt-1">{record.date} · {record.planned ? '납입 예정' : record.amount < 0 ? '인출 기록' : '납입 기록'} · {record.payerName}</div>
+      {record.confirmed && <div className="text-xs text-green-700 mt-1">본인 납입 확인됨</div>}
       {record.automatic && !record.planned && <div className="text-xs text-amber-700 mt-1">자동 반영</div>}
     </div><span className="text-amber-700 font-semibold shrink-0">{record.amount > 0 ? '+' : ''}{formatCurrency(record.amount)}</span>
   </div>
@@ -17,14 +17,13 @@ export function SavingsRecordRow({ record, onClick, onDelete }: { record: Saving
     : <button type="button" onClick={onClick} className="w-full text-left">{content}</button>
 }
 
-interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void }
-export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, onToday }: Props) {
+interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void; pension?: boolean }
+export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, onToday, pension = false }: Props) {
   const { data, loading, error } = savings
   return <div className="space-y-5 pb-[calc(6rem+env(safe-area-inset-bottom))]">
     <div className="flex items-center justify-between"><h2 className="text-xl font-bold">{year}년 {month}월</h2>
       <div className="flex items-center"><button aria-label="이전 달" onClick={onPrev} className="p-3"><ChevronLeft size={20}/></button><button onClick={onToday} className="p-3 text-sm">오늘</button><button aria-label="다음 달" onClick={onNext} className="p-3"><ChevronRight size={20}/></button></div>
     </div>
-    <PensionTaxCard/>
     {error && <div role="alert" className="text-red-600">{error} <button onClick={() => void savings.refetch()} className="underline">다시 시도</button></div>}
     {loading && <p role="status">저축을 불러오는 중입니다</p>}
     {data && <>
@@ -34,12 +33,13 @@ export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, on
         <div className="grid grid-cols-2 gap-3 border-t border-gray-100 mt-4 pt-3"><div className="text-sm">이번 달 납입<strong className="block text-lg text-amber-700">{formatCurrency(data.deposits)}</strong></div><div className="text-sm">이번 달 인출<strong className="block text-lg">{formatCurrency(data.withdrawals)}</strong></div></div>
         <p className="text-xs text-gray-500 mt-2">납입 예정 {formatCurrency(data.records.filter(r => r.planned).reduce((sum, r) => sum + r.amount, 0))}</p>
       </section>
-      <div className="flex justify-between items-center"><h3 className="font-bold">저축 항목</h3><button onClick={() => onSelect({ type: 'plan' })} className="flex items-center gap-1 p-2 text-indigo-600"><Plus size={18}/> 저축 추가</button></div>
-      {!data.plans.length && <p className="text-center text-gray-500 py-8">적금이나 함께 모을 목표를 추가해 보세요.</p>}
+      <div className="flex justify-between items-center"><h3 className="font-bold">{pension ? '연금 계좌' : '저축 항목'}</h3><button onClick={() => onSelect({ type: 'plan' })} className="flex items-center gap-1 p-2 text-indigo-600"><Plus size={18}/> {pension ? '연금 계좌 추가' : '저축 추가'}</button></div>
+      {!data.plans.length && <p className="text-center text-gray-500 py-8">{pension ? '연금저축·IRP·DC 계좌를 추가해 보세요.' : '적금이나 함께 모을 목표를 추가해 보세요.'}</p>}
       {data.plans.map(plan => <section key={plan.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2"><PiggyBank size={20} className="text-[#D97706]"/><h4 className="font-semibold flex-1 break-all">{plan.name}</h4>
           {!plan.archived && <button aria-label={`${plan.name} 설정`} className="p-3" onClick={() => onSelect({ type: 'plan', plan })}><Settings2 size={18}/></button>}
         </div>
+        {pension && <p className="text-sm text-indigo-700">{plan.kind === 'PENSION_SAVINGS' ? '연금저축' : plan.kind === 'DC' ? 'DC 본인 추가납입' : 'IRP'} · 명의자 {plan.payerName}</p>}
         <p className="text-xs text-gray-500">{plan.archived ? '종료 · 과거 기록 유지' : plan.monthlyAmount ? `매월 ${plan.firstDate?.slice(-2)}일 · ${formatCurrency(plan.monthlyAmount)}` : '자유 납입'}{plan.maturityDate && ` · 만기 ${plan.maturityDate}`}</p>
         {plan.nextDate && <p className="text-xs text-gray-500 mt-1">현재 기준 다음 납입: {plan.nextDate}</p>}
         <strong className="block mt-3 text-xl text-amber-700">{formatCurrency(plan.balance)}</strong>
