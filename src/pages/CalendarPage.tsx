@@ -1,5 +1,6 @@
+import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useState, useMemo, useEffect, type FC } from 'react'
-import { Calendar, List, Wallet, PiggyBank, Landmark } from 'lucide-react'
+import { Calendar, List, Wallet } from 'lucide-react'
 import { useSavings } from '@/features/savings/hooks/useSavings'
 import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
 import { SavingsForm } from '@/features/savings/components/SavingsForm'
@@ -30,7 +31,7 @@ import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixed
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
 type ViewType = 'calendar' | 'list'
-type FilterType = 'all' | 'budget' | 'schedule' | 'savings'
+type FilterType = CalendarFilter
 
 interface Props {
   spaceId: string
@@ -38,10 +39,14 @@ interface Props {
   onDateChange: (date: Date) => void
   onOpenCategories?: () => void
   onOpenPensions?: () => void
+  activeFilter?: CalendarFilter
+  onFilterChange?: (filter: CalendarFilter) => void
 }
 
-export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories, onOpenPensions }) => {
-  const [filterType, setFilterType] = useState<FilterType>('all')
+export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories, onOpenPensions, activeFilter, onFilterChange }) => {
+  const [localFilter, setLocalFilter] = useState<FilterType>('all')
+  const filterType = activeFilter ?? localFilter
+  const setFilterType = (filter: CalendarFilter) => { setLocalFilter(filter); onFilterChange?.(filter) }
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
 
@@ -305,13 +310,11 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
           <button onClick={() => setViewType('calendar')} aria-pressed={viewType === 'calendar'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'calendar' ? 'bg-white shadow-sm' : ''}`}><Calendar className="w-4 h-4 inline-block"/> 달력</button>
           <button onClick={() => setViewType('list')} aria-pressed={viewType === 'list'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'list' ? 'bg-white shadow-sm' : ''}`}><List className="w-4 h-4 inline-block"/> 목록</button>
         </div>
-        <nav aria-label="항목 필터" className="flex gap-1.5">
-          <button aria-pressed={filterType === 'all'} onClick={() => setFilterType('all')} className={`flex-1 min-h-11 rounded-full text-sm font-medium ${filterType === 'all' ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}>전체</button>
-          {([{ value: 'budget', label: '가계부', icon: Wallet }, { value: 'savings', label: '저축', icon: PiggyBank }, { value: 'schedule', label: '일정', icon: Calendar }] as const).map(({ value, label, icon: Icon }) =>
-            <button key={value} aria-pressed={filterType === value} onClick={() => setFilterType(value)}
-              className={`flex-1 min-h-11 flex justify-center items-center gap-1 rounded-full text-sm font-medium ${filterType === value ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}><Icon size={16}/>{label}</button>)}
-          {onOpenPensions && <button onClick={onOpenPensions} className="flex-1 min-h-11 flex items-center justify-center gap-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700"><Landmark size={16}/>연금</button>}
-        </nav>
+        <CalendarCategoryTabs selected={filterType} showPension={!!onOpenPensions} onSelect={category => {
+          if (category === 'pension') onOpenPensions?.()
+          else setFilterType(category)
+        }}/>
+
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
 

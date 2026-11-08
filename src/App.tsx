@@ -1,3 +1,4 @@
+import type { CalendarFilter } from './pages/calendar/CalendarCategoryTabs'
 import { PensionPage } from './pages/PensionPage'
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
@@ -22,6 +23,7 @@ function AppContent() {
   const location = useLocation()
   const openCategories = () => navigate(`/categories?month=${categoryMonth(currentDate)}`, { state: { categoryOrigin: location.pathname } })
 
+  const [calendarFilter, setCalendarFilter] = useState<CalendarFilter>('all')
   const [currentDate, setCurrentDate] = useState(new Date())
 
   const { toast, showToast, hideToast } = useToast()
@@ -126,12 +128,12 @@ function AppContent() {
     <Layout space={space} hasSpace={hasSpace}>
       <div hidden={location.pathname !== '/'}>
         <ErrorBoundary>
-          <CalendarPage spaceId={space!.id} currentDate={currentDate} onDateChange={setCurrentDate} onOpenCategories={openCategories} onOpenPensions={() => navigate('/pensions')} />
+          <CalendarPage spaceId={space!.id} currentDate={currentDate} onDateChange={setCurrentDate} onOpenCategories={openCategories} onOpenPensions={() => navigate('/pensions')} activeFilter={calendarFilter} onFilterChange={setCalendarFilter} />
         </ErrorBoundary>
       </div>
       <Routes>
         <Route path="/" element={null}/>
-        <Route path="/pensions" element={<ErrorBoundary><PensionPage spaceId={space!.id}/></ErrorBoundary>}/>
+        <Route path="/pensions" element={<ErrorBoundary><PensionPage spaceId={space!.id} onOpenCategory={filter => { setCalendarFilter(filter); navigate('/') }}/></ErrorBoundary>}/>
         <Route path="/categories" element={<ErrorBoundary><CategoryBudgetPage spaceId={space!.id}/></ErrorBoundary>}/>
         <Route
           path="/settings"
