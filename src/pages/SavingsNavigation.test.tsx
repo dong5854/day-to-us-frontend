@@ -54,3 +54,9 @@ it('저축 달력 점은 주황 계열이며 예정과 실제 기록을 구분�
   fireEvent.click(screen.getByRole('button', { name: '가계부' }))
   expect(screen.queryByRole('img', { name: '여행 자금 납입 예정' })).toBeNull()
 })
+it('연금 카테고리는 전용 화면으로 이동한다', () => {
+  const open = vi.fn()
+  render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()} onOpenPensions={open}/>)
+  fireEvent.click(screen.getByRole('button', { name: '연금' }))
+  expect(open).toHaveBeenCalledTimes(1)
+})

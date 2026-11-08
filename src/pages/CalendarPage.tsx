@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, type FC } from 'react'
-import { Calendar, List, Wallet, PiggyBank } from 'lucide-react'
+import { Calendar, List, Wallet, PiggyBank, Landmark } from 'lucide-react'
 import { useSavings } from '@/features/savings/hooks/useSavings'
 import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
 import { SavingsForm } from '@/features/savings/components/SavingsForm'
@@ -37,13 +37,15 @@ interface Props {
   currentDate: Date
   onDateChange: (date: Date) => void
   onOpenCategories?: () => void
+  onOpenPensions?: () => void
 }
 
-export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories }) => {
+export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories, onOpenPensions }) => {
+  const [filterType, setFilterType] = useState<FilterType>('all')
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth() + 1
 
-  const savings = useSavings(spaceId, currentYear, currentMonth)
+  const savings = useSavings(spaceId, currentYear, currentMonth, filterType === 'savings' ? 'general' : undefined)
   const [savingsSelection, setSavingsSelection] = useState<SavingsSelection | null>(null)
   const openSavingsRecord = (record: SavingsRecord) => {
     const plan = savings.data?.plans.find(p => p.id === record.planId)
@@ -102,7 +104,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
   }, [currentDate])
 
   // ─── Event Bars (memoized via hook) ───────────────────────────────────────
-  const [filterType, setFilterType] = useState<FilterType>('all')
   const listFilterType = filterType === 'schedule' ? 'schedule' : 'budget'
 
   const eventBars = useEventBars({
@@ -309,6 +310,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
           {([{ value: 'budget', label: '가계부', icon: Wallet }, { value: 'savings', label: '저축', icon: PiggyBank }, { value: 'schedule', label: '일정', icon: Calendar }] as const).map(({ value, label, icon: Icon }) =>
             <button key={value} aria-pressed={filterType === value} onClick={() => setFilterType(value)}
               className={`flex-1 min-h-11 flex justify-center items-center gap-1 rounded-full text-sm font-medium ${filterType === value ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}><Icon size={16}/>{label}</button>)}
+          {onOpenPensions && <button onClick={onOpenPensions} className="flex-1 min-h-11 flex items-center justify-center gap-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700"><Landmark size={16}/>연금</button>}
         </nav>
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>

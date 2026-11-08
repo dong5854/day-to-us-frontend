@@ -32,7 +32,7 @@ export function CalendarAllListView(props: Props) {
       title: schedule.title, label: '일정', detail: schedule.isAllDay ? '종일' : schedule.startDateTime.slice(11, 16),
       color: 'text-violet-600', onClick: () => props.onEditSchedule(schedule) })),
     ...props.savingsRecords.map(record => ({ key: `savings:${record.id}`, date: record.date, title: record.planName,
-      label: record.planned ? '저축 · 납입 예정' : record.amount < 0 ? '저축 · 인출 기록' : '저축 · 납입 기록',
+      label: `${record.kind && record.kind !== 'GENERAL' ? '연금' : '저축'} · ${record.planned ? '납입 예정' : record.amount < 0 ? '인출 기록' : '납입 기록'}`,
       detail: formatCurrency(record.amount), color: 'text-amber-700', onClick: () => props.onEditSavings(record) })),
   ].sort((a, b) => b.date.localeCompare(a.date) || a.key.localeCompare(b.key))
 

@@ -1,3 +1,4 @@
+import { PensionPage } from './pages/PensionPage'
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { Heart } from 'lucide-react'
@@ -125,11 +126,12 @@ function AppContent() {
     <Layout space={space} hasSpace={hasSpace}>
       <div hidden={location.pathname !== '/'}>
         <ErrorBoundary>
-          <CalendarPage spaceId={space!.id} currentDate={currentDate} onDateChange={setCurrentDate} onOpenCategories={openCategories} />
+          <CalendarPage spaceId={space!.id} currentDate={currentDate} onDateChange={setCurrentDate} onOpenCategories={openCategories} onOpenPensions={() => navigate('/pensions')} />
         </ErrorBoundary>
       </div>
       <Routes>
         <Route path="/" element={null}/>
+        <Route path="/pensions" element={<ErrorBoundary><PensionPage spaceId={space!.id}/></ErrorBoundary>}/>
         <Route path="/categories" element={<ErrorBoundary><CategoryBudgetPage spaceId={space!.id}/></ErrorBoundary>}/>
         <Route
           path="/settings"

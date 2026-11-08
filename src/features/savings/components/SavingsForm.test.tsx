@@ -60,3 +60,13 @@ it('예정 항목은 설정으로 실제 기록은 수정으로 연결한다', (
   fireEvent.click(screen.getByRole('button', { name: /납입 기록/ }))
   expect(select).toHaveBeenLastCalledWith({ type: 'record', plan, record })
 })
+it('연금 기록은 실제 본인 납입 확인과 계좌 명의자를 저장한다', async () => {
+  const savings = state()
+  const pensionPlan = { ...plan, kind: 'IRP' as const }
+  render(<SavingsForm pension selection={{ type: 'record', plan: pensionPlan, record }} savings={savings} onClose={vi.fn()}/> )
+  const confirm = screen.getByRole('checkbox') as HTMLInputElement
+  expect(confirm.checked).toBe(false)
+  fireEvent.click(confirm)
+  fireEvent.click(screen.getByRole('button', { name: '저장' }))
+  await waitFor(() => expect(savings.saveRecord).toHaveBeenCalledWith(plan.id, expect.objectContaining({ confirmed: true, payerEmail: plan.payerEmail }), record.id))
+})

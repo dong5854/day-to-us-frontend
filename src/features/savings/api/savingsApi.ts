@@ -1,9 +1,10 @@
 import api from '@/shared/api/client'
-import type { SavingsMonth, SavingsPlanRequest, SavingsRecordRequest, SavingsPreview } from '../types/savings.types'
+import type { SavingsMonth, SavingsPlanRequest, SavingsRecordRequest, SavingsPreview, PensionAccountSummary } from '../types/savings.types'
 const base = (spaceId: string) => `/shared-spaces/${spaceId}/savings`
 export const savingsApi = {
-  month: async (spaceId: string, year: number, month: number) =>
-    (await api.get<SavingsMonth>(base(spaceId), { params: { year, month } })).data,
+  pensionYear: async (spaceId: string, year: number) => (await api.get<PensionAccountSummary[]>(`${base(spaceId)}/pension-year`, { params: { year } })).data,
+  month: async (spaceId: string, year: number, month: number, group?: 'general' | 'pension') =>
+    (await api.get<SavingsMonth>(base(spaceId), { params: { year, month, group } })).data,
   savePlan: async (spaceId: string, data: SavingsPlanRequest, id?: string) => {
     if (id) await api.put(`${base(spaceId)}/${id}`, data)
     else await api.post(base(spaceId), data)

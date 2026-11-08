@@ -21,3 +21,11 @@ it('기간 종료 후 추가 납입을 유도하지 않고 신고 확인을 안�
   fireEvent.change(screen.getByLabelText('IRP·DC 본인 추가 납입액 (원)'), { target: { value: '0' } })
   expect(screen.queryByLabelText(/마감 전 추가/)).toBeNull()
 })
+it('서버의 확인 납입액으로 집계하며 인출이 있으면 계산을 보류한다', () => {
+  const { rerender } = render(<PensionTaxCard annual={{ pension: 6_000_000, retirement: 3_000_000, unconfirmed: 1, review: false }}/>)
+  expect(screen.getByText('올해 일반 공제 한도를 채웠어요')).toBeTruthy()
+  expect(screen.getByText(/확인이 필요한 기록 1건/)).toBeTruthy()
+  rerender(<PensionTaxCard annual={{ pension: 6_000_000, retirement: 3_000_000, unconfirmed: 1, review: true }}/>)
+  expect(screen.queryByText('올해 일반 공제 한도를 채웠어요')).toBeNull()
+  expect(screen.getByText(/자동 공제 계산을 보류/)).toBeTruthy()
+})
