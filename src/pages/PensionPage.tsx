@@ -1,5 +1,6 @@
+import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useContext, useState } from 'react'
-import { ChevronLeft, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { LayoutSlotsContext } from '@/shared/components/LayoutSlotsContext'
 import { useNavigate } from 'react-router-dom'
@@ -13,8 +14,8 @@ import type { SavingsSelection } from '@/features/savings/types/savings.types'
 import { Modal } from '@/shared/components/Modal'
 import { Select } from '@/shared/components/Select'
 
-interface Props { spaceId: string }
-export function PensionPage({ spaceId }: Props) {
+interface Props { spaceId: string; onOpenCategory?: (filter: CalendarFilter) => void }
+export function PensionPage({ spaceId, onOpenCategory }: Props) {
   const { headerTarget } = useContext(LayoutSlotsContext)
   const navigate = useNavigate()
   const [date, setDate] = useState(() => new Date())
@@ -32,14 +33,18 @@ export function PensionPage({ spaceId }: Props) {
     review: accounts.some(a => a.hasWithdrawals),
   }
   const changeMonth = (offset: number) => setDate(new Date(year, date.getMonth() + offset, 1))
-  const header = <div className="max-w-2xl mx-auto grid grid-cols-[4.5rem_minmax(0,1fr)_4.5rem] items-center gap-1">
-    <button type="button" aria-label="달력으로 돌아가기" onClick={() => navigate('/')} className="flex size-11 items-center justify-center rounded-full hover:bg-white/15"><ChevronLeft size={24}/></button>
-    <h1 className="text-center text-lg font-semibold">연금</h1>
-    <button type="button" onClick={() => setSelection({ type: 'plan' })} className="flex min-h-11 items-center justify-center gap-1 rounded-lg text-sm font-medium hover:bg-white/15"><Plus size={17}/>추가</button>
+  const header = <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 px-2">
+    <h1 className="text-lg font-semibold">연금</h1>
+    <button type="button" onClick={() => setSelection({ type: 'plan' })} className="flex min-h-11 items-center justify-center gap-1 rounded-lg px-3 text-sm font-medium hover:bg-white/15"><Plus size={17}/>추가</button>
   </div>
   return <>
     {headerTarget ? createPortal(header, headerTarget) : header}
     <div className="max-w-2xl mx-auto space-y-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+    <CalendarCategoryTabs selected="pension" onSelect={category => {
+      if (category === 'pension') return
+      if (onOpenCategory) onOpenCategory(category)
+      else navigate('/')
+    }}/>
     {savings.members.length > 0 && <div className="flex items-center justify-between gap-3 px-1"><label htmlFor="pension-owner" className="shrink-0 text-sm text-gray-500">절세 현황</label><Select id="pension-owner" size="sm" className="w-56 max-w-[75%]" value={selectedOwner} onChange={setOwner} options={savings.members.map(m => ({ value: m.email, label: m.name }))}/></div>}
     <SavingsList pension savings={savings} year={year} month={date.getMonth() + 1} onSelect={setSelection} onPrev={() => changeMonth(-1)} onNext={() => changeMonth(1)} onToday={() => setDate(new Date())}>
     {(annual.loading || annual.refreshing) && <p role="status" className="text-sm">연간 납입 내역을 확인하고 있어요.</p>}
