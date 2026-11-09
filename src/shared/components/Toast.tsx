@@ -42,9 +42,9 @@ export const Toast: FC<Props> = ({
   }
 
   return (
-    <div className={`fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[1200] flex items-center gap-3 px-6 py-3 rounded-full shadow-lg text-white ${bgColors[type]} animate-[fade-in_0.3s_ease-out]`}>
+    <div className={`fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 w-max max-w-[calc(100%-2rem)] transform -translate-x-1/2 z-[1200] flex items-center gap-3 px-6 py-3 rounded-full shadow-lg text-white ${bgColors[type]} animate-[fade-in_0.3s_ease-out]`}>
       <span className="flex-shrink-0">{icons[type]}</span>
-      <span className="font-medium">{message}</span>
+      <span className="min-w-0 break-keep wrap-anywhere font-medium">{message}</span>
     </div>
   )
 }
