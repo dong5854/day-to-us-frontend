@@ -1,3 +1,4 @@
+import { KisConnectionCard } from '@/features/savings/components/KisConnectionCard'
 import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useContext, useState } from 'react'
 import { Plus } from 'lucide-react'
@@ -46,6 +47,7 @@ export function PensionPage({ spaceId, onOpenCategory }: Props) {
       else navigate('/')
     }}/>
     {savings.members.length > 0 && <div className="flex items-center justify-between gap-3 px-1"><label htmlFor="pension-owner" className="shrink-0 text-sm text-gray-500">절세 현황</label><Select id="pension-owner" size="sm" className="w-56 max-w-[75%]" value={selectedOwner} onChange={setOwner} options={savings.members.map(m => ({ value: m.email, label: m.name }))}/></div>}
+    <KisConnectionCard key={spaceId} spaceId={spaceId} plans={savings.data?.plans ?? []}/>
     <SavingsList pension savings={savings} year={year} month={date.getMonth() + 1} onSelect={setSelection} onPrev={() => changeMonth(-1)} onNext={() => changeMonth(1)} onToday={() => setDate(new Date())}>
     {(annual.loading || annual.refreshing) && <p role="status" className="text-sm">연간 납입 내역을 확인하고 있어요.</p>}
     {annual.error && <p role="alert" className="text-red-700">{annual.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
