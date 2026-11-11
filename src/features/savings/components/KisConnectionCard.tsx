@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import { Link2, RefreshCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { RefreshCw } from 'lucide-react'
 import { Modal } from '@/shared/components/Modal'
 import { Select } from '@/shared/components/Select'
 import { useKisConnections } from '../hooks/useKisConnections'
-import type { SavingsState } from '../hooks/useSavings'
+import type { PensionProviderProps } from './PensionConnections'
 import { SavingsForm } from './SavingsForm'
 
-export function KisConnectionCard({ spaceId, savings }: { spaceId: string; savings: SavingsState }) {
+export function KisConnectionCard({ spaceId, savings, open, onClose }: PensionProviderProps) {
   const plans = savings.data?.plans ?? []
   const [addingAccount, setAddingAccount] = useState(false)
   const kis = useKisConnections(spaceId)
-  const [open, setOpen] = useState(false)
+  const { refresh } = kis
+  useEffect(() => { if (open) void refresh() }, [open, refresh])
   const [disconnectId, setDisconnectId] = useState('')
   const [planId, setPlanId] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
@@ -19,15 +20,11 @@ export function KisConnectionCard({ spaceId, savings }: { spaceId: string; savin
   const [shareConsent, setShareConsent] = useState(false)
   const options = plans.filter(p => kis.status?.connectablePlanIds.includes(p.id)).map(p => ({ value: p.id, label: `${p.name} · ${p.kind === 'IRP' ? 'IRP (29)' : '연금저축 (22)'}` }))
   const selectedPlan = options.some(p => p.value === planId) ? planId : options[0]?.value || ''
-  const close = () => { if (!kis.busy) { setOpen(false); setAddingAccount(false); setAccountNumber(''); setAppKey(''); setAppSecret(''); setShareConsent(false) } }
-  if (!kis.status) return kis.error ? <p role="alert" className="text-sm text-gray-500">계좌 연결 상태를 불러오지 못했어요. <button onClick={() => void kis.refresh()} className="underline">다시 시도</button></p> : null
-  if (!kis.status.canConnect && !kis.status.accounts.length) return null
-  return <section className="rounded-xl border border-gray-100 bg-white p-4 space-y-3" aria-label="한국투자증권 연결">
-    <div className="flex items-center justify-between gap-2"><h2 className="text-sm font-semibold">한국투자증권</h2>
-      {kis.status.canConnect && <button type="button" disabled={kis.busy} onClick={() => { void kis.refresh(); setOpen(true) }} className="flex min-h-11 items-center gap-1 text-sm text-indigo-600 disabled:opacity-50"><Link2 size={16}/>계좌 연결</button>}
-    </div>
-    {kis.status.accounts.map(account => <div key={account.planId} className="border-t border-gray-100 pt-3 space-y-1">
-      <p className="text-sm font-medium">{account.name} <span className="font-normal text-gray-500">{account.maskedAccount}</span></p>
+  const close = () => { if (!kis.busy) { onClose(); setAddingAccount(false); setAccountNumber(''); setAppKey(''); setAppSecret(''); setShareConsent(false) } }
+  if (!kis.status) return <>{kis.error && !open && <p role="alert" className="text-sm text-red-600">한국투자증권 연결 상태를 확인하지 못했어요. <button className="underline" onClick={() => void refresh()}>다시 시도</button></p>}<Modal isOpen={open} onClose={close}><div className="p-5 pr-12 text-sm" role={kis.error ? 'alert' : 'status'}>{kis.error || '연결 정보를 확인하고 있어요.'}{kis.error && <button onClick={() => void kis.refresh()} className="block min-h-11 text-indigo-600">다시 시도</button>}</div></Modal></>
+  return <>
+    {kis.status.accounts.map(account => <div key={account.planId} className="rounded-xl border border-gray-100 bg-white p-4 space-y-1">
+      <p className="text-sm font-medium">{account.name} <span className="font-normal text-gray-500">한국투자증권 · {account.maskedAccount}</span></p>
       <p className="text-lg font-semibold">{account.valuation === null ? '조회 대기' : `${account.valuation.toLocaleString('ko-KR')}원`}</p>
       {account.cash !== null && <p className="text-xs text-gray-500">예수금 {account.cash.toLocaleString('ko-KR')}원 포함</p>}
       <p className="text-xs text-gray-500">{account.lastSyncedAt ? `${new Date(account.lastSyncedAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} 조회 · 하루 한 번 자동 갱신` : '아직 조회된 잔고가 없습니다'}</p>
@@ -37,16 +34,15 @@ export function KisConnectionCard({ spaceId, savings }: { spaceId: string; savin
         <button type="button" disabled={kis.busy} onClick={() => setDisconnectId(account.planId)} className="min-h-11 text-sm text-gray-500 disabled:opacity-50">연결 해제</button>
       </div>}
     </div>)}
-    <p className="text-xs text-gray-500">API가 제공하는 자산 잔고입니다. 펀드 등 일부 자산은 조회되지 않을 수 있으며, 절세 계산에는 직접 확인한 올해 납입액을 사용합니다.</p>
     {kis.busy && <p role="status" className="text-sm text-gray-500">처리 중입니다…</p>}
     {kis.error && !open && <p role="alert" className="text-sm text-red-600">{kis.error}</p>}
     <Modal isOpen={open} onClose={close} formLayout={addingAccount}>
-      {addingAccount ? <SavingsForm pension selection={{ type: 'plan' }} savings={savings} onClose={() => { setAddingAccount(false); void kis.refresh() }}/> :
+      {!kis.status.canConnect ? <div className="p-5 pr-12 text-sm">현재 계정에서는 이 금융기관을 연결할 수 없습니다.</div> : addingAccount ? <SavingsForm pension selection={{ type: 'plan' }} savings={savings} onClose={() => { setAddingAccount(false); void kis.refresh() }}/> :
       <form className="p-5 space-y-4" onSubmit={async e => {
         e.preventDefault()
         if (!selectedPlan || kis.busy) return
         if (await kis.connect(selectedPlan, { accountNumber, appKey, appSecret, shareConsent })) {
-          setOpen(false); setAddingAccount(false); setAccountNumber(''); setAppKey(''); setAppSecret(''); setShareConsent(false)
+          onClose(); setAddingAccount(false); setAccountNumber(''); setAppKey(''); setAppSecret(''); setShareConsent(false)
         }
       }} onKeyDown={e => { if (e.nativeEvent.isComposing) { if (e.key === 'Enter') e.preventDefault(); return } }}>
         <h2 className="text-lg font-semibold pr-8">한국투자증권 연결</h2>
@@ -60,6 +56,7 @@ export function KisConnectionCard({ spaceId, savings }: { spaceId: string; savin
           <label className="flex gap-2 items-start text-sm"><input required type="checkbox" checked={shareConsent} onChange={e => setShareConsent(e.target.checked)} className="mt-1"/><span>이 공간의 멤버에게 계좌 이름, 마스킹한 번호와 조회 잔고를 공유합니다. API 키는 공유하지 않습니다.</span></label>
           <button disabled={kis.busy} type="submit" className="w-full rounded-lg bg-indigo-600 p-3 text-white disabled:opacity-50">{kis.busy ? '연결 중…' : '연결하고 잔고 조회'}</button>
         </>}
+    <p className="text-xs text-gray-500">API가 제공하는 자산 잔고입니다. 펀드 등 일부 자산은 조회되지 않을 수 있으며, 절세 계산에는 직접 확인한 올해 납입액을 사용합니다.</p>
         {kis.error && <p role="alert" className="text-sm text-red-600">{kis.error}</p>}
       </form>}
     </Modal>
@@ -70,5 +67,5 @@ export function KisConnectionCard({ spaceId, savings }: { spaceId: string; savin
         {kis.error && <p role="alert" className="text-sm text-red-600">{kis.error}</p>}
       </div>
     </Modal>
-  </section>
+  </>
 }

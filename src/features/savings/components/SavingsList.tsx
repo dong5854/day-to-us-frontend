@@ -18,8 +18,8 @@ export function SavingsRecordRow({ record, onClick, onDelete }: { record: Saving
     : <button type="button" onClick={onClick} className="w-full text-left">{content}</button>
 }
 
-interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void; pension?: boolean; children?: ReactNode }
-export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, onToday, pension = false, children }: Props) {
+interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void; pension?: boolean; accountHeader?: ReactNode; children?: ReactNode }
+export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, onToday, pension = false, accountHeader, children }: Props) {
   const { data, loading, error } = savings
   return <div className={pension ? 'space-y-4' : 'space-y-5 pb-[calc(6rem+env(safe-area-inset-bottom))]'}>
     <div className="flex items-center justify-between"><h2 className="text-xl font-bold">{year}년 {month}월</h2>
@@ -35,7 +35,7 @@ export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, on
         <div className="grid grid-cols-2 gap-3 border-t border-gray-100 mt-4 pt-3"><div className="text-sm">이번 달 납입<strong className="block text-lg text-amber-700">{formatCurrency(data.deposits)}</strong></div><div className="text-sm">이번 달 인출<strong className="block text-lg">{formatCurrency(data.withdrawals)}</strong></div></div>
         <p className="text-xs text-gray-500 mt-2">납입 예정 {formatCurrency(data.records.filter(r => r.planned).reduce((sum, r) => sum + r.amount, 0))}</p>
       </section>}
-      <div className="flex justify-between items-center"><h3 className="font-bold">{pension ? '연금 계좌' : '저축 항목'}</h3><button onClick={() => onSelect({ type: 'plan' })} className="flex items-center gap-1 p-2 text-indigo-600"><Plus size={18}/> {pension ? '연금 계좌 추가' : '저축 추가'}</button></div>
+      {accountHeader ?? (<div className="flex justify-between items-center"><h3 className="font-bold">{pension ? '연금 계좌' : '저축 항목'}</h3><button onClick={() => onSelect({ type: 'plan' })} className="flex items-center gap-1 p-2 text-indigo-600"><Plus size={18}/> {pension ? '연금 계좌 추가' : '저축 추가'}</button></div>)}
       {!data.plans.length && <p className="text-center text-gray-500 py-8">{pension ? '연금저축·IRP·DC 계좌를 추가해 보세요.' : '적금이나 함께 모을 목표를 추가해 보세요.'}</p>}
       {data.plans.map(plan => <section key={plan.id} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex items-center gap-2">{pension ? <Landmark size={20} className="text-indigo-600"/> : <PiggyBank size={20} className="text-[#D97706]"/>}<h4 className="font-semibold flex-1 break-all">{plan.name}</h4>

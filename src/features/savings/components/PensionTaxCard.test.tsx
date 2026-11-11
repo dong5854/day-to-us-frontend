@@ -7,7 +7,7 @@ it('IRP만 한도를 채워도 완료하고 입력이 없으면 부족 경고를
   vi.setSystemTime(new Date('2026-11-20T00:00:00Z'))
   render(<PensionTaxCard/>)
   expect(screen.queryByText(/남았어요/)).toBeNull()
-  fireEvent.click(screen.getByText('내 남은 공제 한도 계산하기'))
+  fireEvent.click(screen.getByText('계산·공제 안내'))
   fireEvent.change(screen.getByLabelText('연금저축 확인 납입액 (원)'), { target: { value: '0' } })
   fireEvent.change(screen.getByLabelText('IRP·DC 본인 추가 납입액 (원)'), { target: { value: '9000000' } })
   expect(screen.getByText('올해 일반 공제 한도를 채웠어요')).toBeTruthy()
@@ -28,4 +28,14 @@ it('서버의 확인 납입액으로 집계하며 인출이 있으면 계산을 
   rerender(<PensionTaxCard annual={{ pension: 6_000_000, retirement: 3_000_000, unconfirmed: 1, review: true }}/>)
   expect(screen.queryByText('올해 일반 공제 한도를 채웠어요')).toBeNull()
   expect(screen.getByText(/자동 공제 계산을 보류/)).toBeTruthy()
+})
+
+it('기본 화면은 계산과 안내를 하나의 접힌 메뉴로 묶는다', () => {
+  const { container } = render(<PensionTaxCard/>)
+  const outer = container.querySelector('section > details')
+  expect(container.querySelectorAll('section > details')).toHaveLength(1)
+  expect((outer as HTMLDetailsElement).open).toBe(false)
+  expect(outer?.querySelector('summary')?.textContent).toContain('계산·공제 안내')
+  fireEvent.click(screen.getByText('계산·공제 안내'))
+  expect(screen.getByLabelText('연금저축 확인 납입액 (원)')).toBeTruthy()
 })
