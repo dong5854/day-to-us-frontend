@@ -16,6 +16,7 @@ interface Props {
   daysInMonth: number
   startingDayOfWeek: number
   filterType: FilterType
+  savingsLabel?: string
   savingsRecords?: SavingsRecord[]
   entries: BudgetEntryResponse[]
   schedules: ScheduleResponse[]
@@ -37,6 +38,7 @@ export const CalendarGridView: FC<Props> = ({
   filterType,
   entries,
   savingsRecords = [],
+  savingsLabel = '저축',
   schedules,
   eventBars,
   onDateClick,
@@ -74,7 +76,7 @@ export const CalendarGridView: FC<Props> = ({
         onOpenCategories={filterType === 'budget' ? onOpenCategories : undefined}
       />
 
-      {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-amber-600"/>저축 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D97706]"/>저축 기록</span></div>}
+      {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-amber-600"/>{savingsLabel} 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D97706]"/>{savingsLabel} 기록</span></div>}
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 flex-1">
         {/* Day Headers */}

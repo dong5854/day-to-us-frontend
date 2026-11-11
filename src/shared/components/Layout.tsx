@@ -26,7 +26,7 @@ export const Layout: FC<Props> = ({ children, space, hasSpace }) => {
   }, [location.pathname])
 
   const isSettingsPage = location.pathname === '/settings'
-  const isDetailPage = location.pathname === '/categories' || location.pathname === '/pensions'
+  const isDetailPage = location.pathname === '/categories'
 
   return (
     <div className="h-dvh flex flex-col bg-gray-50 overflow-hidden">

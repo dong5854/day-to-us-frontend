@@ -1,6 +1,7 @@
+import { CalendarViewTabs, type CalendarView } from './calendar/CalendarViewTabs'
 import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useState, useMemo, useEffect, type FC } from 'react'
-import { Calendar, List, Wallet } from 'lucide-react'
+import { Calendar, Wallet } from 'lucide-react'
 import { useSavings } from '@/features/savings/hooks/useSavings'
 import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
 import { SavingsForm } from '@/features/savings/components/SavingsForm'
@@ -30,7 +31,7 @@ import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { FixedExpenseRequest, FixedExpenseResponse } from '@/features/fixedExpense/types/fixedExpense.types'
 import type { ScheduleRequest, ScheduleResponse } from '@/features/schedule/types/schedule.types'
 
-type ViewType = 'calendar' | 'list'
+type ViewType = CalendarView
 type FilterType = CalendarFilter
 
 interface Props {
@@ -39,11 +40,13 @@ interface Props {
   onDateChange: (date: Date) => void
   onOpenCategories?: () => void
   onOpenPensions?: () => void
+  activeView?: CalendarView
+  onViewChange?: (view: CalendarView) => void
   activeFilter?: CalendarFilter
   onFilterChange?: (filter: CalendarFilter) => void
 }
 
-export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories, onOpenPensions, activeFilter, onFilterChange }) => {
+export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, onOpenCategories, onOpenPensions, activeFilter, onFilterChange, activeView, onViewChange }) => {
   const [localFilter, setLocalFilter] = useState<FilterType>('all')
   const filterType = activeFilter ?? localFilter
   const setFilterType = (filter: CalendarFilter) => { setLocalFilter(filter); onFilterChange?.(filter) }
@@ -127,7 +130,9 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
   const { toast, showToast, hideToast } = useToast()
 
   // ─── UI State ─────────────────────────────────────────────────────────────
-  const [viewType, setViewType] = useState<ViewType>('calendar')
+  const [localView, setLocalView] = useState<ViewType>('calendar')
+  const viewType = activeView ?? localView
+  const setViewType = (view: CalendarView) => { setLocalView(view); onViewChange?.(view) }
   const [isBudgetFormOpen, setIsBudgetFormOpen] = useState(false)
   const [isFixedExpenseFormOpen, setIsFixedExpenseFormOpen] = useState(false)
   const [editingFixedExpense, setEditingFixedExpense] = useState<FixedExpenseResponse | null>(null)
@@ -306,10 +311,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
   return (
     <div className="flex flex-col min-h-full">
       <div className="mb-4 space-y-3">
-        <div aria-label="보기 방식" className="flex gap-1 bg-gray-100 p-1 rounded-lg">
-          <button onClick={() => setViewType('calendar')} aria-pressed={viewType === 'calendar'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'calendar' ? 'bg-white shadow-sm' : ''}`}><Calendar className="w-4 h-4 inline-block"/> 달력</button>
-          <button onClick={() => setViewType('list')} aria-pressed={viewType === 'list'} className={`flex-1 min-h-11 rounded-md text-sm ${viewType === 'list' ? 'bg-white shadow-sm' : ''}`}><List className="w-4 h-4 inline-block"/> 목록</button>
-        </div>
+        <CalendarViewTabs value={viewType} onChange={setViewType}/>
         <CalendarCategoryTabs selected={filterType} showPension={!!onOpenPensions} onSelect={category => {
           if (category === 'pension') onOpenPensions?.()
           else setFilterType(category)
