@@ -32,3 +32,9 @@
 - https://github.com/koreainvestment/open-trading-api/blob/main/examples_llm/domestic_stock/pension_inquire_balance/pension_inquire_balance.py
 - https://github.com/koreainvestment/open-trading-api/blob/main/examples_llm/domestic_stock/inquire_balance/inquire_balance.py
 - https://apiportal.koreainvestment.com/intro
+
+## 금융기관 UI 추가
+
+연금 계좌의 공통 연결 진입점은 `PensionConnections.tsx`이다. 기관 목록에 `id`, `name`, `description`, `Connection`을 등록하면 금융기관 선택 화면에 표시된다. 각 `Connection` 컴포넌트는 `PensionProviderProps`를 받아 연결된 계좌 요약과 해당 기관의 인증 폼을 제공한다. API 통신은 기관별 hook/API 파일에 둔다.
+
+현재 실제 연결 가능한 기관은 한국투자증권뿐이다. 다른 기관은 실제 API와 인증이 구현된 뒤 목록에 추가한다. 계좌 직접 추가는 금융기관 연동 여부와 무관하게 제공한다.
