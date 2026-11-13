@@ -28,13 +28,14 @@ export function PensionTaxCard({ annual, ownerControl }: Props) {
   const urgent = summary && !complete && !onTrack && deadline.urgent
   const StatusIcon = complete ? CircleCheck : CircleAlert
   const inputClass = 'mt-1 w-full min-h-11 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900'
-  return <section className="rounded-xl border border-gray-100 bg-white p-4 space-y-3" aria-label="2026년 연금 절세">
-    <div className="flex items-center justify-between gap-2">
-      <h3 className="text-sm font-semibold text-gray-900">{PENSION_YEAR}년 절세 현황</h3>
+  return <section className="rounded-xl border border-gray-100 bg-white px-3 py-2 space-y-1" aria-label="2026년 연금 절세">
+    <div className="flex min-h-11 items-center justify-between gap-3">
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-gray-900">{PENSION_YEAR}년 절세</h3>
+        <p className="mt-0.5 text-xs text-gray-500">{deadline.expired ? '납입 기간 종료 · 공제 반영 확인' : deadline.days === 0 ? '오늘 납입 기한 · 금융회사 마감 확인' : `12.31까지 · ${deadline.days}일 남음`}</p>
+      </div>
       {ownerControl}
     </div>
-    <p className="text-xs text-gray-500">{deadline.expired ? '납입 기간 종료 · 연말정산 자료에서 납입액과 공제 반영 여부를 확인하세요.' : deadline.days === 0 ? '오늘 과세기간 종료 · 금융회사 입금 마감을 확인하세요.' : `12월 31일까지 · ${deadline.days}일 남음`}</p>
-    {!summary && !annual && <p className="text-sm text-gray-600">계좌를 등록하면 남은 공제 한도를 확인할 수 있어요.</p>}
     {summary && <div className="space-y-3" aria-live="polite">
       <div className={`flex gap-2 items-start ${complete ? 'text-green-700' : urgent ? 'text-red-700' : 'text-indigo-800'}`}>
         <StatusIcon size={20} className="shrink-0 mt-0.5"/>
@@ -49,7 +50,7 @@ export function PensionTaxCard({ annual, ownerControl }: Props) {
       {annual.unconfirmed > 0 && <p className="text-amber-800">확인이 필요한 기록 {annual.unconfirmed}건 · 해당 월 내역에서 실제 납입을 확인해 주세요.</p>}
       {annual.review && <p role="status" className="text-amber-800">올해 인출 기록이 있어 자동 공제 계산을 보류합니다. 금융기관에서 공제 대상 납입액을 확인하세요.</p>}
     </div>}
-    <details className="group border-t border-gray-100 pt-1">
+    <details className="group border-t border-gray-100">
       <summary className="cursor-pointer min-h-11 flex items-center justify-between gap-2 text-sm font-medium text-indigo-700">계산·공제 안내<ChevronDown size={16} aria-hidden="true" className="group-open:rotate-180"/></summary>
       {annual ? <p className="text-sm text-gray-600 mb-3">등록한 계좌에서 실제 납입을 확인한 기록만 합산합니다. 모든 금융기관 계좌와 납입액을 등록해 주세요. 소득 구간과 추가 납입 시뮬레이션은 이 화면에서만 사용합니다.</p> : <p className="text-sm text-gray-600 mb-3">본인 명의 모든 금융기관의 올해 납입액을 입력하세요. 화면을 벗어나면 직접 입력한 계산값이 초기화됩니다.</p>}
       <div className="space-y-3">
