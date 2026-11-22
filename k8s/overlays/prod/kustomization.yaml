@@ -4,4 +4,4 @@ resources:
   - ../../base
 images:
   - name: ghcr.io/dong5854/day-to-us-frontend
-    newTag: "bf7a931"
+    newTag: "214985b"
