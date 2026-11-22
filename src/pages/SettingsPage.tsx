@@ -1,3 +1,4 @@
+import { PersonalTokenCard } from "@/features/apiToken/components/PersonalTokenCard"
 import { type FC } from 'react'
 import { Users, Tags, ChevronRight } from 'lucide-react'
 import { Toast } from '@/shared/components/Toast'
@@ -83,6 +84,8 @@ export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories }) =>
       {onOpenCategories && <button type="button" onClick={onOpenCategories} className="w-full flex items-center gap-3 text-left bg-white rounded-xl border border-gray-100 p-5 min-h-16">
         <Tags className="w-5 h-5 text-[#4F46E5]"/><span className="flex-1"><span className="block font-semibold">카테고리·예산 관리</span><span className="block text-sm text-gray-500 mt-1">월별 지출과 예산을 확인하고 분류를 관리해요.</span></span><ChevronRight className="w-5 h-5 text-gray-400"/>
       </button>}
+
+      {space && <PersonalTokenCard key={space.id} spaceId={space.id} spaceName={space.name} />}
 
       <SyncSettingCard />
 

@@ -22,7 +22,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message)
+    console.error('API request failed', error.response?.status ?? 'network error')
     return Promise.reject(error)
   }
 )

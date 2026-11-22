@@ -52,6 +52,7 @@ export const Select: FC<Props> = ({
 
   // 키보드 접근성
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return
     if (disabled) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
