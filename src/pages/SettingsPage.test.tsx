@@ -15,7 +15,7 @@ it('로그아웃 버튼을 누르면 인증 토큰을 지우고 앱을 다시 �
   localStorage.setItem('accessToken', 'test-token')
   localStorage.setItem('unrelated-preference', 'keep')
   const replace = vi.spyOn(window.location, 'replace').mockImplementation(() => {})
-  render(<SettingsPage space={null} members={[]} />)
+  render(<SettingsPage space={null} members={[]} defaultView="calendar" onDefaultViewChange={vi.fn()} />)
 
   fireEvent.click(screen.getByRole('button', { name: '로그아웃' }))
 

@@ -1,4 +1,4 @@
-import type { CalendarView } from './pages/calendar/CalendarViewTabs'
+import { useCalendarView } from './pages/calendar/useCalendarView'
 import type { CalendarFilter } from './pages/calendar/CalendarCategoryTabs'
 import { PensionPage } from './pages/PensionPage'
 import { useState, useEffect } from 'react'
@@ -24,7 +24,7 @@ function AppContent() {
   const location = useLocation()
   const openCategories = () => navigate(`/categories?month=${categoryMonth(currentDate)}`, { state: { categoryOrigin: location.pathname } })
 
-  const [calendarView, setCalendarView] = useState<CalendarView>('calendar')
+  const { view: calendarView, setView: setCalendarView, defaultView, saveDefaultView } = useCalendarView()
   const [calendarFilter, setCalendarFilter] = useState<CalendarFilter>('all')
   const [currentDate, setCurrentDate] = useState(new Date())
 
@@ -141,7 +141,8 @@ function AppContent() {
           path="/settings"
           element={
             <ErrorBoundary>
-              <SettingsPage space={space} members={members} onOpenCategories={openCategories} />
+              <SettingsPage space={space} members={members} onOpenCategories={openCategories}
+                defaultView={defaultView} onDefaultViewChange={saveDefaultView} />
             </ErrorBoundary>
           }
         />

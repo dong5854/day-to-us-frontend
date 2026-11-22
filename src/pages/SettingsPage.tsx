@@ -1,19 +1,23 @@
 import { PersonalTokenCard } from "@/features/apiToken/components/PersonalTokenCard"
 import { type FC } from 'react'
-import { Users, Tags, ChevronRight } from 'lucide-react'
+import { Users, Tags, ChevronRight, PanelsTopLeft } from 'lucide-react'
 import { Toast } from '@/shared/components/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { SyncSettingCard } from '@/features/syncSetting/components/SyncSettingCard'
 import { NotificationSettingCard } from '@/features/notification/components/NotificationSettingCard'
 import type { SharedSpaceResponse, UserResponse } from '@/features/space/types/space.types'
 
+import { CalendarViewTabs, type CalendarView } from './calendar/CalendarViewTabs'
+
 interface Props {
+  defaultView: CalendarView
+  onDefaultViewChange: (view: CalendarView) => void
   space: SharedSpaceResponse | null
   members: UserResponse[]
   onOpenCategories?: () => void
 }
 
-export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories }) => {
+export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories, defaultView, onDefaultViewChange }) => {
   const { toast, showToast, hideToast } = useToast()
 
   const handleLogout = () => {
@@ -80,6 +84,20 @@ export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories }) =>
           ))}
         </div>
       </div>
+
+      <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+          <PanelsTopLeft className="w-5 h-5 text-[#4F46E5]" /> 기본 보기
+        </h3>
+        <p className="mt-1 mb-3 text-sm text-gray-600">이 기기에서 앱을 열 때 표시할 화면을 선택하세요.</p>
+        <CalendarViewTabs value={defaultView} onChange={view => {
+          try {
+            onDefaultViewChange(view)
+          } catch {
+            showToast('기본 보기를 저장하지 못했어요. 브라우저 저장 설정을 확인해 주세요.', 'error')
+          }
+        }} />
+      </section>
 
       {onOpenCategories && <button type="button" onClick={onOpenCategories} className="w-full flex items-center gap-3 text-left bg-white rounded-xl border border-gray-100 p-5 min-h-16">
         <Tags className="w-5 h-5 text-[#4F46E5]"/><span className="flex-1"><span className="block font-semibold">카테고리·예산 관리</span><span className="block text-sm text-gray-500 mt-1">월별 지출과 예산을 확인하고 분류를 관리해요.</span></span><ChevronRight className="w-5 h-5 text-gray-400"/>
