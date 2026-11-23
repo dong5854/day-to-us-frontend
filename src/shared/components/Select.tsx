@@ -60,6 +60,7 @@ export const Select: FC<Props> = ({
     if (e.nativeEvent.isComposing) return
     if (disabled) return
     if (e.key === 'Escape' || e.key === 'Tab') {
+      if (open && e.key === 'Escape') { e.preventDefault(); e.stopPropagation() }
       setOpen(false)
       return
     }

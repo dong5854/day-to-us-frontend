@@ -74,7 +74,7 @@ export function PensionPage({ spaceId, onOpenCategory, currentDate, onDateChange
     {!annual.loading && !annual.error && year === PENSION_YEAR && <PensionTaxCard ownerControl={ownerControl} key={`${spaceId}:${selectedOwner}:${year}`} annual={accounts.length ? totals : undefined}/>}
     {year !== PENSION_YEAR && <p className="text-sm text-gray-600">{year}년 납입 기록입니다. 절세 계산은 세법을 확인한 {PENSION_YEAR}년에 제공됩니다.</p>}
     </SavingsList>}
-    <Modal isOpen={!!selectedDay} onClose={() => setSelectedDay('')}>
+    <Modal label={selectedDay + " 연금 내역"} isOpen={!!selectedDay} onClose={() => setSelectedDay('')}>
       <div className="p-5 space-y-3">
         <h2 className="pr-8 text-lg font-semibold">{selectedDay} 연금 내역</h2>
         {(savings.data?.records ?? []).filter(record => record.date === selectedDay).map(record => <SavingsRecordRow key={record.id} record={record} onClick={() => {
@@ -86,7 +86,7 @@ export function PensionPage({ spaceId, onOpenCategory, currentDate, onDateChange
         <button type="button" className="min-h-11 w-full rounded-lg bg-indigo-50 text-indigo-700" onClick={() => { setSelectedDay(''); setView('list') }}>연금 계좌와 절세 현황 보기</button>
       </div>
     </Modal>
-    <Modal formLayout isOpen={selection !== null} onClose={() => setSelection(null)}>
+    <Modal label="연금 계좌·기록" formLayout isOpen={selection !== null} onClose={() => setSelection(null)}>
       {selection && <SavingsForm pension selection={selection} savings={savings} onClose={() => setSelection(null)}/>}
     </Modal>
   </div>

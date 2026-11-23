@@ -392,12 +392,12 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
 
       {/* ─── Modals & Overlays ─────────────────────────────────────────────── */}
 
-      <Modal formLayout isOpen={savingsSelection !== null} onClose={() => setSavingsSelection(null)}>
+      <Modal label="저축 계획·기록" formLayout isOpen={savingsSelection !== null} onClose={() => setSavingsSelection(null)}>
         {savingsSelection && <SavingsForm key={savingsSelection.type + (savingsSelection.type === 'record' ? savingsSelection.record?.id || savingsSelection.plan.id : savingsSelection.plan?.id || 'new')} selection={savingsSelection} savings={savings} onClose={() => setSavingsSelection(null)}/>}
       </Modal>
 
       {/* Date Choice Modal */}
-      <Modal isOpen={isDateChoiceModalOpen} onClose={() => setIsDateChoiceModalOpen(false)}>
+      <Modal label="무엇을 추가하시겠어요?" isOpen={isDateChoiceModalOpen} onClose={() => setIsDateChoiceModalOpen(false)}>
         <div className="bg-white p-8 rounded-lg">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">무엇을 추가하시겠어요?</h3>
           <div className="grid grid-cols-2 gap-4">
@@ -420,7 +420,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
       </Modal>
 
       {/* Budget Entry Form */}
-      <Modal formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
+      <Modal label={editingEntry ? '가계부 수정' : '가계부 추가'} formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           spaceId={spaceId}
           entry={editingEntry}
@@ -437,7 +437,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
       </Modal>
 
       {/* Fixed Expense Form */}
-      <Modal formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
+      <Modal label="고정 수입·지출" formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           spaceId={spaceId}
           expense={editingFixedExpense}
@@ -453,7 +453,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
       </Modal>
 
       {/* Schedule Form */}
-      <Modal formLayout isOpen={isScheduleFormOpen} onClose={() => setIsScheduleFormOpen(false)}>
+      <Modal label={editingSchedule ? '일정 수정' : '일정 추가'} formLayout isOpen={isScheduleFormOpen} onClose={() => setIsScheduleFormOpen(false)}>
         <ScheduleForm
           schedule={editingSchedule}
           initialDate={selectedDate}

@@ -184,7 +184,7 @@ export const BudgetPage: FC<Props> = ({
       </button>
 
       {/* Budget Entry Form Modal */}
-      <Modal formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
+      <Modal label={editingEntry ? '가계부 수정' : '가계부 추가'} formLayout isOpen={isBudgetFormOpen} onClose={() => setIsBudgetFormOpen(false)}>
         <BudgetForm
           spaceId={spaceId}
           entry={editingEntry}
@@ -200,7 +200,7 @@ export const BudgetPage: FC<Props> = ({
       </Modal>
 
       {/* Fixed Expense Form Modal */}
-      <Modal formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
+      <Modal label="고정 수입·지출" formLayout isOpen={isFixedExpenseFormOpen} onClose={() => { setIsFixedExpenseFormOpen(false); setEditingFixedExpense(null) }}>
         <FixedExpenseForm
           spaceId={spaceId}
           expense={editingFixedExpense}

@@ -7,8 +7,8 @@ export function PwaUpdatePrompt() {
   if (!needRefresh) return null
 
   return (
-    <Modal isOpen onClose={dismiss}>
-      <section role="dialog" aria-modal="true" aria-labelledby="pwa-update-title" className="p-6 pt-12">
+    <Modal label="새 버전이 있습니다" isOpen onClose={dismiss}>
+      <section className="p-6 pt-12">
         <RefreshCw aria-hidden="true" className="mb-4 h-8 w-8 text-[#4F46E5]" />
         <h2 id="pwa-update-title" className="text-xl font-bold text-gray-900">새 버전이 있습니다</h2>
         <p className="mt-3 text-sm leading-6 text-gray-600">

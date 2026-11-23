@@ -21,7 +21,7 @@ export function KisConnectionCard({ spaceId, savings, open, onClose }: PensionPr
   const options = plans.filter(p => kis.status?.connectablePlanIds.includes(p.id)).map(p => ({ value: p.id, label: `${p.name} · ${p.kind === 'IRP' ? 'IRP (29)' : '연금저축 (22)'}` }))
   const selectedPlan = options.some(p => p.value === planId) ? planId : options[0]?.value || ''
   const close = () => { if (!kis.busy) { onClose(); setAddingAccount(false); setAccountNumber(''); setAppKey(''); setAppSecret(''); setShareConsent(false) } }
-  if (!kis.status) return <>{kis.error && !open && <p role="alert" className="text-sm text-red-600">한국투자증권 연결 상태를 확인하지 못했어요. <button className="underline" onClick={() => void refresh()}>다시 시도</button></p>}<Modal isOpen={open} onClose={close}><div className="p-5 pr-12 text-sm" role={kis.error ? 'alert' : 'status'}>{kis.error || '연결 정보를 확인하고 있어요.'}{kis.error && <button onClick={() => void kis.refresh()} className="block min-h-11 text-indigo-600">다시 시도</button>}</div></Modal></>
+  if (!kis.status) return <>{kis.error && !open && <p role="alert" className="text-sm text-red-600">한국투자증권 연결 상태를 확인하지 못했어요. <button className="underline" onClick={() => void refresh()}>다시 시도</button></p>}<Modal label="한국투자증권 연결" isOpen={open} onClose={close}><div className="p-5 pr-12 text-sm" role={kis.error ? 'alert' : 'status'}>{kis.error || '연결 정보를 확인하고 있어요.'}{kis.error && <button onClick={() => void kis.refresh()} className="block min-h-11 text-indigo-600">다시 시도</button>}</div></Modal></>
   return <>
     {kis.status.accounts.map(account => <div key={account.planId} className="rounded-xl border border-gray-100 bg-white p-4 space-y-1">
       <p className="text-sm font-medium">{account.name} <span className="font-normal text-gray-500">한국투자증권 · {account.maskedAccount}</span></p>
@@ -36,7 +36,7 @@ export function KisConnectionCard({ spaceId, savings, open, onClose }: PensionPr
     </div>)}
     {kis.busy && <p role="status" className="text-sm text-gray-500">처리 중입니다…</p>}
     {kis.error && !open && <p role="alert" className="text-sm text-red-600">{kis.error}</p>}
-    <Modal isOpen={open} onClose={close} formLayout={addingAccount}>
+    <Modal label="한국투자증권 연결" isOpen={open} onClose={close} formLayout={addingAccount}>
       {!kis.status.canConnect ? <div className="p-5 pr-12 text-sm">현재 계정에서는 이 금융기관을 연결할 수 없습니다.</div> : addingAccount ? <SavingsForm pension selection={{ type: 'plan' }} savings={savings} onClose={() => { setAddingAccount(false); void kis.refresh() }}/> :
       <form className="p-5 space-y-4" onSubmit={async e => {
         e.preventDefault()
@@ -60,7 +60,7 @@ export function KisConnectionCard({ spaceId, savings, open, onClose }: PensionPr
         {kis.error && <p role="alert" className="text-sm text-red-600">{kis.error}</p>}
       </form>}
     </Modal>
-    <Modal isOpen={!!disconnectId} onClose={() => { if (!kis.busy) setDisconnectId('') }}>
+    <Modal label="계좌 연결 해제" isOpen={!!disconnectId} onClose={() => { if (!kis.busy) setDisconnectId('') }}>
       <div className="p-5 space-y-4"><h2 className="pr-8 text-lg font-semibold">계좌 연결을 해제할까요?</h2>
         <p className="text-sm text-gray-600">저장한 API 키와 조회 잔고를 삭제하고 자동 갱신을 멈춥니다. 직접 입력한 납입 기록은 유지됩니다. KIS에서 발급한 키 자체는 폐기되지 않습니다.</p>
         <button disabled={kis.busy} onClick={async () => { if (await kis.disconnect(disconnectId)) setDisconnectId('') }} className="min-h-11 w-full rounded-lg bg-indigo-600 text-white disabled:opacity-50">연결 해제</button>

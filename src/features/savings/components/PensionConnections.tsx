@@ -27,7 +27,7 @@ export function PensionConnections({ spaceId, savings, onAddAccount }: { spaceId
         <button type="button" onClick={onAddAccount} className="min-h-11 flex items-center gap-1 text-sm text-gray-600"><Plus size={16}/>직접 추가</button>
       </div>
     </div>
-    <Modal isOpen={choosing} onClose={() => setChoosing(false)}>
+    <Modal label="금융기관 선택" isOpen={choosing} onClose={() => setChoosing(false)}>
       <div className="p-5 space-y-4">
         <h2 className="pr-8 text-lg font-semibold">금융기관 선택</h2>
         <p className="text-sm text-gray-500">연금계좌가 있는 금융기관을 선택하세요.</p>

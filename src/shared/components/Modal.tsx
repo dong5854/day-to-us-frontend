@@ -1,34 +1,20 @@
-import { useEffect, type FC, type ReactNode } from 'react'
+import { type FC, type ReactNode } from 'react'
+import { DialogLayer } from './DialogLayer'
 import { X } from 'lucide-react'
 
 interface Props {
+  label: string
   isOpen: boolean
   onClose: () => void
   children: ReactNode
   formLayout?: boolean
 }
 
-export const Modal: FC<Props> = ({ isOpen, onClose, children, formLayout = false }) => {
-  useEffect(() => {
-    if (!isOpen) return
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [isOpen])
-
+export const Modal: FC<Props> = ({ label, isOpen, onClose, children, formLayout = false }) => {
   if (!isOpen) return null
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1050] px-4 animate-[fade-in_0.2s_ease-in-out]"
-      style={{
-        paddingTop: 'max(1rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
-      }}
-      onClick={onClose}
-    >
+    <DialogLayer label={label} onDismiss={onClose} dismissOnBackdrop>
       <div
         className={`bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-full relative animate-[slide-up_0.2s_ease-in-out] ${formLayout ? "flex flex-col overflow-hidden" : "overflow-y-auto overflow-x-hidden overscroll-none"}`}
         onClick={(e) => e.stopPropagation()}
@@ -43,6 +29,6 @@ export const Modal: FC<Props> = ({ isOpen, onClose, children, formLayout = false
         </button>}
         {children}
       </div>
-    </div>
+    </DialogLayer>
   )
 }
