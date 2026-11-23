@@ -290,6 +290,18 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
     })
   }
 
+  const handleDeleteSavings = (record: SavingsRecord) => setConfirmState({
+    isOpen: true,
+    message: '이 저축 기록을 삭제할까요? 자동 생성된 회차는 다시 만들지 않습니다.',
+    onConfirm: async () => {
+      try {
+        await savings.deleteRecord(record.planId, record.id)
+        showToast('저축 기록이 삭제되었습니다', 'success')
+      } catch { showToast('삭제에 실패했습니다', 'error') }
+      setConfirmState(prev => ({ ...prev, isOpen: false }))
+    },
+  })
+
   // ─── List view "add" dispatcher ───────────────────────────────────────────
   const handleListAdd = (target: 'entries' | 'fixed' | 'schedule') => {
     setSelectedDate(null)
@@ -349,6 +361,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
         ) : filterType === 'all' ? (
           <CalendarAllListView year={year} month={month} entries={entries} schedules={schedules}
             savingsRecords={savings.data?.records || []} loading={budgetLoading || scheduleLoading || savings.loading}
+            onDeleteEntry={handleDeleteEntry} onDeleteSchedule={handleDeleteSchedule} onDeleteSavings={handleDeleteSavings}
             onEditEntry={handleEditEntry} onEditSchedule={handleEditSchedule} onEditSavings={openSavingsRecord}
             onAddBudget={() => handleListAdd('entries')} onAddSchedule={() => handleListAdd('schedule')}
             onAddSavings={() => setSavingsSelection({ type: 'plan' })}/>
@@ -513,17 +526,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
 
                   {showSavings && dateSavings.map(record => <SavingsRecordRow key={record.id} record={record}
                     onClick={() => openSavingsRecord(record)}
-                    onDelete={record.planned ? undefined : () => setConfirmState({
-                      isOpen: true,
-                      message: '이 저축 기록을 삭제할까요? 자동 생성된 회차는 다시 만들지 않습니다.',
-                      onConfirm: async () => {
-                        try {
-                          await savings.deleteRecord(record.planId, record.id)
-                          showToast('저축 기록이 삭제되었습니다', 'success')
-                        } catch { showToast('삭제에 실패했습니다', 'error') }
-                        setConfirmState(prev => ({ ...prev, isOpen: false }))
-                      },
-                    })}/>)}
+                    onDelete={record.planned ? undefined : () => handleDeleteSavings(record)}/>)}
                   {showSavings && savings.loading && <p role="status">저축을 불러오는 중입니다</p>}
                   {!hasItems && (
                     <div className="text-center py-8 text-gray-400">

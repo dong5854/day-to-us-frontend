@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { SwipeableCard } from '@/shared/components/SwipeableCard'
+import { EditableRecordCard } from '@/shared/components/EditableRecordCard'
 import { Plus, PiggyBank, Landmark, Settings2 } from 'lucide-react'
 import { formatCurrency } from '@/shared/utils/format'
 import type { SavingsState } from '../hooks/useSavings'
@@ -13,9 +13,7 @@ export function SavingsRecordRow({ record, onClick, onDelete }: { record: Saving
       {record.automatic && !record.planned && <div className="text-xs text-amber-700 mt-1">자동 반영</div>}
     </div><span className="text-amber-700 font-semibold shrink-0">{record.amount > 0 ? '+' : ''}{formatCurrency(record.amount)}</span>
   </div>
-  return onDelete
-    ? <SwipeableCard onEdit={onClick} onDelete={onDelete}>{content}</SwipeableCard>
-    : <button type="button" onClick={onClick} className="w-full text-left">{content}</button>
+  return <EditableRecordCard onEdit={onClick} onDelete={onDelete}>{content}</EditableRecordCard>
 }
 
 interface Props { savings: SavingsState; onSelect: (selection: SavingsSelection) => void; pension?: boolean; accountHeader?: ReactNode; children?: ReactNode }

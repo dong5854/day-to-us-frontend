@@ -1,15 +1,17 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { CalendarPage } from './CalendarPage'
 
-vi.mock('@/features/budget/hooks/useBudget', () => ({ useBudget: () => ({ entries: [{ id: 'income', description: '테스트 월급', amount: 3000000, date: '2026-10-01' }], loading: false }) }))
+const deletes = vi.hoisted(() => ({ budget: vi.fn(), schedule: vi.fn(), savings: vi.fn() }))
+
+vi.mock('@/features/budget/hooks/useBudget', () => ({ useBudget: () => ({ deleteEntry: deletes.budget, entries: [{ id: 'income', description: '테스트 월급', amount: 3000000, date: '2026-10-01' }], loading: false }) }))
 vi.mock('@/features/budget/hooks/useExpenseCategories', () => ({ useExpenseCategories: () => ({ categories: [] }) }))
 vi.mock('@/features/budget/hooks/usePaymentMethods', () => ({ usePaymentMethods: () => ({ paymentMethods: [] }) }))
 vi.mock('@/features/fixedExpense/hooks/useFixedExpense', () => ({ useFixedExpense: () => ({ expenses: [], loading: false }) }))
-vi.mock('@/features/schedule/hooks/useSchedule', () => ({ useSchedule: () => ({ schedules: [{ id: 'schedule', title: '테스트 약속', startDateTime: '2026-10-08T10:00:00', endDateTime: '2026-10-08T11:00:00', isAllDay: false }], loading: false }) }))
+vi.mock('@/features/schedule/hooks/useSchedule', () => ({ useSchedule: () => ({ deleteSchedule: deletes.schedule, schedules: [{ id: 'schedule', title: '테스트 약속', startDateTime: '2026-10-08T10:00:00', endDateTime: '2026-10-08T11:00:00', isAllDay: false }], loading: false }) }))
 vi.mock('@/features/savings/hooks/useSavings', () => ({
   savingsError: (e: Error) => e.message,
-  useSavings: () => ({ loading: false, error: '', members: [], data: { plans: [], balance: 0, deposits: 0, withdrawals: 0, balanceDate: '2026-10-18', records: [
+  useSavings: () => ({ deleteRecord: deletes.savings, loading: false, error: '', members: [], data: { plans: [], balance: 0, deposits: 0, withdrawals: 0, balanceDate: '2026-10-18', records: [
     { id: 'a', planId: 'p', planName: '여행 자금', date: '2026-10-08', amount: 10000, payerName: '동영', planned: false, automatic: true },
     { id: 'b', planId: 'p', planName: '여행 자금', date: '2026-10-25', amount: 10000, payerName: '동영', planned: true, automatic: true },
   ] } }),
@@ -61,4 +63,34 @@ it('연금 카테고리는 전용 화면으로 이동한다', () => {
   render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()} onOpenPensions={open}/>)
   fireEvent.click(screen.getByRole('button', { name: '연금' }))
   expect(open).toHaveBeenCalledTimes(1)
+})
+
+it('전체 목록에서 왼쪽으로 밀고 확인한 실제 내역만 삭제한다', async () => {
+  render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()}/>)
+  fireEvent.click(screen.getByRole('combobox', { name: '보기 방식' }))
+  fireEvent.click(screen.getByRole('option', { name: '목록' }))
+
+  const swipe = (name: RegExp) => {
+    const row = screen.getByRole('button', { name })
+    fireEvent.touchStart(row, { touches: [{ clientX: 200, clientY: 100 }] })
+    fireEvent.touchMove(row, { touches: [{ clientX: 100, clientY: 100 }] })
+    fireEvent.touchEnd(row, { changedTouches: [{ clientX: 100, clientY: 100 }] })
+  }
+  swipe(/여행 자금.*납입 예정/)
+  expect(screen.queryByRole('button', { name: '삭제' })).toBeNull()
+  for (const [name, remove, args] of [
+    [/테스트 월급/, deletes.budget, ['income']],
+    [/테스트 약속/, deletes.schedule, ['schedule']],
+    [/여행 자금.*납입 기록/, deletes.savings, ['p', 'a']],
+  ] as const) {
+    swipe(name)
+    fireEvent.click(screen.getByRole('button', { name: '삭제' }))
+    fireEvent.click(screen.getByRole('button', { name: '취소' }))
+    expect(remove).not.toHaveBeenCalled()
+    swipe(name)
+    fireEvent.click(screen.getByRole('button', { name: '삭제' }))
+    fireEvent.click(screen.getByRole('button', { name: '삭제' }))
+    await waitFor(() => expect(screen.queryByText('삭제 확인')).toBeNull())
+    expect(remove).toHaveBeenCalledExactlyOnceWith(...args)
+  }
 })
