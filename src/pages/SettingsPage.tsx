@@ -87,7 +87,7 @@ export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories, defa
 
       <section className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-          <PanelsTopLeft className="w-5 h-5 text-[#4F46E5]" /> 기본 보기
+          <PanelsTopLeft className="w-5 h-5 text-[#4F46E5]" /> 앱 시작 시 보기
         </h3>
         <p className="mt-1 mb-3 text-sm text-gray-600">이 기기에서 앱을 열 때 표시할 화면을 선택하세요.</p>
         <CalendarViewTabs value={defaultView} onChange={view => {

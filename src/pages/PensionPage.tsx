@@ -1,7 +1,8 @@
 import { PensionConnections } from '@/features/savings/components/PensionConnections'
 import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useState } from 'react'
-import { CalendarViewTabs, type CalendarView } from './calendar/CalendarViewTabs'
+import { CalendarMonthHeader } from './calendar/CalendarMonthHeader'
+import type { CalendarView } from './calendar/CalendarViewTabs'
 import { CalendarGridView } from './calendar/CalendarGridView'
 import { buildDateStr } from '@/shared/utils/dateUtils'
 import { useSwipe } from '@/shared/hooks/useSwipe'
@@ -51,21 +52,22 @@ export function PensionPage({ spaceId, onOpenCategory, currentDate, onDateChange
   const swipeHandlers = useSwipe({ onSwipeLeft: () => changeMonth(1), onSwipeRight: () => changeMonth(-1) })
   return <div className="flex flex-col min-h-full">
     <div className="mb-4 space-y-3">
-    <CalendarViewTabs value={view} onChange={setView}/>
+
     <CalendarCategoryTabs selected="pension" onSelect={category => {
       if (category === 'pension') return
       if (onOpenCategory) onOpenCategory(category)
       else navigate('/')
     }}/>
     </div>
+    <CalendarMonthHeader year={year} month={date.getMonth()} view={view} onViewChange={setView}
+      onPrevMonth={() => changeMonth(-1)} onNextMonth={() => changeMonth(1)} onToday={() => setDate(new Date())} />
     {view === 'calendar' ? <div {...swipeHandlers} className="flex-1 flex flex-col touch-pan-y">
       {savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button onClick={() => void savings.refetch()} className="underline">다시 시도</button></p>}
       <CalendarGridView currentDate={date} year={year} month={date.getMonth()}
         daysInMonth={new Date(year, date.getMonth() + 1, 0).getDate()} startingDayOfWeek={new Date(year, date.getMonth(), 1).getDay()}
         filterType="savings" savingsLabel="연금" savingsRecords={savings.data?.records ?? []} entries={[]} schedules={[]} eventBars={[]}
-        onDateClick={(y, m, d) => setSelectedDay(buildDateStr(y, m, d))} onEditEntry={() => {}} onEditSchedule={() => {}}
-        onPrevMonth={() => changeMonth(-1)} onNextMonth={() => changeMonth(1)} onToday={() => setDate(new Date())}/>
-    </div> : <SavingsList pension accountHeader={<PensionConnections key={spaceId} spaceId={spaceId} savings={savings} onAddAccount={() => setSelection({ type: 'plan' })}/>} savings={savings} year={year} month={date.getMonth() + 1} onSelect={setSelection} onPrev={() => changeMonth(-1)} onNext={() => changeMonth(1)} onToday={() => setDate(new Date())}>
+        onDateClick={(y, m, d) => setSelectedDay(buildDateStr(y, m, d))} onEditEntry={() => {}} onEditSchedule={() => {}}/>
+    </div> : <SavingsList pension accountHeader={<PensionConnections key={spaceId} spaceId={spaceId} savings={savings} onAddAccount={() => setSelection({ type: 'plan' })}/>} savings={savings} onSelect={setSelection}>
 
     {(annual.loading || annual.refreshing) && <p role="status" className="text-sm">연간 납입 내역을 확인하고 있어요.</p>}
     {annual.error && <p role="alert" className="text-red-700">{annual.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}

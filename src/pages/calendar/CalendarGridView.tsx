@@ -1,4 +1,3 @@
-import { CalendarMonthHeader } from './CalendarMonthHeader'
 import type { SavingsRecord } from '@/features/savings/types/savings.types'
 import { type FC } from 'react'
 import { Calendar, Wallet } from 'lucide-react'
@@ -24,10 +23,6 @@ interface Props {
   onDateClick: (year: number, month: number, day: number) => void
   onEditEntry: (entry: BudgetEntryResponse) => void
   onEditSchedule: (schedule: ScheduleResponse) => void
-  onPrevMonth: () => void
-  onNextMonth: () => void
-  onToday: () => void
-  onOpenCategories?: () => void
 }
 
 export const CalendarGridView: FC<Props> = ({
@@ -44,10 +39,6 @@ export const CalendarGridView: FC<Props> = ({
   onDateClick,
   onEditEntry,
   onEditSchedule,
-  onPrevMonth,
-  onNextMonth,
-  onToday,
-  onOpenCategories,
 }) => {
   const today = new Date()
 
@@ -67,14 +58,6 @@ export const CalendarGridView: FC<Props> = ({
 
   return (
     <div className="bg-white md:rounded-xl md:shadow-sm md:border md:border-gray-100 p-2 md:p-6 -mx-2 md:mx-0 flex-1 flex flex-col">
-      <CalendarMonthHeader
-        year={year}
-        month={month}
-        onPrevMonth={onPrevMonth}
-        onNextMonth={onNextMonth}
-        onToday={onToday}
-        onOpenCategories={filterType === 'budget' ? onOpenCategories : undefined}
-      />
 
       {(filterType === 'all' || filterType === 'savings') && <div className="flex gap-3 items-center text-xs text-gray-600 mb-3"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-amber-600"/>{savingsLabel} 예정</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#D97706]"/>{savingsLabel} 기록</span></div>}
       {/* Calendar Grid */}

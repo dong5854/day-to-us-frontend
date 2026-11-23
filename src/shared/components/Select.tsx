@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type FC, type ReactNode } from 'react'
+import { useId, useState, useRef, useEffect, type FC, type ReactNode } from 'react'
 import { ChevronDown, Check, Trash2 } from 'lucide-react'
 
 export interface SelectOption {
@@ -34,6 +34,8 @@ export const Select: FC<Props> = ({
   size = 'md',
 }) => {
   const [open, setOpen] = useState(false)
+  const listId = useId()
+  const [activeValue, setActiveValue] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const selectedOption = options.find((o) => o.value === value)
@@ -54,13 +56,37 @@ export const Select: FC<Props> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.nativeEvent.isComposing) return
     if (disabled) return
+    if (e.key === 'Escape' || e.key === 'Tab') {
+      setOpen(false)
+      return
+    }
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      setOpen((v) => !v)
+      if (open && activeValue !== null) handleSelect(activeValue)
+      else toggleMenu()
+      return
     }
-    if (e.key === 'Escape') setOpen(false)
-    if (e.key === 'ArrowDown' && !open) setOpen(true)
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      const ordered = [...normalOptions, ...specialOptions]
+      const index = ordered.findIndex(option => option.value === (open ? activeValue : value))
+      const offset = e.key === 'ArrowDown' ? 1 : -1
+      const next = ordered[Math.max(0, Math.min(ordered.length - 1, index + offset))]
+      setActiveValue(next?.value ?? null)
+      setOpen(true)
+    }
   }
+
+  const toggleMenu = () => {
+    setActiveValue(selectedOption?.value ?? null)
+    setOpen(!open)
+  }
+
+  useEffect(() => {
+    if (open && activeValue !== null) {
+      document.getElementById(listId + '-' + activeValue)?.scrollIntoView?.({ block: 'nearest' })
+    }
+  }, [open, activeValue, listId])
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue)
@@ -81,8 +107,10 @@ export const Select: FC<Props> = ({
         role="combobox"
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-controls={open ? listId : undefined}
+        aria-activedescendant={open && activeValue !== null ? listId + '-' + activeValue : undefined}
         disabled={disabled}
-        onClick={() => !disabled && setOpen((v) => !v)}
+        onClick={toggleMenu}
         onKeyDown={handleKeyDown}
         className={[
           'w-full flex items-center justify-between gap-2',
@@ -110,6 +138,7 @@ export const Select: FC<Props> = ({
       {/* Dropdown panel */}
       {open && (
         <div
+          id={listId}
           role="listbox"
           className={[
             'absolute z-50 w-full mt-1.5',
@@ -125,12 +154,14 @@ export const Select: FC<Props> = ({
               return (
                 <li
                   key={option.value}
+                  id={listId + '-' + option.value}
                   role="option"
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
                   className={[
                     'group flex items-center justify-between gap-2 cursor-pointer select-none',
                     'transition-colors duration-100',
+                    activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
                     size === 'sm' ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-sm',
                     isSelected
                       ? 'text-[#4F46E5] bg-[#4F46E5]/5 font-medium'
@@ -162,12 +193,14 @@ export const Select: FC<Props> = ({
                 {specialOptions.map((option) => (
                   <li
                     key={option.value}
+                    id={listId + '-' + option.value}
                     role="option"
                     aria-selected={false}
                     onClick={() => handleSelect(option.value)}
                     className={[
                       'flex items-center gap-2 cursor-pointer select-none',
                       'transition-colors duration-100',
+                    activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
                       size === 'sm' ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-sm',
                       'text-[#4F46E5] font-medium hover:bg-[#4F46E5]/5',
                     ].join(' ')}

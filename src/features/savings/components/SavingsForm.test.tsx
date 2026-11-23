@@ -54,7 +54,7 @@ it('예정 항목은 설정으로 실제 기록은 수정으로 연결한다', (
   const savings = state(); const planned = { ...record, id: 'future', planned: true }
   savings.data!.records.push(planned)
   const select = vi.fn()
-  render(<SavingsList savings={savings} year={2026} month={10} onSelect={select} onPrev={vi.fn()} onNext={vi.fn()} onToday={vi.fn()}/>)
+  render(<SavingsList savings={savings} onSelect={select}/>)
   fireEvent.click(screen.getByRole('button', { name: /납입 예정/ }))
   expect(select).toHaveBeenLastCalledWith({ type: 'plan', plan })
   fireEvent.click(screen.getByRole('button', { name: /납입 기록/ }))

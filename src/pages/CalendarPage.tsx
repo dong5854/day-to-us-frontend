@@ -1,4 +1,5 @@
-import { CalendarViewTabs, type CalendarView } from './calendar/CalendarViewTabs'
+import { CalendarMonthHeader } from './calendar/CalendarMonthHeader'
+import type { CalendarView } from './calendar/CalendarViewTabs'
 import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useState, useMemo, useEffect, type FC } from 'react'
 import { Calendar, Wallet } from 'lucide-react'
@@ -311,7 +312,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
   return (
     <div className="flex flex-col min-h-full">
       <div className="mb-4 space-y-3">
-        <CalendarViewTabs value={viewType} onChange={setViewType}/>
+
         <CalendarCategoryTabs selected={filterType} showPension={!!onOpenPensions} onSelect={category => {
           if (category === 'pension') onOpenPensions?.()
           else setFilterType(category)
@@ -319,6 +320,10 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
 
         {(filterType === 'all' || filterType === 'savings') && savings.error && <p role="alert" className="text-sm text-red-600">{savings.error} <button className="underline" onClick={() => void savings.refetch()}>다시 시도</button></p>}
       </div>
+
+      <CalendarMonthHeader year={year} month={month} view={viewType} onViewChange={setViewType}
+        onPrevMonth={prevMonth} onNextMonth={nextMonth} onToday={goToday}
+        onOpenCategories={filterType === 'budget' ? onOpenCategories : undefined} />
 
       {/* Content */}
       <div
@@ -340,24 +345,17 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
             onDateClick={handleDateClick}
             onEditEntry={handleEditEntry}
             onEditSchedule={handleEditSchedule}
-            onPrevMonth={prevMonth}
-            onNextMonth={nextMonth}
-            onToday={goToday}
-            onOpenCategories={onOpenCategories}
           />
         ) : filterType === 'all' ? (
           <CalendarAllListView year={year} month={month} entries={entries} schedules={schedules}
             savingsRecords={savings.data?.records || []} loading={budgetLoading || scheduleLoading || savings.loading}
             onEditEntry={handleEditEntry} onEditSchedule={handleEditSchedule} onEditSavings={openSavingsRecord}
-            onPrevMonth={prevMonth} onNextMonth={nextMonth} onToday={goToday}
             onAddBudget={() => handleListAdd('entries')} onAddSchedule={() => handleListAdd('schedule')}
             onAddSavings={() => setSavingsSelection({ type: 'plan' })}/>
         ) : filterType === 'savings' ? (
-          <SavingsList savings={savings} year={year} month={month + 1} onSelect={setSavingsSelection} onPrev={prevMonth} onNext={nextMonth} onToday={goToday}/>
+          <SavingsList savings={savings} onSelect={setSavingsSelection}/>
         ) : (
           <CalendarListView
-            year={year}
-            month={month}
             entries={entries}
             budgetLoading={budgetLoading}
             fixedExpenses={fixedExpenses}
@@ -373,10 +371,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
             onEditSchedule={handleEditSchedule}
             onDeleteSchedule={handleDeleteSchedule}
             onAdd={handleListAdd}
-            onPrevMonth={prevMonth}
-            onNextMonth={nextMonth}
-            onToday={goToday}
-            onOpenCategories={onOpenCategories}
             categories={categories}
             paymentMethods={paymentMethods}
           />

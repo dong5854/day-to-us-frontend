@@ -1,4 +1,3 @@
-import { CalendarMonthHeader } from './CalendarMonthHeader'
 import { useState, type FC } from 'react'
 import { BudgetList } from '@/features/budget/components/BudgetList'
 import { FixedExpenseList } from '@/features/fixedExpense/components/FixedExpenseList'
@@ -11,8 +10,6 @@ type FilterType = 'budget' | 'schedule'
 type BudgetSubTab = 'entries' | 'fixed'
 
 interface Props {
-  year: number
-  month: number  // 0-indexed
   entries: BudgetEntryResponse[]
   budgetLoading: boolean
   fixedExpenses: FixedExpenseResponse[]
@@ -28,17 +25,11 @@ interface Props {
   onEditSchedule: (schedule: ScheduleResponse) => void
   onDeleteSchedule: (id: string) => void
   onAdd: (tab: BudgetSubTab | 'schedule') => void
-  onPrevMonth: () => void
-  onNextMonth: () => void
-  onToday: () => void
-  onOpenCategories?: () => void
   categories?: { id: string; name: string }[]
   paymentMethods?: { id: string; name: string }[]
 }
 
 export const CalendarListView: FC<Props> = ({
-  year,
-  month,
   entries,
   budgetLoading,
   fixedExpenses,
@@ -53,10 +44,6 @@ export const CalendarListView: FC<Props> = ({
   onEditSchedule,
   onDeleteSchedule,
   onAdd,
-  onPrevMonth,
-  onNextMonth,
-  onToday,
-  onOpenCategories,
   categories,
   paymentMethods,
 }) => {
@@ -69,14 +56,6 @@ export const CalendarListView: FC<Props> = ({
 
   return (
     <>
-      <CalendarMonthHeader
-        year={year}
-        month={month}
-        onPrevMonth={onPrevMonth}
-        onNextMonth={onNextMonth}
-        onToday={onToday}
-        onOpenCategories={filterType === 'budget' ? onOpenCategories : undefined}
-      />
 
       {/* Content */}
       {filterType === 'budget' && (

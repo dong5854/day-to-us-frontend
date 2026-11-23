@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { SwipeableCard } from '@/shared/components/SwipeableCard'
-import { ChevronLeft, ChevronRight, Plus, PiggyBank, Landmark, Settings2 } from 'lucide-react'
+import { Plus, PiggyBank, Landmark, Settings2 } from 'lucide-react'
 import { formatCurrency } from '@/shared/utils/format'
 import type { SavingsState } from '../hooks/useSavings'
 import type { SavingsRecord, SavingsSelection } from '../types/savings.types'
@@ -18,13 +18,10 @@ export function SavingsRecordRow({ record, onClick, onDelete }: { record: Saving
     : <button type="button" onClick={onClick} className="w-full text-left">{content}</button>
 }
 
-interface Props { savings: SavingsState; year: number; month: number; onSelect: (selection: SavingsSelection) => void; onPrev: () => void; onNext: () => void; onToday: () => void; pension?: boolean; accountHeader?: ReactNode; children?: ReactNode }
-export function SavingsList({ savings, year, month, onSelect, onPrev, onNext, onToday, pension = false, accountHeader, children }: Props) {
+interface Props { savings: SavingsState; onSelect: (selection: SavingsSelection) => void; pension?: boolean; accountHeader?: ReactNode; children?: ReactNode }
+export function SavingsList({ savings, onSelect, pension = false, accountHeader, children }: Props) {
   const { data, loading, error } = savings
   return <div className={pension ? 'space-y-4' : 'space-y-5 pb-[calc(6rem+env(safe-area-inset-bottom))]'}>
-    <div className="flex items-center justify-between"><h2 className="text-xl font-bold">{year}년 {month}월</h2>
-      <div className="flex items-center"><button aria-label="이전 달" onClick={onPrev} className="p-3"><ChevronLeft size={20}/></button><button onClick={onToday} className="p-3 text-sm">오늘</button><button aria-label="다음 달" onClick={onNext} className="p-3"><ChevronRight size={20}/></button></div>
-    </div>
     {children}
     {error && <div role="alert" className="text-red-600">{error} <button onClick={() => void savings.refetch()} className="underline">다시 시도</button></div>}
     {loading && <p role="status">저축을 불러오는 중입니다</p>}

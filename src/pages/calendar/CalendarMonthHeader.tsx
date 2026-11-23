@@ -1,6 +1,11 @@
+import { useId } from 'react'
+import { Select } from '@/shared/components/Select'
+import type { CalendarView } from './CalendarViewTabs'
 import { ChartNoAxesColumnIncreasing, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Props {
+  view: CalendarView
+  onViewChange: (view: CalendarView) => void
   year: number
   month: number // 0-indexed
   onPrevMonth: () => void
@@ -9,12 +14,19 @@ interface Props {
   onOpenCategories?: () => void
 }
 
-export function CalendarMonthHeader({ year, month, onPrevMonth, onNextMonth, onToday, onOpenCategories }: Props) {
+export function CalendarMonthHeader({ view, onViewChange, year, month, onPrevMonth, onNextMonth, onToday, onOpenCategories }: Props) {
+  const viewId = useId()
   return (
     <div className="mb-3 md:mb-5">
-      <div className="flex items-center justify-between gap-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{year}년 {month + 1}월</h2>
-        <div className="flex shrink-0 items-center">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{year}년 {month + 1}월</h2>
+          <label className="sr-only" htmlFor={viewId}>보기 방식</label>
+          <Select id={viewId} size="sm" className="w-24 [&>button]:min-h-11 [&_[role=option]]:min-h-11"
+            value={view} options={[{ value: 'calendar', label: '달력' }, { value: 'list', label: '목록' }]}
+            onChange={value => onViewChange(value === 'list' ? 'list' : 'calendar')} />
+        </div>
+        <div className="ml-auto flex shrink-0 items-center">
           <button type="button" aria-label="이전 달" onClick={onPrevMonth} className="flex size-11 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors">
             <ChevronLeft className="size-5" aria-hidden="true" />
           </button>

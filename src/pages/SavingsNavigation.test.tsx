@@ -15,16 +15,17 @@ vi.mock('@/features/savings/hooks/useSavings', () => ({
   ] } }),
 }))
 afterEach(cleanup)
-it('보기 선택이 항목 필터보다 위에 있고 항목 변경은 달력과 목록을 유지한다', () => {
+it('보기 선택이 항목 필터 아래에 있고 항목 변경은 달력과 목록을 유지한다', () => {
   render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()}/>)
   const view = screen.getByLabelText('보기 방식')
   const filters = screen.getByRole('navigation', { name: '항목 필터' })
-  expect(view.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0)
+  expect(filters.compareDocumentPosition(view) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0)
   for (const mode of ['달력', '목록']) {
-    fireEvent.click(screen.getByRole('button', { name: mode }))
+    fireEvent.click(screen.getByRole('combobox', { name: '보기 방식' }))
+    fireEvent.click(screen.getByRole('option', { name: mode }))
     for (const category of ['가계부', '저축', '일정', '전체']) {
       fireEvent.click(screen.getByRole('button', { name: category }))
-      expect(screen.getByRole('button', { name: mode }).getAttribute('aria-pressed')).toBe('true')
+      expect(screen.getByRole('combobox', { name: '보기 방식' }).textContent).toBe(mode)
       expect(screen.getByRole('button', { name: category }).getAttribute('aria-pressed')).toBe('true')
     }
   }
@@ -34,9 +35,10 @@ it('모든 필터에서 보기 변경이 필터를 유지하고 전체 목록에
   for (const category of ['가계부', '저축', '일정', '전체']) {
     fireEvent.click(screen.getByRole('button', { name: category }))
     for (const mode of ['목록', '달력', '목록']) {
-      fireEvent.click(screen.getByRole('button', { name: mode }))
+      fireEvent.click(screen.getByRole('combobox', { name: '보기 방식' }))
+    fireEvent.click(screen.getByRole('option', { name: mode }))
       expect(screen.getByRole('button', { name: category }).getAttribute('aria-pressed')).toBe('true')
-      expect(screen.getByRole('button', { name: mode }).getAttribute('aria-pressed')).toBe('true')
+      expect(screen.getByRole('combobox', { name: '보기 방식' }).textContent).toBe(mode)
     }
   }
   expect(screen.getByRole('region', { name: '전체 내역' })).toBeDefined()

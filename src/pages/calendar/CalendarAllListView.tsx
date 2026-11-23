@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { ScheduleResponse } from '@/features/schedule/types/schedule.types'
 import type { SavingsRecord } from '@/features/savings/types/savings.types'
@@ -14,9 +13,6 @@ interface Props {
   onEditEntry: (entry: BudgetEntryResponse) => void
   onEditSchedule: (schedule: ScheduleResponse) => void
   onEditSavings: (record: SavingsRecord) => void
-  onPrevMonth: () => void
-  onNextMonth: () => void
-  onToday: () => void
   onAddBudget: () => void
   onAddSchedule: () => void
   onAddSavings: () => void
@@ -37,14 +33,6 @@ export function CalendarAllListView(props: Props) {
   ].sort((a, b) => b.date.localeCompare(a.date) || a.key.localeCompare(b.key))
 
   return <section aria-label="전체 내역" className="space-y-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
-    <div className="flex justify-between items-center">
-      <h2 className="text-xl font-bold">{props.year}년 {props.month + 1}월</h2>
-      <div className="flex items-center">
-        <button onClick={props.onPrevMonth} aria-label="이전 달" className="p-3"><ChevronLeft size={20}/></button>
-        <button onClick={props.onToday} className="p-3 text-sm">오늘</button>
-        <button onClick={props.onNextMonth} aria-label="다음 달" className="p-3"><ChevronRight size={20}/></button>
-      </div>
-    </div>
     <div className="grid grid-cols-3 gap-2 text-sm">
       <button onClick={props.onAddBudget} className="min-h-11 rounded-lg border border-gray-200">가계부 추가</button>
       <button onClick={props.onAddSavings} className="min-h-11 rounded-lg border border-gray-200">저축 추가</button>
