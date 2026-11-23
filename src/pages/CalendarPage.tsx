@@ -302,13 +302,13 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange }) 
               <button
                 key={f}
                 onClick={() => setFilterType(f)}
-                className={`flex-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`flex-1 whitespace-nowrap px-2 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   filterType === f ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
                 {f === 'all' && '전체'}
-                {f === 'budget' && <><Wallet className="w-4 h-4 inline-block" /> 가계부</>}
-                {f === 'schedule' && <><Calendar className="w-4 h-4 inline-block" /> 일정</>}
+                {f === 'budget' && <><Wallet aria-hidden="true" className="hidden size-4 min-[360px]:inline-block" /> 가계부</>}
+                {f === 'schedule' && <><Calendar aria-hidden="true" className="hidden size-4 min-[360px]:inline-block" /> 일정</>}
               </button>
             ))}
           </div>
