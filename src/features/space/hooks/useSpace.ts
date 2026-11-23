@@ -63,7 +63,6 @@ export const useSpace = () => {
       setMembers(membersData)
       return newSpace
     } catch (err) {
-      setError('공간 생성에 실패했습니다.')
       console.error(err)
       throw err
     }
@@ -83,7 +82,6 @@ export const useSpace = () => {
       setMembers(membersData)
       return joinedSpace
     } catch (err) {
-      setError('공간 참여에 실패했습니다. 초대 코드를 확인해주세요.')
       console.error(err)
       throw err
     }

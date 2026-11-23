@@ -1,4 +1,6 @@
-import { type FC, type ReactNode, useEffect, useRef } from 'react'
+import { type FC, type ReactNode, useRef } from 'react'
+
+import { DialogLayer } from './DialogLayer'
 
 interface Props {
   isOpen: boolean
@@ -17,44 +19,12 @@ export const Drawer: FC<Props> = ({ isOpen, onClose, children }) => {
       panelRef.current.style.transform = ''
     }
   }
-  // ESC 키로 닫기
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose()
-      }
-    }
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [isOpen, onClose])
-
-  // body 스크롤 방지
-  useEffect(() => {
-    if (!isOpen) return
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      drag.current = null
-      document.body.style.overflow = previousOverflow
-    }
-  }, [isOpen])
-
   if (!isOpen) return null
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40 md:hidden"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
+    <DialogLayer label="상세 보기" dismissOnBackdrop onDismiss={onClose}>
       <div
         ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="상세 보기"
         className="fixed inset-x-0 bottom-0 bg-white rounded-t-2xl shadow-2xl z-50 md:hidden flex flex-col max-h-[85dvh] overflow-hidden transition-transform duration-200 ease-out"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
@@ -99,6 +69,6 @@ export const Drawer: FC<Props> = ({ isOpen, onClose, children }) => {
         {/* Content */}
         <div className="min-h-0 overflow-y-auto overscroll-contain">{children}</div>
       </div>
-    </>
+    </DialogLayer>
   )
 }

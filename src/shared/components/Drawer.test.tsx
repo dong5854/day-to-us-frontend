@@ -7,8 +7,8 @@ afterEach(() => { cleanup(); document.body.style.overflow = ''; vi.restoreAllMoc
 function setup() {
   const onClose = vi.fn()
   const view = render(<Drawer isOpen onClose={onClose}><p>긴 목록</p></Drawer>)
-  const panel = screen.getByRole('dialog')
-  const handle = panel.querySelector('.cursor-grab')!
+  const handle = screen.getByRole('button', { name: '아래로 끌어 닫기' })
+  const panel = handle.closest<HTMLElement>('.rounded-t-2xl')!
   Object.defineProperty(handle, 'setPointerCapture', { value: vi.fn() })
   const point = (clientY: number) => ({ pointerId: 1, isPrimary: true, button: 0, clientY })
   return { ...view, onClose, panel, handle, point }

@@ -152,6 +152,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedDateForDrawer, setSelectedDateForDrawer] = useState<string | null>(null)
 
+  const DateDetails = isMobile ? Drawer : Modal
+
   // ─── Navigation ───────────────────────────────────────────────────────────
   const prevMonth = () => onDateChange(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
   const nextMonth = () => onDateChange(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
@@ -473,8 +475,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
         isDangerous
       />
 
-      {/* Mobile Drawer */}
-      <Drawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+      {isDrawerOpen && <DateDetails label="상세 보기" isOpen onClose={() => setIsDrawerOpen(false)}>
         <div className="p-4 pb-8">
           {selectedDateForDrawer && (() => {
             const dateEntries = getEntriesForDateStr(selectedDateForDrawer)
@@ -552,7 +553,7 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
             )
           })()}
         </div>
-      </Drawer>
+      </DateDetails>}
 
       {/* Toast */}
       <Toast message={toast.message} type={toast.type} isVisible={toast.isVisible} onClose={hideToast} />

@@ -116,9 +116,6 @@ export const SettingsPage: FC<Props> = ({ space, members, onOpenCategories, defa
           <button type="button" onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
             로그아웃
           </button>
-          <button className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-            공간 탈퇴
-          </button>
         </div>
       </div>
 

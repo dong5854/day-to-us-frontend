@@ -1,6 +1,6 @@
 import type { SavingsRecord } from '@/features/savings/types/savings.types'
 import { type FC } from 'react'
-import { Calendar, Wallet } from 'lucide-react'
+import { Calendar, Plus, Wallet } from 'lucide-react'
 import type { BudgetEntryResponse } from '@/features/budget/types/budget.types'
 import type { ScheduleResponse } from '@/features/schedule/types/schedule.types'
 import type { EventBar } from '@/features/schedule/hooks/useEventBars'
@@ -119,9 +119,15 @@ export const CalendarGridView: FC<Props> = ({
                 isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
               }`}
             >
-              {/* Date number */}
-              <div
-                className={`text-base font-semibold mb-1 ${
+              <button
+                type="button"
+                aria-label={`${year}년 ${month + 1}월 ${day}일 열기`}
+                aria-current={isToday ? 'date' : undefined}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onDateClick(year, month, day)
+                }}
+                className={`block mb-1 rounded-sm text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
                   isToday ? 'text-blue-600'
                   : dayOfWeek === 0 ? 'text-red-500'
                   : dayOfWeek === 6 ? 'text-blue-500'
@@ -129,15 +135,7 @@ export const CalendarGridView: FC<Props> = ({
                 }`}
               >
                 {day}
-              </div>
-
-              {/* + Button (desktop) */}
-              <button
-                onClick={(e) => { e.stopPropagation(); onDateClick(year, month, day) }}
-                className="hidden md:flex absolute top-1 right-1 w-5 h-5 items-center justify-center text-gray-400 hover:text-white hover:bg-[#4F46E5] rounded-full transition-all duration-200 text-sm font-bold opacity-60 hover:opacity-100 z-10"
-                title="항목 추가"
-              >
-                +
+                <Plus aria-hidden="true" className="hidden md:block absolute top-1 right-1 size-5 rounded-full p-0.5 text-gray-400 hover:bg-indigo-600 hover:text-white" />
               </button>
 
               {/* Multi-day event bars */}
