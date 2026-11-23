@@ -43,7 +43,9 @@ describe('useMediaQuery', () => {
       dispatchEvent: vi.fn(),
     } as unknown as MediaQueryList)
 
-    renderHook(() => useMediaQuery('(max-width: 767px)'))
+    const { rerender } = renderHook(() => useMediaQuery('(max-width: 767px)'))
+    rerender()
+    expect(addListener).toHaveBeenCalledTimes(1)
     expect(addListener).toHaveBeenCalledWith('change', expect.any(Function))
   })
 
