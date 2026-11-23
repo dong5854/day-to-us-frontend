@@ -1,3 +1,4 @@
+import { DialogLayer } from './DialogLayer'
 import { useState, type FC } from 'react'
 
 interface Props {
@@ -35,7 +36,7 @@ export const ConfirmModal: FC<Props> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1100] p-4 animate-[fade-in_0.2s_ease-in-out]">
+    <DialogLayer label={title} onDismiss={() => { if (!isLoading) onCancel() }}>
       <div className="bg-white rounded-lg shadow-xl max-w-sm w-full p-6 animate-[slide-up_0.2s_ease-in-out]">
         <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
         <p className="text-gray-600 mb-6 leading-relaxed">{message}</p>
@@ -61,6 +62,6 @@ export const ConfirmModal: FC<Props> = ({
           </button>
         </div>
       </div>
-    </div>
+    </DialogLayer>
   )
 }

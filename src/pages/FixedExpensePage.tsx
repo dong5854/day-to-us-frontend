@@ -94,7 +94,7 @@ export const FixedExpensePage: FC<Props> = ({
         +
       </button>
 
-      <Modal isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingExpense(null) }}>
+      <Modal label="고정 수입·지출" isOpen={isFormOpen} onClose={() => { setIsFormOpen(false); setEditingExpense(null) }}>
         <FixedExpenseForm 
           expense={editingExpense} 
           categories={categories}

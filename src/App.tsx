@@ -117,7 +117,7 @@ function AppContent() {
           </div>
         </main>
 
-        <Modal isOpen={isSpaceFormOpen} onClose={() => setIsSpaceFormOpen(false)}>
+        <Modal label="공간 만들기 또는 참여" isOpen={isSpaceFormOpen} onClose={() => setIsSpaceFormOpen(false)}>
           <SpaceForm
             onSubmit={handleCreateSpace}
             onJoin={handleJoinSpace}

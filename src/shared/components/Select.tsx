@@ -52,12 +52,17 @@ export const Select: FC<Props> = ({
 
   // 키보드 접근성
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.nativeEvent.isComposing) return
     if (disabled) return
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       setOpen((v) => !v)
     }
-    if (e.key === 'Escape') setOpen(false)
+    if (open && e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+      setOpen(false)
+    }
     if (e.key === 'ArrowDown' && !open) setOpen(true)
   }
 

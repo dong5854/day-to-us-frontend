@@ -200,7 +200,15 @@ export const DatePicker: FC<Props> = ({ value, onChange, id, required, hasError 
   ) : null
 
   return (
-    <div className="w-full">
+    <div className="w-full" onKeyDown={e => {
+      if (e.nativeEvent.isComposing) return
+      if (open && e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
+    }}>
       {/* Trigger button */}
       <button
         ref={triggerRef}
@@ -222,8 +230,8 @@ export const DatePicker: FC<Props> = ({ value, onChange, id, required, hasError 
         <CalendarDays className="w-5 h-5 text-gray-400 shrink-0" />
       </button>
 
-      {/* Portal로 body에 직접 렌더링 → overflow clip 우회 */}
-      {createPortal(popover, document.body)}
+      {/* Keep the popover in the active modal top layer, outside the scrolling panel. */}
+      {createPortal(popover, triggerRef.current?.closest('dialog') ?? document.body)}
     </div>
   )
 }
