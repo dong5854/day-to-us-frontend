@@ -20,15 +20,15 @@ function AppContent() {
 
   const { toast, showToast, hideToast } = useToast()
 
-  const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError } = useSpace()
+  const { space, members, createSpace, joinSpace, loading: spaceLoading, hasSpace, isUnauthorized, error: spaceError, refetch } = useSpace()
 
   const [isSpaceFormOpen, setIsSpaceFormOpen] = useState(false)
 
   useEffect(() => {
-    if (spaceError) {
+    if (spaceError && hasSpace) {
       showToast(spaceError, 'error')
     }
-  }, [spaceError])
+  }, [spaceError, hasSpace])
 
   const handleCreateSpace = async (name: string) => {
     try {
@@ -48,7 +48,7 @@ function AppContent() {
       showToast(`'${joinedSpace.name}' 공간에 참여했습니다!`, 'success')
       navigate('/')
     } catch {
-      showToast('공간 참여에 실패했습니다', 'error')
+      showToast('공간 참여에 실패했습니다. 초대 코드를 확인해주세요.', 'error')
     }
   }
 
@@ -67,6 +67,20 @@ function AppContent() {
           />
         </div>
       </div>
+    )
+  }
+
+  if (spaceError && !hasSpace) {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-gray-50 px-4">
+        <section className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+          <h1 role="alert" className="text-xl font-bold text-gray-900">공간 정보를 불러올 수 없어요</h1>
+          <p className="mt-2 text-sm text-gray-600">잠시 후 다시 시도해 주세요.</p>
+          <button type="button" onClick={() => void refetch()} className="mt-6 min-h-11 w-full rounded-xl gradient-bg px-4 font-semibold text-white">
+            다시 시도
+          </button>
+        </section>
+      </main>
     )
   }
 
