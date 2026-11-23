@@ -85,9 +85,7 @@ export const SettingsPage: FC<Props> = ({ space, members }) => {
           <button className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
             로그아웃
           </button>
-          <button className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-            공간 탈퇴
-          </button>
+          {/* TODO: 공유 기록과 남은 구성원에 미치는 영향을 안내하고 탈퇴 확인·처리 절차를 구현한 뒤 공간 탈퇴 버튼을 다시 제공한다. */}
         </div>
       </div>
 
