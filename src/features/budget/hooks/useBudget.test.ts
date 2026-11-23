@@ -13,10 +13,11 @@ vi.mock('../api/budgetApi', () => ({
 }))
 
 const mockEntry = { id: '1', amount: 10000, date: '2024-01-15', description: '식비', category: 'food' }
-const mockEntry2 = { id: '2', amount: -5000, date: '2024-01-16', description: '교통', category: 'transport' }
+const mockEntry2 = { id: '2', amount: -5000, date: '2024-01-16', description: '교통' }
 
 describe('useBudget', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.mocked(budgetApi.getAll).mockResolvedValue([])
     vi.mocked(budgetApi.create).mockResolvedValue(mockEntry as never)
     vi.mocked(budgetApi.update).mockResolvedValue(mockEntry as never)
@@ -63,10 +64,13 @@ describe('useBudget', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
 
     await act(async () => {
+      vi.mocked(budgetApi.getAll).mockResolvedValue([newEntry])
       await result.current.createEntry({ amount: 20000, date: '2024-01-17', description: '마트' })
     })
 
-    expect(result.current.entries).toContainEqual(newEntry)
+    expect(budgetApi.create).toHaveBeenCalledWith('space-1', { amount: 20000, date: '2024-01-17', description: '마트' })
+    expect(budgetApi.getAll).toHaveBeenCalledTimes(2)
+    expect(result.current.entries).toEqual([newEntry])
   })
 
   it('deleteEntry 성공 시 entries에서 해당 항목을 제거한다', async () => {
@@ -76,11 +80,13 @@ describe('useBudget', () => {
     await waitFor(() => expect(result.current.entries).toHaveLength(2))
 
     await act(async () => {
+      vi.mocked(budgetApi.getAll).mockResolvedValue([mockEntry2])
       await result.current.deleteEntry('1')
     })
 
-    expect(result.current.entries).not.toContainEqual(mockEntry)
-    expect(result.current.entries).toHaveLength(1)
+    expect(budgetApi.delete).toHaveBeenCalledWith('space-1', '1')
+    expect(budgetApi.getAll).toHaveBeenCalledTimes(2)
+    expect(result.current.entries).toEqual([mockEntry2])
   })
 
   it('totalIncome/totalExpense/balance를 올바르게 계산한다', async () => {
