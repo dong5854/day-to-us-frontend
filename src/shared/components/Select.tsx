@@ -36,6 +36,7 @@ export const Select: FC<Props> = ({
   variant = 'field',
 }) => {
   const [open, setOpen] = useState(false)
+  const [keyboardNavigation, setKeyboardNavigation] = useState(false)
   const listId = useId()
   const [activeValue, setActiveValue] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -65,11 +66,12 @@ export const Select: FC<Props> = ({
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       if (open && activeValue !== null) handleSelect(activeValue)
-      else toggleMenu()
+      else toggleMenu(true)
       return
     }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault()
+      setKeyboardNavigation(true)
       const ordered = [...normalOptions, ...specialOptions]
       const index = ordered.findIndex(option => option.value === (open ? activeValue : value))
       const offset = e.key === 'ArrowDown' ? 1 : -1
@@ -79,7 +81,8 @@ export const Select: FC<Props> = ({
     }
   }
 
-  const toggleMenu = () => {
+  const toggleMenu = (fromKeyboard: boolean) => {
+    setKeyboardNavigation(fromKeyboard)
     setActiveValue(selectedOption?.value ?? null)
     setOpen(!open)
   }
@@ -112,7 +115,7 @@ export const Select: FC<Props> = ({
         aria-controls={open ? listId : undefined}
         aria-activedescendant={open && activeValue !== null ? listId + '-' + activeValue : undefined}
         disabled={disabled}
-        onClick={toggleMenu}
+        onClick={event => toggleMenu(event.detail === 0)}
         onKeyDown={handleKeyDown}
         className={[
           'flex items-center transition-colors cursor-pointer text-left',
@@ -142,15 +145,16 @@ export const Select: FC<Props> = ({
           id={listId}
           role="listbox"
           className={[
-            'absolute z-50 mt-1.5',
-            variant === 'toolbar' ? 'right-0 w-28' : 'w-full',
-            'bg-white border border-gray-200 rounded-xl shadow-lg',
+            'absolute z-50 rounded-xl bg-white',
+            variant === 'toolbar'
+              ? 'right-0 mt-0.5 w-32 p-1 shadow-md ring-1 ring-gray-900/10'
+              : 'mt-1.5 w-full border border-gray-200 shadow-lg',
             'overflow-hidden',
             'animate-[fadeSlideDown_0.15s_ease-out]',
           ].join(' ')}
           style={{ animationFillMode: 'both' }}
         >
-          <ul className="max-h-56 overflow-y-auto py-1 overscroll-contain">
+          <ul className={`max-h-56 overflow-y-auto overscroll-contain ${variant === 'field' ? 'py-1' : ''}`}>
             {normalOptions.map((option) => {
               const isSelected = option.value === value
               return (
@@ -163,7 +167,8 @@ export const Select: FC<Props> = ({
                   className={[
                     'group flex items-center justify-between gap-2 cursor-pointer select-none',
                     'transition-colors duration-100',
-                    activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
+                    (variant === 'field' || keyboardNavigation) && activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
+                    variant === 'toolbar' ? 'rounded-lg' : '',
                     size === 'sm' ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-sm',
                     isSelected
                       ? 'text-[#4F46E5] bg-[#4F46E5]/5 font-medium'
@@ -202,7 +207,7 @@ export const Select: FC<Props> = ({
                     className={[
                       'flex items-center gap-2 cursor-pointer select-none',
                       'transition-colors duration-100',
-                    activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
+                    (variant === 'field' || keyboardNavigation) && activeValue === option.value ? 'ring-2 ring-inset ring-indigo-400' : '',
                       size === 'sm' ? 'px-3 py-2 text-sm' : 'px-4 py-2.5 text-sm',
                       'text-[#4F46E5] font-medium hover:bg-[#4F46E5]/5',
                     ].join(' ')}
