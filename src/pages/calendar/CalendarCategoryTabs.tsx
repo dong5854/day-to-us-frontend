@@ -18,8 +18,8 @@ export function CalendarCategoryTabs({ selected, onSelect, showPension = true }:
   return <nav aria-label="항목 필터" className="flex gap-1.5">
     {categories.filter(category => showPension || category.value !== 'pension').map(({ value, label, icon: Icon }) =>
       <button key={value} type="button" aria-pressed={selected === value} onClick={() => onSelect(value)}
-        className={`flex-1 min-h-11 flex justify-center items-center gap-1 rounded-full text-sm font-medium ${selected === value ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}>
-        {Icon && <Icon size={16} aria-hidden="true"/>}{label}
+        className={`flex-1 min-h-11 flex justify-center items-center gap-1 whitespace-nowrap rounded-full text-sm font-medium ${selected === value ? 'bg-[#4F46E5] text-white' : 'bg-gray-100 text-gray-600'}`}>
+        {Icon && <Icon className="hidden min-[360px]:block" size={16} aria-hidden="true"/>}{label}
       </button>)}
   </nav>
 }

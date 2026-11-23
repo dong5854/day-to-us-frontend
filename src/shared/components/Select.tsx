@@ -21,6 +21,7 @@ interface Props {
   className?: string
   /** input size variant */
   size?: 'sm' | 'md'
+  variant?: 'field' | 'toolbar'
 }
 
 export const Select: FC<Props> = ({
@@ -32,6 +33,7 @@ export const Select: FC<Props> = ({
   placeholder,
   className = '',
   size = 'md',
+  variant = 'field',
 }) => {
   const [open, setOpen] = useState(false)
   const listId = useId()
@@ -113,16 +115,15 @@ export const Select: FC<Props> = ({
         onClick={toggleMenu}
         onKeyDown={handleKeyDown}
         className={[
-          'w-full flex items-center justify-between gap-2',
-          'border rounded-lg transition-all duration-150 cursor-pointer text-left',
-          'focus:outline-none focus:ring-4',
-          paddingClass,
-          open
-            ? 'border-[#4F46E5] ring-4 ring-[#4F46E5]/10 bg-white'
-            : 'border-gray-200 bg-white hover:border-gray-300',
-          disabled
-            ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200 ring-0'
-            : 'text-gray-900',
+          'flex items-center transition-colors cursor-pointer text-left',
+          variant === 'toolbar'
+            ? 'min-h-11 min-w-11 gap-1 rounded-full border-y-[6px] border-transparent bg-indigo-50 bg-clip-padding px-2 text-sm font-semibold text-indigo-800 hover:bg-indigo-100 aria-expanded:bg-indigo-100 focus-visible:outline-2 focus-visible:outline-indigo-600'
+            : [
+                'w-full justify-between gap-2 rounded-lg border focus:outline-none focus:ring-4',
+                paddingClass,
+                open ? 'border-[#4F46E5] ring-4 ring-[#4F46E5]/10 bg-white' : 'border-gray-200 bg-white hover:border-gray-300',
+                disabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200 ring-0' : 'text-gray-900',
+              ].join(' '),
         ].join(' ')}
       >
         <span className={`truncate ${!selectedOption && placeholder ? 'text-gray-400' : ''}`}>
@@ -141,7 +142,8 @@ export const Select: FC<Props> = ({
           id={listId}
           role="listbox"
           className={[
-            'absolute z-50 w-full mt-1.5',
+            'absolute z-50 mt-1.5',
+            variant === 'toolbar' ? 'right-0 w-28' : 'w-full',
             'bg-white border border-gray-200 rounded-xl shadow-lg',
             'overflow-hidden',
             'animate-[fadeSlideDown_0.15s_ease-out]',
