@@ -70,3 +70,14 @@ it('연금 기록은 실제 본인 납입 확인과 계좌 명의자를 저장�
   fireEvent.click(screen.getByRole('button', { name: '저장' }))
   await waitFor(() => expect(savings.saveRecord).toHaveBeenCalledWith(plan.id, expect.objectContaining({ confirmed: true, payerEmail: plan.payerEmail }), record.id))
 })
+
+it('1조 원에서 금액을 더해도 입력값과 표시 금액이 상한을 유지한다', () => {
+  const savings = state()
+  render(<SavingsForm selection={{ type: 'record', plan }} savings={savings} onClose={vi.fn()}/>)
+  const input = screen.getByLabelText('금액') as HTMLInputElement
+  fireEvent.change(input, { target: { value: '1000000000000' } })
+  fireEvent.click(screen.getByRole('button', { name: '+1천' }))
+  expect(input.value).toBe('1000000000000')
+  expect(screen.getByText('1조원')).toBeDefined()
+  expect(savings.saveRecord).not.toHaveBeenCalled()
+})

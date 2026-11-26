@@ -1,3 +1,4 @@
+import { CATEGORIES_CHANGED } from '@/features/budget/events'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { categoryBudgetApi } from '../api/categoryBudgetApi'
@@ -87,7 +88,7 @@ export const useCategoryOverview = (spaceId: string, month: string) => {
     setMutationError('')
     try {
       await action()
-      window.dispatchEvent(new Event('categories-changed'))
+      window.dispatchEvent(new Event(CATEGORIES_CHANGED))
       await refresh()
       return true
     } catch (error) {

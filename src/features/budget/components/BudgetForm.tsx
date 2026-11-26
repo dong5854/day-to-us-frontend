@@ -1,4 +1,5 @@
-import { isAxiosError } from 'axios'
+import { addAmount, amountIncrements } from '@/shared/utils/amount'
+import { InlineOptionInput } from '@/shared/components/InlineOptionInput'
 import { ModalHeader } from '@/shared/components/ModalHeader'
 import { useState, useEffect, type FC, type FormEvent } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
@@ -50,19 +51,11 @@ export const BudgetForm: FC<Props> = ({
   const [categoryId, setSelectedCategoryId] = useState(preferences.categoryId)
   const selectedCategoryId = entry || categories.some(category => category.id === categoryId && !category.archived) ? categoryId : ''
   const [isAddingCategory, setIsAddingCategory] = useState(false)
-  const [newCategoryName, setNewCategoryName] = useState('')
-  const [categoryError, setCategoryError] = useState('')
 
   // Payment method state
   const [paymentMethodId, setSelectedPaymentMethodId] = useState(preferences.paymentMethodId)
   const selectedPaymentMethodId = entry || paymentMethods.some(method => method.id === paymentMethodId) ? paymentMethodId : ''
   const [isAddingPaymentMethod, setIsAddingPaymentMethod] = useState(false)
-  const [newPaymentMethodName, setNewPaymentMethodName] = useState('')
-  const [paymentMethodError, setPaymentMethodError] = useState('')
-
-  // Submitting states for duplicate prevention
-  const [isSubmittingCategory, setIsSubmittingCategory] = useState(false)
-  const [isSubmittingPaymentMethod, setIsSubmittingPaymentMethod] = useState(false)
 
   useEffect(() => {
     if (entry) {
@@ -81,31 +74,10 @@ export const BudgetForm: FC<Props> = ({
     if (value === '__add_new__') {
       setIsAddingCategory(true)
       setSelectedCategoryId('')
-      setCategoryError('')
     } else {
       setSelectedCategoryId(value)
       rememberBudgetPreferences(spaceId, { categoryId: value })
       setIsAddingCategory(false)
-      setCategoryError('')
-    }
-  }
-
-  const handleConfirmNewCategory = async () => {
-    if (!newCategoryName.trim() || !onCreateCategory || isSubmittingCategory) return
-    try {
-      setIsSubmittingCategory(true)
-      setCategoryError('')
-      const created = await onCreateCategory(newCategoryName.trim())
-      if (created) {
-        setSelectedCategoryId(created.id)
-        rememberBudgetPreferences(spaceId, { categoryId: created.id })
-      }
-      setNewCategoryName('')
-      setIsAddingCategory(false)
-    } catch (err) {
-      setCategoryError((isAxiosError(err) && typeof err.response?.data?.message === 'string' ? err.response.data.message : '이미 존재하는 카테고리이거나 추가에 실패했습니다.'))
-    } finally {
-      setIsSubmittingCategory(false)
     }
   }
 
@@ -113,31 +85,10 @@ export const BudgetForm: FC<Props> = ({
     if (value === '__add_new__') {
       setIsAddingPaymentMethod(true)
       setSelectedPaymentMethodId('')
-      setPaymentMethodError('')
     } else {
       setSelectedPaymentMethodId(value)
       rememberBudgetPreferences(spaceId, { paymentMethodId: value })
       setIsAddingPaymentMethod(false)
-      setPaymentMethodError('')
-    }
-  }
-
-  const handleConfirmNewPaymentMethod = async () => {
-    if (!newPaymentMethodName.trim() || !onCreatePaymentMethod || isSubmittingPaymentMethod) return
-    try {
-      setIsSubmittingPaymentMethod(true)
-      setPaymentMethodError('')
-      const created = await onCreatePaymentMethod(newPaymentMethodName.trim())
-      if (created) {
-        setSelectedPaymentMethodId(created.id)
-        rememberBudgetPreferences(spaceId, { paymentMethodId: created.id })
-      }
-      setNewPaymentMethodName('')
-      setIsAddingPaymentMethod(false)
-    } catch (err) {
-      setPaymentMethodError((isAxiosError(err) && typeof err.response?.data?.message === 'string' ? err.response.data.message : '이미 존재하는 결제 수단이거나 추가에 실패했습니다.'))
-    } finally {
-      setIsSubmittingPaymentMethod(false)
     }
   }
 
@@ -208,48 +159,14 @@ export const BudgetForm: FC<Props> = ({
       {(categories.length > 0 || onCreateCategory) && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2"><label className="text-sm font-semibold text-gray-900">카테고리</label>{onManageCategories && <button type="button" onClick={onManageCategories} className="min-h-11 px-2 text-sm text-[#4F46E5]">관리</button>}</div>
-          {isAddingCategory ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="새 카테고리 이름"
-                  value={newCategoryName}
-                  onChange={(e) => {
-                    setNewCategoryName(e.target.value)
-                    if (categoryError) setCategoryError('')
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      if (e.nativeEvent.isComposing) return
-                      handleConfirmNewCategory()
-                    }
-                  }}
-                  className={`flex-1 min-w-0 px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-4 ${categoryError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'}`}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={handleConfirmNewCategory}
-                  disabled={isSubmittingCategory}
-                  className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmittingCategory ? '추가 중...' : '추가'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setIsAddingCategory(false); setNewCategoryName(''); setCategoryError('') }}
-                  disabled={isSubmittingCategory}
-                  className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  취소
-                </button>
-              </div>
-              {categoryError && (
-                <p className="text-sm text-red-500">{categoryError}</p>
-              )}
-            </div>
+          {isAddingCategory && onCreateCategory ? (
+            <InlineOptionInput
+              placeholder="새 카테고리 이름"
+              defaultError="이미 존재하는 카테고리이거나 추가에 실패했습니다."
+              onCreate={onCreateCategory}
+              onCreated={handleCategorySelectChange}
+              onCancel={() => setIsAddingCategory(false)}
+            />
           ) : (
             <Select
               value={selectedCategoryId}
@@ -268,48 +185,14 @@ export const BudgetForm: FC<Props> = ({
       {(paymentMethods.length > 0 || onCreatePaymentMethod) && (
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-900 mb-2">결제 수단</label>
-          {isAddingPaymentMethod ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="새 결제 수단 이름"
-                  value={newPaymentMethodName}
-                  onChange={(e) => {
-                    setNewPaymentMethodName(e.target.value)
-                    if (paymentMethodError) setPaymentMethodError('')
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      if (e.nativeEvent.isComposing) return
-                      handleConfirmNewPaymentMethod()
-                    }
-                  }}
-                  className={`flex-1 min-w-0 px-4 py-3 border rounded-lg text-base text-gray-900 bg-white transition-colors placeholder:text-gray-400 focus:outline-none focus:ring-4 ${paymentMethodError ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-[#4F46E5] focus:ring-[#4F46E5]/10'}`}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={handleConfirmNewPaymentMethod}
-                  disabled={isSubmittingPaymentMethod}
-                  className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border-2 border-[#4F46E5] gradient-bg text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmittingPaymentMethod ? '추가 중...' : '추가'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setIsAddingPaymentMethod(false); setNewPaymentMethodName(''); setPaymentMethodError('') }}
-                  disabled={isSubmittingPaymentMethod}
-                  className="shrink-0 px-3 py-3 rounded-lg font-semibold transition-all border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  취소
-                </button>
-              </div>
-              {paymentMethodError && (
-                <p className="text-sm text-red-500">{paymentMethodError}</p>
-              )}
-            </div>
+          {isAddingPaymentMethod && onCreatePaymentMethod ? (
+            <InlineOptionInput
+              placeholder="새 결제 수단 이름"
+              defaultError="이미 존재하는 결제 수단이거나 추가에 실패했습니다."
+              onCreate={onCreatePaymentMethod}
+              onCreated={handlePaymentMethodSelectChange}
+              onCancel={() => setIsAddingPaymentMethod(false)}
+            />
           ) : (
             <Select
               value={selectedPaymentMethodId}
@@ -383,21 +266,13 @@ export const BudgetForm: FC<Props> = ({
           {formatKoreanWon(Number(amount))}
         </p>
         <div className="mt-3 grid grid-cols-4 gap-2">
-          {[
-            { value: 1000, label: '+1천' },
-            { value: 10000, label: '+1만' },
-            { value: 50000, label: '+5만' },
-            { value: 100000, label: '+10만' },
-          ].map(({ value, label }) => (
+          {amountIncrements.map(({ value, label }) => (
             <button
               key={value}
               type="button"
               aria-label={`${value.toLocaleString('ko-KR')}원 더하기`}
               disabled={loading}
-              onClick={() => setAmount(current => {
-                const next = Math.max(0, Number(current) || 0) + value
-                return Number.isSafeInteger(next) ? String(next) : current
-              })}
+              onClick={() => setAmount(current => addAmount(current, value))}
               className="min-h-11 rounded-full bg-gray-100 px-1 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 active:bg-gray-300 disabled:opacity-60"
             >
               {label}

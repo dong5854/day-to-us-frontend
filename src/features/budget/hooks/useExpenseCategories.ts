@@ -1,3 +1,4 @@
+import { CATEGORIES_CHANGED } from '@/features/budget/events'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { expenseCategoryApi } from '../api/expenseCategoryApi'
 import type { ExpenseCategoryResponse } from '../types/expenseCategory.types'
@@ -41,10 +42,10 @@ export const useExpenseCategories = (spaceId: string | null) => {
   useEffect(() => {
     void fetchCategories()
     const refresh = () => { if (document.visibilityState === 'visible') void fetchCategories() }
-    window.addEventListener('categories-changed', refresh)
+    window.addEventListener(CATEGORIES_CHANGED, refresh)
     window.addEventListener('focus', refresh)
     document.addEventListener('visibilitychange', refresh)
-    return () => { invalidate(); window.removeEventListener('categories-changed', refresh); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh) }
+    return () => { invalidate(); window.removeEventListener(CATEGORIES_CHANGED, refresh); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh) }
   }, [fetchCategories, invalidate])
 
   return { categories, loading, createCategory, deleteCategory, refetch: fetchCategories }

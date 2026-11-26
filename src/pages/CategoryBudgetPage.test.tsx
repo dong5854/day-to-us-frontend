@@ -200,3 +200,20 @@ it('최초 조회 중에는 금액 대신 접근 가능한 스켈레톤을 표�
   expect(screen.queryByText('불러오는 중...')).toBeNull()
   expect(screen.queryByText('0원')).toBeNull()
 })
+
+it('미지정 지출만 최신순으로 표시하고 표시한 내역의 건수를 센다', async () => {
+  vi.mocked(budgetApi.getAll).mockResolvedValue([
+    { id: 'first', description: '첫 지출', amount: -1000, date: '2026-10-01' },
+    { id: 'income', description: '수입', amount: 5000, date: '2026-10-02' },
+    { id: 'last', description: '최근 지출', amount: -2000, date: '2026-10-03' },
+    { id: 'zero', description: '영 원', amount: 0, date: '2026-10-04' },
+  ])
+  open()
+  fireEvent.click(await screen.findByRole('button', { name: /카테고리 없음 3,000원/ }))
+  const entries = screen.getByText(/월 지출 내역/).closest('details')!
+  expect(entries.querySelector('summary')?.textContent).toContain('(2건)')
+  const latest = within(entries).getByText('최근 지출')
+  expect(latest.compareDocumentPosition(within(entries).getByText('첫 지출')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(within(entries).queryByText('수입')).toBeNull()
+  expect(within(entries).queryByText('영 원')).toBeNull()
+})

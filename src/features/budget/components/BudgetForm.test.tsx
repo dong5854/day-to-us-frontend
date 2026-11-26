@@ -82,3 +82,18 @@ it('잘못된 저장값이나 저장소 오류가 있어도 기본값으로 입�
   fireEvent.click(screen.getByRole('button', { name: '지출' }))
   expect(screen.getByRole('button', { name: '지출' }).getAttribute('aria-pressed')).toBe('true')
 })
+
+it('빈 금액에 두 번 더하고 안전한 정수 상한에서는 이전 값을 유지한다', () => {
+  const submit = vi.fn()
+  render(<BudgetForm {...props} onSubmit={submit} />)
+  const input = screen.getByLabelText('금액') as HTMLInputElement
+  const add = screen.getByRole('button', { name: '1,000원 더하기' })
+  fireEvent.click(add)
+  fireEvent.click(add)
+  expect(input.value).toBe('2000')
+  expect(screen.getByText('2,000원')).toBeDefined()
+  fireEvent.change(input, { target: { value: String(Number.MAX_SAFE_INTEGER) } })
+  fireEvent.click(add)
+  expect(input.value).toBe(String(Number.MAX_SAFE_INTEGER))
+  expect(submit).not.toHaveBeenCalled()
+})

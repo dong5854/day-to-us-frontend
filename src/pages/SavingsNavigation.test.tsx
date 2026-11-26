@@ -94,3 +94,13 @@ it('전체 목록에서 왼쪽으로 밀고 확인한 실제 내역만 삭제한
     expect(remove).toHaveBeenCalledExactlyOnceWith(...args)
   }
 })
+
+it.each([
+  ['전체', '상세 보기'], ['저축', '상세 보기'],
+  ['가계부', '무엇을 추가하시겠어요?'], ['일정', '무엇을 추가하시겠어요?'],
+])('데스크톱 %s 필터에서 날짜를 누르면 %s 창이 열린다', (filter, dialog) => {
+  render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()}/>)
+  fireEvent.click(screen.getByRole('button', { name: filter }))
+  fireEvent.click(screen.getByText('15'))
+  expect(screen.getByRole('dialog', { name: dialog })).toBeDefined()
+})

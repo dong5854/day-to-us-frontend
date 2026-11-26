@@ -8,7 +8,7 @@ vi.mock('@/features/budget/hooks/useBudget', () => ({ useBudget: () => ({ entrie
 vi.mock('@/features/budget/hooks/useExpenseCategories', () => ({ useExpenseCategories: () => ({ categories: [] }) }))
 vi.mock('@/features/budget/hooks/usePaymentMethods', () => ({ usePaymentMethods: () => ({ paymentMethods: [] }) }))
 vi.mock('@/features/fixedExpense/hooks/useFixedExpense', () => ({ useFixedExpense: () => ({ expenses: [], loading: false }) }))
-vi.mock('@/features/schedule/hooks/useSchedule', () => ({ useSchedule: () => ({ schedules: [{ id: 'schedule', title: '테스트 약속', startDateTime: '2026-10-08T10:00:00', endDateTime: '2026-10-08T11:00:00', isAllDay: false }], loading: false, deleteSchedule: deletes.schedule }) }))
+vi.mock('@/features/schedule/hooks/useSchedule', () => ({ useSchedule: () => ({ schedules: [{ id: 'schedule', title: '테스트 약속', startDateTime: '2026-10-08T10:00:00', endDateTime: '2026-10-10T11:00:00', isAllDay: false }], loading: false, deleteSchedule: deletes.schedule }) }))
 vi.mock('@/features/savings/hooks/useSavings', () => ({
   savingsError: (e: Error) => e.message,
   useSavings: () => ({ deleteRecord: deletes.savings, loading: false, error: '', members: [], data: { plans: [], balance: 0, deposits: 0, withdrawals: 0, balanceDate: '2026-10-18', records: [
@@ -17,6 +17,8 @@ vi.mock('@/features/savings/hooks/useSavings', () => ({
   ] } }),
 }))
 afterEach(() => { cleanup(); Object.values(deletes).forEach(mock => mock.mockReset()) })
+vi.mock('@/shared/hooks/useMediaQuery', () => ({ useMediaQuery: () => true }))
+
 const openDate = (day: string) => {
   render(<CalendarPage spaceId="space" currentDate={new Date(2026, 9, 1)} onDateChange={vi.fn()}/>)
   fireEvent.click(screen.getByText(day))
@@ -48,6 +50,7 @@ it('삭제를 취소하면 API를 호출하지 않고 drawer를 유지한다', (
   swipe(drawer, '테스트 약속')
   fireEvent.click(within(drawer).getByRole('button', { name: '삭제' }))
   fireEvent.click(screen.getByRole('button', { name: '취소' }))
+  expect(document.body.style.overflow).toBe('hidden')
   expect(deletes.schedule).not.toHaveBeenCalled()
   expect(screen.queryByText('삭제 확인')).toBeNull()
   expect(screen.getByRole('dialog', { name: '상세 보기' })).toBeDefined()
@@ -72,4 +75,8 @@ it('삭제 실패 시 오류를 표시하고 drawer 내역은 유지한다', asy
   fireEvent.click(screen.getByRole('button', { name: '삭제' }))
   await screen.findByText('일정 삭제에 실패했습니다')
   expect(within(drawer).getByText('테스트 약속')).toBeDefined()
+})
+
+it.each(['8', '10'])('여러 날에 걸친 일정은 %s일 상세에 표시된다', day => {
+  expect(within(openDate(day)).getByText('테스트 약속')).toBeDefined()
 })

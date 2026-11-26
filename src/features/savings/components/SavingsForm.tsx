@@ -1,3 +1,4 @@
+import { amountIncrements } from '@/shared/utils/amount'
 import { useRef, useState, type FormEvent } from 'react'
 import { ModalHeader } from '@/shared/components/ModalHeader'
 import { DatePicker } from '@/shared/components/DatePicker'
@@ -11,7 +12,7 @@ const koreaToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seou
 function AmountInput({ value, onChange, id }: { value: string; onChange: (value: string) => void; id: string }) {
   return <><input id={id} className={inputClass} inputMode="numeric" type="number" min="1" max="1000000000000" step="1" required value={value} onChange={e => onChange(e.target.value)} />
     <p aria-live="polite" className="text-right text-sm text-gray-500 mt-1">{formatKoreanWon(Number(value))}</p>
-    <div className="grid grid-cols-4 gap-2 mt-3">{[[1000, '+1천'], [10000, '+1만'], [50000, '+5만'], [100000, '+10만']].map(([amount, label]) => <button key={amount} type="button" className="rounded-full bg-gray-100 py-3 text-sm font-semibold" onClick={() => onChange(String(Math.min(1e12, (Number(value) || 0) + Number(amount))))}>{label}</button>)}</div>
+    <div className="grid grid-cols-4 gap-2 mt-3">{amountIncrements.map(({ value: amount, label }) => <button key={amount} type="button" className="rounded-full bg-gray-100 py-3 text-sm font-semibold" onClick={() => onChange(String(Math.min(1e12, (Number(value) || 0) + amount)))}>{label}</button>)}</div>
   </>
 }
 interface Props { selection: SavingsSelection; savings: SavingsState; onClose: () => void; pension?: boolean }

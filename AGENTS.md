@@ -72,7 +72,7 @@ src/
 │   ├── schedule/          # Schedule management features
 │   └── space/             # Space/Member management
 ├── pages/                 # Page components
-│   ├── BudgetPage.tsx
+│   ├── CategoryBudgetPage.tsx
 │   ├── CalendarPage.tsx   # Integrated view for Calendar + Budget/Schedule
 │   └── ...
 ├── shared/                # Shared modules

@@ -69,3 +69,18 @@ it('기존 데이터는 고정지출로 유지하고 고정수입 필터로 구�
   expect(screen.getByText('월세')).toBeDefined()
   expect(screen.queryByText('급여')).toBeNull()
 })
+
+it('빈 금액에 두 번 더하고 안전한 정수 상한에서는 이전 값을 유지한다', () => {
+  const submit = vi.fn()
+  render(<FixedExpenseForm onCancel={vi.fn()} onSubmit={submit} />)
+  const input = screen.getByLabelText('금액 (원)') as HTMLInputElement
+  const add = screen.getByRole('button', { name: '1,000원 더하기' })
+  fireEvent.click(add)
+  fireEvent.click(add)
+  expect(input.value).toBe('2000')
+  expect(screen.getByText('2,000원')).toBeDefined()
+  fireEvent.change(input, { target: { value: String(Number.MAX_SAFE_INTEGER) } })
+  fireEvent.click(add)
+  expect(input.value).toBe(String(Number.MAX_SAFE_INTEGER))
+  expect(submit).not.toHaveBeenCalled()
+})

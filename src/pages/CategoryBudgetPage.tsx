@@ -1,3 +1,4 @@
+import { CATEGORIES_CHANGED } from '@/features/budget/events'
 import { useContext, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -51,6 +52,9 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
   const ordered = order ? order.map(id => active.find(row => row.category?.id === id)).filter((row): row is CategoryOverviewRow => !!row) : active
   const detail = selected === null ? null : rows.find(row => (row.category?.id ?? 'uncategorized') === selected)
   const total = detail?.history.at(-1)
+  const selectedExpenses = detail ? overview.entries
+    .filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected)
+    .sort((a, b) => b.date.localeCompare(a.date)) : []
   const setMonth = (next: string) => { setSearch({ month: next }, { replace: true, state: location.state }); setNotice('') }
   const open = (next: Editor, initial = '') => { overview.clearMutationError(); setValue(initial); setRepeat(false); setEditor(next) }
   const move = (id: string, target: number) => setOrder(current => {
@@ -138,8 +142,8 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
       loading={overview.historyLoading} error={overview.historyError}
     />}
     {detail && total && overview.data && !overview.error && <details key={month} className="rounded-xl border border-gray-100 bg-white p-4">
-      <summary className="cursor-pointer min-h-11 py-3 font-semibold">{month.replace('-', '년 ')}월 지출 내역 <span className="text-sm font-normal text-gray-500">({overview.entries.filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected).length}건)</span></summary>
-      {overview.entries.filter(entry => entry.amount < 0 && (entry.category?.id ?? 'uncategorized') === selected).sort((a, b) => b.date.localeCompare(a.date)).map(entry => <div key={entry.id} className="flex justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div className="min-w-0"><p className="text-sm break-words">{entry.description}</p><p className="text-xs text-gray-500 mt-1">{entry.date}</p></div><p className="shrink-0 text-sm font-medium tabular-nums">{money(-entry.amount)}</p></div>)}
+      <summary className="cursor-pointer min-h-11 py-3 font-semibold">{month.replace('-', '년 ')}월 지출 내역 <span className="text-sm font-normal text-gray-500">({selectedExpenses.length}건)</span></summary>
+      {selectedExpenses.map(entry => <div key={entry.id} className="flex justify-between gap-3 py-3 border-b border-gray-100 last:border-0"><div className="min-w-0"><p className="text-sm break-words">{entry.description}</p><p className="text-xs text-gray-500 mt-1">{entry.date}</p></div><p className="shrink-0 text-sm font-medium tabular-nums">{money(-entry.amount)}</p></div>)}
       {total.spent === 0 && <p className="py-6 text-center text-sm text-gray-500">이 달의 지출 내역이 없어요.</p>}
     </details>}
     {editor && <CategoryDialog title={editor.kind === 'name' ? editor.id ? '카테고리 이름 수정' : '카테고리 추가' : editor.kind === 'budget' ? '월 예산 설정' : '카테고리 정리'} busy={overview.saving} onClose={closeEditor}>
@@ -157,6 +161,6 @@ export const CategoryBudgetPage = ({ spaceId }: Props) => {
         <div className="flex justify-end gap-3 mt-5"><button disabled={overview.saving} className={button} onClick={closeEditor}>취소</button>{editor.row.fixedExpenseIds.length === 0 && <button disabled={overview.saving} className={primary} onClick={async () => { const ok = editor.row.used ? await overview.archive(editor.row.category!.id, true) : await overview.remove(editor.row.category!.id); if (ok) { setEditor(null); setNotice(editor.row.used ? '보관했어요.' : '삭제했어요.') } }}>{editor.row.used ? '보관' : '삭제'}</button>}</div>
       </>}
     </CategoryDialog>}
-    <Modal label="고정 수입·지출 수정" formLayout isOpen={editingFixed !== null} onClose={() => setEditingFixed(null)}>{editingFixed && <FixedExpenseForm spaceId={spaceId} expense={editingFixed} categories={categories} paymentMethods={payments.paymentMethods} onSubmit={async data => { await fixed.updateExpense(editingFixed.id, data); setEditingFixed(null); await overview.refresh(); window.dispatchEvent(new Event('categories-changed')) }} onCancel={() => setEditingFixed(null)}/>}</Modal>
+    <Modal label="고정 수입·지출 수정" formLayout isOpen={editingFixed !== null} onClose={() => setEditingFixed(null)}>{editingFixed && <FixedExpenseForm spaceId={spaceId} expense={editingFixed} categories={categories} paymentMethods={payments.paymentMethods} onSubmit={async data => { await fixed.updateExpense(editingFixed.id, data); setEditingFixed(null); await overview.refresh(); window.dispatchEvent(new Event(CATEGORIES_CHANGED)) }} onCancel={() => setEditingFixed(null)}/>}</Modal>
   </div></>
 }

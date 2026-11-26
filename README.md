@@ -82,10 +82,9 @@ src/
 │   ├── schedule/       # 일정 관리 기능
 │   └── space/          # 공간 관리 기능
 ├── pages/              # 페이지 컴포넌트 (라우트 단위)
-│   ├── BudgetPage.tsx
+│   ├── CategoryBudgetPage.tsx
 │   ├── CalendarPage.tsx      # 달력 + 가계부/일정 통합 뷰
-│   ├── DashboardPage.tsx
-│   ├── FixedExpensePage.tsx
+│   ├── PensionPage.tsx
 │   └── SettingsPage.tsx
 ├── shared/
 │   ├── api/            # 공통 API 설정

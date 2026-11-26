@@ -1,10 +1,11 @@
+import { CATEGORIES_CHANGED } from '@/features/budget/events'
 import { CalendarMonthHeader } from './calendar/CalendarMonthHeader'
 import type { CalendarView } from './calendar/CalendarViewTabs'
 import { CalendarCategoryTabs, type CalendarFilter } from './calendar/CalendarCategoryTabs'
 import { useState, useMemo, useEffect, type FC } from 'react'
 import { Calendar, Wallet } from 'lucide-react'
 import { useSavings } from '@/features/savings/hooks/useSavings'
-import { SavingsList, SavingsRecordRow } from '@/features/savings/components/SavingsList'
+import { SavingsList } from '@/features/savings/components/SavingsList'
 import { SavingsForm } from '@/features/savings/components/SavingsForm'
 import type { SavingsSelection, SavingsRecord } from '@/features/savings/types/savings.types'
 import { useBudget } from '@/features/budget/hooks/useBudget'
@@ -22,7 +23,7 @@ import { BudgetForm } from '@/features/budget/components/BudgetForm'
 import { FixedExpenseForm } from '@/features/fixedExpense/components/FixedExpenseForm'
 import { ScheduleForm } from '@/features/schedule/components/ScheduleForm'
 import { Modal } from '@/shared/components/Modal'
-import { SwipeableCard } from '@/shared/components/SwipeableCard'
+import { CalendarDateDetails } from './calendar/CalendarDateDetails'
 import { Drawer } from '@/shared/components/Drawer'
 import { ConfirmModal } from '@/shared/components/ConfirmModal'
 import { Toast } from '@/shared/components/Toast'
@@ -94,8 +95,8 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
 
   useEffect(() => {
     const refresh = () => { void refetchBudget() }
-    window.addEventListener('categories-changed', refresh)
-    return () => window.removeEventListener('categories-changed', refresh)
+    window.addEventListener(CATEGORIES_CHANGED, refresh)
+    return () => window.removeEventListener(CATEGORIES_CHANGED, refresh)
   }, [refetchBudget])
 
   // ─── Calendar Derived State (memoized) ────────────────────────────────────
@@ -315,13 +316,6 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
     else setIsBudgetFormOpen(true)
   }
 
-  // ─── Drawer helpers ───────────────────────────────────────────────────────
-  const getEntriesForDateStr = (dateStr: string) =>
-    entries.filter((e) => e.date === dateStr)
-
-  const getSchedulesForDateStr = (dateStr: string) =>
-    schedules.filter((s) => dateStr >= s.startDateTime.split('T')[0] && dateStr <= s.endDateTime.split('T')[0])
-
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col min-h-full">
@@ -475,84 +469,27 @@ export const CalendarPage: FC<Props> = ({ spaceId, currentDate, onDateChange, on
         isDangerous
       />
 
-      {isDrawerOpen && <DateDetails label="상세 보기" isOpen onClose={() => setIsDrawerOpen(false)}>
-        <div className="p-4 pb-8">
-          {selectedDateForDrawer && (() => {
-            const dateEntries = getEntriesForDateStr(selectedDateForDrawer)
-            const dateSchedules = getSchedulesForDateStr(selectedDateForDrawer)
-            const dateSavings = (savings.data?.records || []).filter(r => r.date === selectedDateForDrawer)
-            const showSavings = filterType === 'all' || filterType === 'savings'
-            const showBudget = filterType === 'all' || filterType === 'budget'
-            const showSchedule = filterType === 'all' || filterType === 'schedule'
-            const hasItems = (showSavings && dateSavings.length > 0) || (showBudget && dateEntries.length > 0) || (showSchedule && dateSchedules.length > 0)
-
-            return (
-              <>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  {new Date(selectedDateForDrawer).toLocaleDateString('ko-KR', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                  })}
-                </h3>
-
-                <div className="space-y-2 mb-4">
-                  {showBudget && dateEntries.map((entry) => (
-                    <SwipeableCard key={entry.id}
-                      onEdit={() => { setIsDrawerOpen(false); handleEditEntry(entry) }}
-                      onDelete={() => handleDeleteEntry(entry.id)}>
-                      <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900">{entry.description}</div>
-                          <div className="text-sm text-gray-500">가계부</div>
-                        </div>
-                        <div className={`font-semibold ${entry.amount > 0 ? 'text-green-600' : 'text-rose-400'}`}>
-                          {entry.amount > 0 ? '+' : ''}{entry.amount.toLocaleString()}원
-                        </div>
-                      </div>
-                    </SwipeableCard>
-                  ))}
-
-                  {showSchedule && dateSchedules.map((schedule) => (
-                    <SwipeableCard key={schedule.id}
-                      onEdit={() => { setIsDrawerOpen(false); handleEditSchedule(schedule) }}
-                      onDelete={() => handleDeleteSchedule(schedule.id)}>
-                      <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-gray-900">{schedule.title}</div>
-                          <div className="text-sm text-gray-500">일정 {schedule.isAllDay ? '(종일)' : ''}</div>
-                        </div>
-                        <Calendar className="w-4 h-4 text-violet-500 shrink-0" />
-                      </div>
-                    </SwipeableCard>
-                  ))}
-
-                  {showSavings && dateSavings.map(record => <SavingsRecordRow key={record.id} record={record}
-                    onClick={() => openSavingsRecord(record)}
-                    onDelete={record.planned ? undefined : () => handleDeleteSavings(record)}/>)}
-                  {showSavings && savings.loading && <p role="status">저축을 불러오는 중입니다</p>}
-                  {!hasItems && (
-                    <div className="text-center py-8 text-gray-400">
-                      {filterType === 'budget' ? '등록된 가계부 내역이 없습니다'
-                        : filterType === 'schedule' ? '등록된 일정이 없습니다'
-                        : '등록된 항목이 없습니다'}
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    setSelectedDate(selectedDateForDrawer)
-                    setIsDrawerOpen(false)
-                    if (filterType === 'savings') { setViewType('list') }
-                    else setIsDateChoiceModalOpen(true)
-                  }}
-                  className="w-full py-3 bg-[#4F46E5] text-white rounded-lg font-medium hover:bg-[#4338CA] transition-colors"
-                >
-                  {filterType === 'savings' ? '저축 목록에서 기록 추가' : '+ 항목 추가'}
-                </button>
-              </>
-            )
-          })()}
-        </div>
+      {isDrawerOpen && selectedDateForDrawer && <DateDetails label="상세 보기" isOpen onClose={() => setIsDrawerOpen(false)}>
+        <CalendarDateDetails
+          date={selectedDateForDrawer}
+          filterType={filterType}
+          entries={entries}
+          schedules={schedules}
+          savingsRecords={savings.data?.records ?? []}
+          savingsLoading={savings.loading}
+          onEditEntry={entry => { setIsDrawerOpen(false); handleEditEntry(entry) }}
+          onDeleteEntry={handleDeleteEntry}
+          onEditSchedule={schedule => { setIsDrawerOpen(false); handleEditSchedule(schedule) }}
+          onDeleteSchedule={handleDeleteSchedule}
+          onEditSavings={openSavingsRecord}
+          onDeleteSavings={handleDeleteSavings}
+          onAdd={() => {
+            setSelectedDate(selectedDateForDrawer)
+            setIsDrawerOpen(false)
+            if (filterType === 'savings') setViewType('list')
+            else setIsDateChoiceModalOpen(true)
+          }}
+        />
       </DateDetails>}
 
       {/* Toast */}
