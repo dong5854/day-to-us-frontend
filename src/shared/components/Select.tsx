@@ -121,7 +121,7 @@ export const Select: FC<Props> = ({
         className={[
           'flex items-center transition-colors cursor-pointer text-left',
           variant === 'toolbar'
-            ? 'min-h-11 min-w-11 gap-1 rounded-full border-y-[6px] border-transparent bg-indigo-50 bg-clip-padding px-2 text-sm font-semibold text-indigo-800 hover:bg-indigo-100 aria-expanded:bg-indigo-100 focus-visible:outline-2 focus-visible:outline-indigo-600'
+            ? 'min-h-11 min-w-11 gap-1 rounded-[8px/14px] border-y-[6px] border-transparent bg-indigo-50 bg-clip-padding px-2 text-sm font-semibold text-indigo-800 hover:bg-indigo-100 aria-expanded:bg-indigo-100 focus-visible:outline-2 focus-visible:outline-indigo-600'
             : [
                 'w-full justify-between gap-2 rounded-lg border focus:outline-none focus:ring-4',
                 paddingClass,
